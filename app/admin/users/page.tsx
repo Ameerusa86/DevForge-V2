@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,20 +296,18 @@ export default function UsersPage() {
   }, [users, searchQuery]);
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Users</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all users and their permissions
-          </p>
-        </div>
-        <Button className="gap-2" onClick={() => setCreateOpen(true)}>
-          <UserPlus className="h-4 w-4" />
-          Add User
-        </Button>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Identity and access"
+        title="Users"
+        description="Manage roles, account status, providers, and credential recovery for every user in the platform."
+        actions={
+          <Button className="gap-2" onClick={() => setCreateOpen(true)}>
+            <UserPlus className="h-4 w-4" />
+            Add User
+          </Button>
+        }
+      />
 
       {/* Filters and Search */}
       <Card>
@@ -625,6 +624,6 @@ export default function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminPage>
   );
 }

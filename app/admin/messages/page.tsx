@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,16 +38,12 @@ export default function MessagesPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Messages</h1>
-          <p className="text-muted-foreground mt-1">
-            Communicate with users and instructors
-          </p>
-        </div>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Inbox"
+        title="Messages"
+        description="Communicate with learners and instructors without leaving the admin workspace."
+      />
 
       {/* Messages Interface */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -168,6 +165,6 @@ export default function MessagesPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AdminPage>
   );
 }

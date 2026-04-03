@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { StatsCard } from "@/components/admin/stats-card";
 import { RecentActivity } from "@/components/admin/recent-activity";
 import { recentActivities } from "@/lib/data/activities";
@@ -108,26 +109,24 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            Welcome back! Here&apos;s what&apos;s happening today.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Last 30 days
-          </Button>
-          <Button className="gap-2">
-            <Download className="h-4 w-4" />
-            Export Report
-          </Button>
-        </div>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Operations overview"
+        title="Dashboard"
+        description="Welcome back. Track platform growth, revenue, completions, and top-performing courses from one place."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Last 30 days
+            </Button>
+            <Button className="gap-2">
+              <Download className="h-4 w-4" />
+              Export Report
+            </Button>
+          </div>
+        }
+      />
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -267,6 +266,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AdminPage>
   );
 }

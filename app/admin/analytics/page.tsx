@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -103,33 +104,31 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-muted-foreground mt-1">
-            Monitor platform performance and user engagement
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Performance intelligence"
+        title="Analytics"
+        description="Monitor platform performance, learner engagement, growth trends, and revenue over time."
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <Select value={period} onValueChange={setPeriod}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Last 7 days</SelectItem>
+                <SelectItem value="30">Last 30 days</SelectItem>
+                <SelectItem value="90">Last 90 days</SelectItem>
+                <SelectItem value="365">Last year</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+          </div>
+        }
+      />
 
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -376,6 +375,6 @@ export default function AnalyticsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

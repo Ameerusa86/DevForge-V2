@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -265,19 +266,18 @@ export default function AdminPricingPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Pricing Management</h1>
-          <p className="text-muted-foreground">
-            Manage pricing plans and features
-          </p>
-        </div>
-        <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Plan
-        </Button>
-      </div>
+    <AdminPage className="p-6">
+      <AdminPageHeader
+        eyebrow="Revenue design"
+        title="Pricing Management"
+        description="Edit plan structure, feature flags, calls to action, and merchandising across the pricing surface."
+        actions={
+          <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Plan
+          </Button>
+        }
+      />
 
       {/* Create/Edit Form */}
       {isCreating && (
@@ -553,6 +553,6 @@ export default function AdminPricingPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </AdminPage>
   );
 }

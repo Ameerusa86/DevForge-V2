@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import {
   Card,
   CardContent,
@@ -180,33 +181,31 @@ export default function SettingsPage() {
     );
   }
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your platform settings and preferences
-          </p>
-        </div>
-        <Button
-          className="gap-2"
-          onClick={handleSaveSettings}
-          disabled={saving}
-        >
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Save Changes
-            </>
-          )}
-        </Button>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Platform configuration"
+        title="Settings"
+        description="Manage general platform configuration, notifications, security controls, and appearance preferences."
+        actions={
+          <Button
+            className="gap-2"
+            onClick={handleSaveSettings}
+            disabled={saving}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save Changes
+              </>
+            )}
+          </Button>
+        }
+      />
 
       {/* Settings Tabs */}
       <Tabs defaultValue="general" className="space-y-6">
@@ -697,6 +696,6 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

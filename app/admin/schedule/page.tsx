@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
@@ -37,20 +38,18 @@ export default function SchedulePage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Schedule</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage live sessions and events
-          </p>
-        </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Event
-        </Button>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Live programming"
+        title="Schedule"
+        description="Coordinate workshops, office hours, webinars, and live sessions for learners and instructors."
+        actions={
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Event
+          </Button>
+        }
+      />
 
       {/* Events List */}
       <div className="space-y-4">
@@ -105,6 +104,6 @@ export default function SchedulePage() {
           </Card>
         ))}
       </div>
-    </div>
+    </AdminPage>
   );
 }

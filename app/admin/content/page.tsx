@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Image, Video, File } from "lucide-react";
@@ -47,22 +48,18 @@ export default function ContentPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Content Library
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all media and files
-          </p>
-        </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Upload Content
-        </Button>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Asset management"
+        title="Content Library"
+        description="Review and organize the media, documents, and supporting assets used across your learning experience."
+        actions={
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Upload Content
+          </Button>
+        }
+      />
 
       {/* Content Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -95,6 +92,6 @@ export default function ContentPage() {
           );
         })}
       </div>
-    </div>
+    </AdminPage>
   );
 }

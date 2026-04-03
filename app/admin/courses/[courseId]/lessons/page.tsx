@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, use } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Lesson, Module } from "@/types/course";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -782,32 +783,26 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/courses">
-            <Button variant="ghost" size="icon" aria-label="Back to courses">
-              <ArrowLeft className="h-4 w-4" />
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Curriculum builder"
+        title="Course Lessons"
+        description="Create rich, engaging lessons, structure them into modules, and tune the learning flow."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/courses">
+              <Button variant="outline" className="gap-2" aria-label="Back to courses">
+                <ArrowLeft className="h-4 w-4" />
+                Back to courses
+              </Button>
+            </Link>
+            <Button onClick={openCreate} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Lesson
             </Button>
-          </Link>
-
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Course Lessons
-            </h1>
-            <p className="text-muted-foreground">
-              Create rich, engaging lessons with powerful formatting and content
-              blocks.
-            </p>
           </div>
-        </div>
-
-        <Button onClick={openCreate} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Lesson
-        </Button>
-      </div>
+        }
+      />
 
       {/* Lessons Table */}
       <Card>
@@ -1554,6 +1549,6 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

@@ -761,7 +761,7 @@ export default function MyCoursesPage() {
                   rating={reviewRating}
                   size="lg"
                   interactive
-                  onChange={setReviewRating}
+                  onRatingChange={setReviewRating}
                 />
               </div>
             </div>

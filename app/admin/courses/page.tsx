@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -187,22 +188,20 @@ export default function CoursesPage() {
 
   return (
     <>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Courses</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage all courses and their content
-            </p>
-          </div>
-          <Link href="/admin/courses/create">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Course
-            </Button>
-          </Link>
-        </div>
+      <AdminPage>
+        <AdminPageHeader
+          eyebrow="Catalog control"
+          title="Courses"
+          description="Manage publishing, duplication, lesson access, and lifecycle changes across the catalog."
+          actions={
+            <Link href="/admin/courses/create">
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Course
+              </Button>
+            </Link>
+          }
+        />
 
         {/* Stats Cards */}
         <div className="grid gap-6 md:grid-cols-4">
@@ -468,7 +467,7 @@ export default function CoursesPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </AdminPage>
 
       <AlertDialog
         open={deleteDialogOpen}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -389,24 +390,22 @@ export default function AdminStatusPage() {
   const StatusIcon = systemStatus ? statusIcons[systemStatus.status] : Activity;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Status Page Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Monitor and manage system status, services, incidents, and
-            maintenance
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => window.open("/status", "_blank")}
-          className="gap-2"
-        >
-          <Activity className="h-4 w-4" />
-          View Public Page
-        </Button>
-      </div>
+    <AdminPage className="mx-auto max-w-7xl p-6">
+      <AdminPageHeader
+        eyebrow="Reliability center"
+        title="Status Page Management"
+        description="Monitor and manage system status, services, incidents, and planned maintenance windows."
+        actions={
+          <Button
+            variant="outline"
+            onClick={() => window.open("/status", "_blank")}
+            className="gap-2"
+          >
+            <Activity className="h-4 w-4" />
+            View Public Page
+          </Button>
+        }
+      />
 
       {/* System Status Overview */}
       <Card>
@@ -976,6 +975,6 @@ export default function AdminStatusPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

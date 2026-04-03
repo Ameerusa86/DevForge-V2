@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -236,16 +237,12 @@ export default function AdminContactPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Contact Page Settings</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage contact information and FAQs displayed on the public contact
-            page
-          </p>
-        </div>
-      </div>
+    <AdminPage className="mx-auto max-w-5xl p-6">
+      <AdminPageHeader
+        eyebrow="Public support surface"
+        title="Contact Page Settings"
+        description="Manage contact information, response expectations, and FAQ content displayed on the public support page."
+      />
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -594,6 +591,6 @@ export default function AdminContactPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

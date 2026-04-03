@@ -33,9 +33,14 @@ export function RecentActivity({ activities }: RecentActivityProps) {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Recent Activity</CardTitle>
+    <Card className="admin-panel">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 pb-5">
+        <div className="space-y-1">
+          <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Live changes across content, users, and platform operations.
+          </p>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -48,27 +53,31 @@ export function RecentActivity({ activities }: RecentActivityProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-6 py-6">
         <div className="space-y-4">
           {activities.map((activity) => (
             <div key={activity.id} className="flex gap-4">
               <div className="relative">
                 <div
-                  className={`w-2 h-2 rounded-full ${getActivityColor(
+                  className={`mt-2 h-2.5 w-2.5 rounded-full shadow-sm ${getActivityColor(
                     activity.type
-                  )} mt-2`}
+                  )}`}
                 />
                 {activity.id !== activities[activities.length - 1].id && (
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-0.5 h-full bg-border" />
+                  <div className="absolute left-1/2 top-5 h-full w-px -translate-x-1/2 bg-border" />
                 )}
               </div>
-              <div className="flex-1 pb-4">
-                <p className="text-sm font-medium">{activity.title}</p>
-                <p className="text-xs text-muted-foreground mt-1">
+              <div className="flex-1 rounded-[1.25rem] border border-border/60 bg-background/70 px-4 py-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {activity.title}
+                  </p>
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    {activity.time}
+                  </p>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {activity.description}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {activity.time}
                 </p>
               </div>
             </div>

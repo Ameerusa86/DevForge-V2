@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -105,20 +106,18 @@ export default function EnrollmentsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Enrollments</h1>
-          <p className="text-muted-foreground">
-            Manage student course enrollments and progress
-          </p>
-        </div>
-        <Button variant="outline" className="gap-2">
-          <Download className="h-4 w-4" />
-          Export
-        </Button>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Learning pipeline"
+        title="Enrollments"
+        description="Track cohort health, learner progress, and enrollment movement across every active course."
+        actions={
+          <Button variant="outline" className="gap-2">
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+        }
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -268,6 +267,6 @@ export default function EnrollmentsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

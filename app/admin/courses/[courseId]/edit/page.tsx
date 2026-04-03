@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -224,21 +225,20 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/admin/courses">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Edit Course</h1>
-          <p className="text-muted-foreground">
-            Update course details and content
-          </p>
-        </div>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Catalog authoring"
+        title="Edit Course"
+        description="Update course details, revise supporting assets, and adjust publishing metadata."
+        actions={
+          <Link href="/admin/courses">
+            <Button variant="outline" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to courses
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Main Layout: Preview + Form */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
@@ -458,6 +458,6 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
           </form>
         </div>
       </div>
-    </div>
+    </AdminPage>
   );
 }
