@@ -1,0 +1,445 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String         @id @default(uuid())
+  name               String
+  email              String
+  emailVerified      Boolean        @default(false)
+  image              String?
+  role               UserRole       @default(STUDENT)
+  status             UserStatus     @default(ACTIVE)
+  mustChangePassword Boolean        @default(false)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  sessions           Session[]
+  accounts           Account[]
+  createdCourses     Course[]       @relation("CreatedCourses")
+  instructedCourses  Course[]       @relation("CourseInstructor")
+  enrollments        Enrollment[]
+  reviews            Review[]
+  notifications      Notification[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Course {
+  id                   String         @id @default(uuid())
+  slug                 String         @unique
+  title                String
+  description          String
+  category             CourseCategory
+  level                CourseLevel    @default(BEGINNER)
+  tags                 String[]       @default([])
+  price                Decimal        @default(0)
+  durationMinutes      Int?
+  imageUrl             String?
+  showUnassignedHeader Boolean        @default(true)
+  status               CourseStatus   @default(DRAFT)
+  publishedAt          DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  instructorId String
+  instructor   User         @relation("CourseInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?        @relation("CreatedCourses", fields: [userId], references: [id], onDelete: SetNull)
+  enrollments  Enrollment[]
+  modules      Module[]
+  lessons      Lesson[]
+  reviews      Review[]
+
+  @@index([instructorId])
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([slug])
+  @@map("course")
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  order       Int
+  description String?
+  lessons     Lesson[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([courseId])
+  @@map("module")
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("enrollment")
+}
+
+model Lesson {
+  id        String           @id @default(uuid())
+  courseId  String
+  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  moduleId  String?
+  module    Module?          @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  title     String
+  order     Int
+  content   String
+  isFree    Boolean          @default(false)
+  progress  LessonProgress[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([courseId])
+  @@index([moduleId])
+  @@map("lesson")
+}
+
+model LessonProgress {
+  id          String    @id @default(uuid())
+  userId      String
+  lessonId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  rating    Int // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([rating])
+  @@map("review")
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CourseCategory {
+  FRONTEND
+  BACKEND
+  FULL_STACK
+  PYTHON
+  JAVASCRIPT
+  TYPESCRIPT
+  CSHARP
+  DOT_NET
+  ASP_NET
+}
+
+enum UserRole {
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model fileUpload {
+  id          String   @id @default(uuid())
+  fileName    String
+  fileUrl     String
+  contentType String
+  isImage     Boolean
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  actionUrl String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notification")
+}
+
+enum NotificationType {
+  USER_REGISTERED
+  COURSE_ENROLLED
+  COURSE_COMPLETED
+  COURSE_PUBLISHED
+  COURSE_UPDATED
+  REVIEW_POSTED
+  MESSAGE_RECEIVED
+  SYSTEM_ALERT
+  ADMIN_ALERT
+  INFO
+}
+
+model ContactSettings {
+  id                 String   @id @default(uuid())
+  email              String   @default("support@devforge.com")
+  phone              String   @default("+1 (234) 567-890")
+  addressLine1       String   @default("123 Learning Street")
+  addressLine2       String   @default("Tech City, TC 12345")
+  addressLine3       String   @default("United States")
+  businessHoursLine1 String   @default("Monday - Friday")
+  businessHoursLine2 String   @default("9:00 AM - 6:00 PM EST")
+  responseTime       String   @default("We typically respond within 24 hours during business days. For urgent matters, please call us directly.")
+  heroTitle          String   @default("Contact Us")
+  heroSubtitle       String   @default("Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("contact_settings")
+}
+
+model ContactFaq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+  @@map("contact_faq")
+}
+
+model SystemStatus {
+  id          String      @id @default(uuid())
+  status      StatusLevel @default(OPERATIONAL)
+  message     String?
+  lastChecked DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("system_status")
+}
+
+model Service {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  status      StatusLevel @default(OPERATIONAL)
+  order       Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+  @@map("service")
+}
+
+model Incident {
+  id               String           @id @default(uuid())
+  title            String
+  description      String
+  status           IncidentStatus   @default(INVESTIGATING)
+  severity         StatusLevel      @default(MINOR)
+  affectedServices String[]         @default([])
+  startedAt        DateTime         @default(now())
+  resolvedAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  updates          IncidentUpdate[]
+
+  @@index([status])
+  @@index([startedAt])
+  @@map("incident")
+}
+
+model IncidentUpdate {
+  id         String         @id @default(uuid())
+  incidentId String
+  incident   Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  message    String
+  status     IncidentStatus
+  createdAt  DateTime       @default(now())
+
+  @@index([incidentId])
+  @@index([createdAt])
+  @@map("incident_update")
+}
+
+model MaintenanceWindow {
+  id               String            @id @default(uuid())
+  title            String
+  description      String
+  affectedServices String[]          @default([])
+  scheduledStart   DateTime
+  scheduledEnd     DateTime
+  actualStart      DateTime?
+  actualEnd        DateTime?
+  status           MaintenanceStatus @default(SCHEDULED)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([scheduledStart])
+  @@index([status])
+  @@map("maintenance_window")
+}
+
+enum StatusLevel {
+  OPERATIONAL
+  DEGRADED
+  PARTIAL_OUTAGE
+  MAJOR_OUTAGE
+  MINOR
+  MAJOR
+  CRITICAL
+  MAINTENANCE
+}
+
+enum IncidentStatus {
+  INVESTIGATING
+  IDENTIFIED
+  MONITORING
+  RESOLVED
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Pricing Models
+model PricingPlan {
+  id            String           @id @default(uuid())
+  name          String
+  description   String?
+  price         Float
+  billingPeriod String // "monthly", "yearly", "one-time"
+  currency      String           @default("USD")
+  isPopular     Boolean          @default(false)
+  isActive      Boolean          @default(true)
+  order         Int              @default(0)
+  buttonText    String           @default("Get Started")
+  buttonLink    String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  features      PricingFeature[]
+
+  @@index([isActive])
+  @@index([order])
+  @@map("pricing_plan")
+}
+
+model PricingFeature {
+  id        String      @id @default(uuid())
+  planId    String
+  plan      PricingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  text      String
+  included  Boolean     @default(true)
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([planId])
+  @@index([order])
+  @@map("pricing_feature")
+}
