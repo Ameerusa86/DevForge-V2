@@ -1,9 +1,14 @@
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
 
-const handler = toNextJsHandler(auth);
+let authHandler: ReturnType<typeof toNextJsHandler> | undefined;
+
+const getHandler = () => {
+  authHandler ??= toNextJsHandler(getAuth());
+  return authHandler;
+};
 
 type AuthErrorLike = {
   code?: string;
@@ -17,7 +22,7 @@ const isSuspended = (code?: string, message?: string) =>
 
 export async function POST(request: NextRequest) {
   try {
-    return await handler.POST(request);
+    return await getHandler().POST(request);
   } catch (error: unknown) {
     const err = error as AuthErrorLike;
     if (isSuspended(err.code, err.message)) {
@@ -53,7 +58,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response = await handler.GET(request);
+    const response = await getHandler().GET(request);
 
     const isCallback = request.url.includes("/api/auth/callback/");
     const location = response.headers.get("location");

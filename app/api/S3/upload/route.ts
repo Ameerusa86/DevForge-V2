@@ -1,7 +1,7 @@
 import "server-only";
-import { env } from "@/lib/env";
+import { getAwsEnv } from "@/lib/env";
 import { getErrorMessage } from "@/lib/utils";
-import { S3 } from "@/lib/S3Clinet";
+import { getS3Client } from "@/lib/S3Clinet";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
@@ -24,24 +24,25 @@ export async function POST(req: Request) {
     }
 
     const { fileName, contentType } = validation.data;
+    const awsEnv = getAwsEnv();
 
     // Prefix the filename with a UUID to avoid collisions when names repeat.
     const uniqueKey = `${uuidv4()}-${fileName}`;
 
     const command = new PutObjectCommand({
-      Bucket: env.NEXT_PUBLIC_AWS_BUCKET_NAME,
+      Bucket: awsEnv.NEXT_PUBLIC_AWS_BUCKET_NAME,
       Key: uniqueKey,
       ContentType: contentType,
       // Make uploaded objects publicly readable so previews work without bucket-wide ACL changes.
       ACL: "public-read",
     });
 
-    const preSignedUrl = await getSignedUrl(S3, command, {
+    const preSignedUrl = await getSignedUrl(getS3Client(), command, {
       expiresIn: 3600,
     });
 
     // Use virtual-hosted URL style (path-style is deprecated for new buckets on Tigris).
-    const publicUrl = `https://${env.NEXT_PUBLIC_AWS_BUCKET_NAME}.t3.storage.dev/${uniqueKey}`;
+    const publicUrl = `https://${awsEnv.NEXT_PUBLIC_AWS_BUCKET_NAME}.t3.storage.dev/${uniqueKey}`;
     const response = {
       url: preSignedUrl,
       key: uniqueKey,
