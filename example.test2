@@ -1,5 +1,0 @@
-# Used by Prisma CLI (dotenv only reads .env, not .env.local)
-DATABASE_URL="postgresql://postgres.kjvguebsyzxvrljufwiv:rrfSc5cTlyU9zVrj@aws-1-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
-SUPABASE_DATABASE_URL="postgresql://postgres.kjvguebsyzxvrljufwiv:rrfSc5cTlyU9zVrj@aws-1-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
-# Direct connection used by Prisma migrations (bypasses pgBouncer)
-DIRECT_URL="postgresql://postgres.kjvguebsyzxvrljufwiv:rrfSc5cTlyU9zVrj@aws-1-us-west-2.pooler.supabase.com:5432/postgres"
