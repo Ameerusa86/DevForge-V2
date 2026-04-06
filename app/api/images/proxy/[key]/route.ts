@@ -3,12 +3,12 @@ import { getS3PublicUrl } from "@/lib/s3-utils";
 
 /**
  * Image proxy endpoint to serve course images through Next.js server
- * This avoids CORS issues when loading images from S3/Tigris
+ * This avoids CORS issues when loading images from Supabase Storage
  * Route: /api/images/proxy/[key]
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ key: string }> },
 ) {
   try {
     const { key } = await params;
@@ -17,14 +17,14 @@ export async function GET(
     if (!imageKey) {
       return NextResponse.json(
         { error: "Missing image key parameter" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Get the public S3 URL
     const s3Url = getS3PublicUrl(imageKey);
 
-    // Fetch the image from S3/Tigris
+    // Fetch the image from Supabase Storage
     const imageResponse = await fetch(s3Url, {
       headers: {
         "User-Agent":
@@ -42,7 +42,7 @@ export async function GET(
       });
       return NextResponse.json(
         { error: "Failed to load image" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -64,14 +64,14 @@ export async function GET(
     console.error("Image proxy error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function HEAD(
   request: NextRequest,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ key: string }> },
 ) {
   try {
     const { key } = await params;
@@ -80,7 +80,7 @@ export async function HEAD(
     if (!imageKey) {
       return NextResponse.json(
         { error: "Missing image key parameter" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -108,7 +108,7 @@ export async function HEAD(
     console.error("Image proxy HEAD error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

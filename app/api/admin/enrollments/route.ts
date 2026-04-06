@@ -31,7 +31,7 @@ export async function GET() {
     });
 
     // Transform data to include derived fields
-    const enrollmentsWithDetails = enrollments.map((enrollment: any) => ({
+    const enrollmentsWithDetails = enrollments.map((enrollment) => ({
       ...enrollment,
       studentName: enrollment.user.name,
       email: enrollment.user.email,
@@ -43,7 +43,7 @@ export async function GET() {
     console.error("Error fetching enrollments:", error);
     return NextResponse.json(
       { error: "Failed to fetch enrollments" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     if (!userId || !courseId) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -106,17 +106,21 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(enrollment, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating enrollment:", error);
-    if (error.code === "P2002") {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as NodeJS.ErrnoException).code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "User is already enrolled in this course" },
-        { status: 409 }
+        { status: 409 },
       );
     }
     return NextResponse.json(
       { error: "Failed to create enrollment" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

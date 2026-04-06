@@ -335,8 +335,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       title: lesson.title,
       order: lesson.order,
       content: lesson.content,
-      isFree: (lesson as any).isFree || false,
-      moduleId: (lesson as any).moduleId || "",
+      isFree: lesson.isFree || false,
+      moduleId: lesson.moduleId || "",
     });
     setActiveTab("edit");
     setIsDialogOpen(true);
@@ -473,7 +473,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       setModules((prev) => prev.filter((m) => m.id !== moduleToDelete));
       setLessons((prev) =>
         prev.map((lesson) =>
-          (lesson as any).moduleId === moduleToDelete
+          lesson.moduleId === moduleToDelete
             ? { ...lesson, moduleId: null }
             : lesson,
         ),
@@ -497,7 +497,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const openChangeModule = (lessonId: string) => {
     const lesson = lessons.find((l) => l.id === lessonId);
     setChangingModuleLessonId(lessonId);
-    setSelectedModuleId((lesson as any)?.moduleId || "unassigned");
+    setSelectedModuleId(lesson?.moduleId || "unassigned");
     setIsModuleDialogOpen(true);
   };
 
@@ -791,7 +791,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         actions={
           <div className="flex flex-wrap gap-2">
             <Link href="/admin/courses">
-              <Button variant="outline" className="gap-2" aria-label="Back to courses">
+              <Button
+                variant="outline"
+                className="gap-2"
+                aria-label="Back to courses"
+              >
                 <ArrowLeft className="h-4 w-4" />
                 Back to courses
               </Button>
@@ -903,7 +907,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               htmlFor="show-unassigned-header"
               className="text-sm font-normal cursor-pointer"
             >
-              Show "No module" header for unassigned lessons (student view)
+              Show &ldquo;No module&rdquo; header for unassigned lessons
+              (student view)
             </Label>
           </div>
 
@@ -1096,9 +1101,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
                       <TableCell>
                         <span className="text-sm text-muted-foreground">
-                          {(lesson as any).moduleId
-                            ? moduleNameMap[(lesson as any).moduleId] ||
-                              "Unknown"
+                          {lesson.moduleId
+                            ? moduleNameMap[lesson.moduleId] || "Unknown"
                             : "Unassigned"}
                         </span>
                       </TableCell>

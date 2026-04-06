@@ -1,5 +1,5 @@
 import "server-only";
-import { getAwsEnv } from "@/lib/env";
+import { getSupabaseStorageEnv } from "@/lib/env";
 import { getErrorMessage } from "@/lib/utils";
 import { getS3Client } from "@/lib/S3Clinet";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -24,25 +24,22 @@ export async function POST(req: Request) {
     }
 
     const { fileName, contentType } = validation.data;
-    const awsEnv = getAwsEnv();
+    const storageEnv = getSupabaseStorageEnv();
 
     // Prefix the filename with a UUID to avoid collisions when names repeat.
     const uniqueKey = `${uuidv4()}-${fileName}`;
 
     const command = new PutObjectCommand({
-      Bucket: awsEnv.NEXT_PUBLIC_AWS_BUCKET_NAME,
+      Bucket: storageEnv.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET,
       Key: uniqueKey,
       ContentType: contentType,
-      // Make uploaded objects publicly readable so previews work without bucket-wide ACL changes.
-      ACL: "public-read",
     });
 
     const preSignedUrl = await getSignedUrl(getS3Client(), command, {
       expiresIn: 3600,
     });
 
-    // Use virtual-hosted URL style (path-style is deprecated for new buckets on Tigris).
-    const publicUrl = `https://${awsEnv.NEXT_PUBLIC_AWS_BUCKET_NAME}.t3.storage.dev/${uniqueKey}`;
+    const publicUrl = `${storageEnv.NEXT_PUBLIC_SUPABASE_URL.replace(/\/+$/, "")}/storage/v1/object/public/${storageEnv.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET}/${uniqueKey}`;
     const response = {
       url: preSignedUrl,
       key: uniqueKey,
@@ -54,7 +51,7 @@ export async function POST(req: Request) {
     const errorMessage = getErrorMessage(error);
     return NextResponse.json(
       { error: "File upload failed", details: errorMessage },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

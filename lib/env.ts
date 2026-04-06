@@ -36,25 +36,34 @@ const authEnvSchema = z
     }
   });
 
-const awsEnvSchema = z.object({
-  AWS_ACCESS_KEY_ID: z.string().min(1),
-  AWS_SECRET_ACCESS_KEY: z.string().min(1),
-  AWS_ENDPOINT_URL_S3: z.string().min(1),
-  AWS_REGION: z.string().min(1),
-  NEXT_PUBLIC_AWS_BUCKET_NAME: z.string().min(1),
+const supabaseStorageEnvSchema = z.object({
+  SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  SUPABASE_S3_ENDPOINT: z.string().url(),
+  SUPABASE_S3_REGION: z.string().min(1),
+  SUPABASE_S3_ACCESS_KEY_ID: z.string().min(1),
+  SUPABASE_S3_SECRET_ACCESS_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET: z.string().min(1),
 });
 
 type AuthEnv = z.infer<typeof authEnvSchema>;
-type AwsEnv = z.infer<typeof awsEnvSchema>;
+type SupabaseStorageEnv = z.infer<typeof supabaseStorageEnvSchema>;
 
 let authEnvCache: AuthEnv | undefined;
-let awsEnvCache: AwsEnv | undefined;
+let supabaseStorageEnvCache: SupabaseStorageEnv | undefined;
 
-function parseEnv<T>(schema: z.ZodSchema<T>, values: Record<string, unknown>, name: string): T {
+function parseEnv<T>(
+  schema: z.ZodSchema<T>,
+  values: Record<string, unknown>,
+  name: string,
+): T {
   const parsed = schema.safeParse(values);
 
   if (!parsed.success) {
-    console.error(`Invalid ${name} environment variables:`, parsed.error.flatten().fieldErrors);
+    console.error(
+      `Invalid ${name} environment variables:`,
+      parsed.error.flatten().fieldErrors,
+    );
     throw new Error(`Invalid ${name} environment variables`);
   }
 
@@ -78,18 +87,28 @@ export function getAuthEnv(): AuthEnv {
   return authEnvCache;
 }
 
-export function getAwsEnv(): AwsEnv {
-  awsEnvCache ??= parseEnv(
-    awsEnvSchema,
+export function getSupabaseStorageEnv(): SupabaseStorageEnv {
+  supabaseStorageEnvCache ??= parseEnv(
+    supabaseStorageEnvSchema,
     {
-      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-      AWS_ENDPOINT_URL_S3: process.env.AWS_ENDPOINT_URL_S3,
-      AWS_REGION: process.env.AWS_REGION,
-      NEXT_PUBLIC_AWS_BUCKET_NAME: process.env.NEXT_PUBLIC_AWS_BUCKET_NAME,
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_URL:
+        process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL,
+      SUPABASE_S3_ENDPOINT:
+        process.env.SUPABASE_S3_ENDPOINT &&
+        process.env.SUPABASE_S3_ENDPOINT.length > 0
+          ? process.env.SUPABASE_S3_ENDPOINT
+          : process.env.SUPABASE_URL
+            ? `${process.env.SUPABASE_URL.replace(/\/+$/, "")}/storage/v1/s3`
+            : undefined,
+      SUPABASE_S3_REGION: process.env.SUPABASE_S3_REGION || "us-east-1",
+      SUPABASE_S3_ACCESS_KEY_ID: process.env.SUPABASE_S3_ACCESS_KEY_ID,
+      SUPABASE_S3_SECRET_ACCESS_KEY: process.env.SUPABASE_S3_SECRET_ACCESS_KEY,
+      NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET:
+        process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET,
     },
-    "aws",
+    "supabase storage",
   );
 
-  return awsEnvCache;
+  return supabaseStorageEnvCache;
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
+import type { Prisma } from "@/lib/generated/prisma/client";
 
 // POST /api/reviews - Create a new review
 export async function POST(req: NextRequest) {
@@ -20,14 +21,14 @@ export async function POST(req: NextRequest) {
     if (!courseId || !rating) {
       return NextResponse.json(
         { error: "Course ID and rating are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: "Rating must be between 1 and 5" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -44,14 +45,14 @@ export async function POST(req: NextRequest) {
     if (!enrollment) {
       return NextResponse.json(
         { error: "You must be enrolled in this course to review it" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     if (enrollment.progress < 100) {
       return NextResponse.json(
         { error: "You must complete the course before reviewing it" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest) {
     console.error("Error creating review:", error);
     return NextResponse.json(
       { error: "Failed to create review" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -104,11 +105,11 @@ export async function GET(req: NextRequest) {
     if (!courseId && !userId) {
       return NextResponse.json(
         { error: "Either courseId or userId is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const where: any = {};
+    const where: Prisma.ReviewWhereInput = {};
     if (courseId) where.courseId = courseId;
     if (userId) where.userId = userId;
 
@@ -155,7 +156,7 @@ export async function GET(req: NextRequest) {
     console.error("Error fetching reviews:", error);
     return NextResponse.json(
       { error: "Failed to fetch reviews" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

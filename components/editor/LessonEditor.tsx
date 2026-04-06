@@ -99,10 +99,9 @@ export function LessonEditor({ value, onChange }: Props) {
       }
     }
     return value;
-  }, []);
+  }, [value]);
 
   const editor = useEditor({
-    // @ts-ignore - Version mismatch between extensions but works at runtime
     extensions: tiptapExtensions,
     content: initialContent,
     immediatelyRender: false,
