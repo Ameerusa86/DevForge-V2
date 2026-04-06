@@ -37,7 +37,7 @@ export const InfoPanel = Node.create({
       type: {
         default: "info",
         parseHTML: (element: HTMLElement) => element.getAttribute("data-type"),
-        renderHTML: (attributes: Record<string, any>) => {
+        renderHTML: (attributes: Record<string, unknown>) => {
           return {
             "data-type": attributes.type,
           };
@@ -90,7 +90,7 @@ export const ExpandSection = Node.create({
       title: {
         default: "Click to expand...",
         parseHTML: (element: HTMLElement) => element.getAttribute("data-title"),
-        renderHTML: (attributes: Record<string, any>) => {
+        renderHTML: (attributes: Record<string, unknown>) => {
           return {
             "data-title": attributes.title,
           };
@@ -215,7 +215,7 @@ export const Callout = Node.create({
       emoji: {
         default: "💡",
         parseHTML: (element: HTMLElement) => element.getAttribute("data-emoji"),
-        renderHTML: (attributes: Record<string, any>) => {
+        renderHTML: (attributes: Record<string, unknown>) => {
           return {
             "data-emoji": attributes.emoji,
           };

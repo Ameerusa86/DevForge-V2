@@ -27,7 +27,24 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AdminDashboard() {
-  const [topCourses, setTopCourses] = useState<any[]>([]);
+  interface CourseApiData {
+    id: string;
+    title: string;
+    instructor: string;
+    enrollments: number;
+    revenue: number;
+    price: string | number;
+    status: string;
+  }
+  interface TopCourse {
+    id: string;
+    name: string;
+    instructor: string;
+    enrollments: number;
+    revenue: number;
+    status: string;
+  }
+  const [topCourses, setTopCourses] = useState<TopCourse[]>([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeCourses: 0,
@@ -35,43 +52,38 @@ export default function AdminDashboard() {
     completionRate: 0,
   });
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const fetchDashboardData = async () => {
     try {
       // Fetch courses to get top performing ones
       const coursesResponse = await fetch("/api/admin/courses");
       if (coursesResponse.ok) {
-        const courses = await coursesResponse.json();
+        const courses: CourseApiData[] = await coursesResponse.json();
 
         // Sort by enrollments and get top 5
         const sorted = courses
-          .sort((a: any, b: any) => b.enrollments - a.enrollments)
+          .sort((a, b) => b.enrollments - a.enrollments)
           .slice(0, 5);
 
         setTopCourses(
-          sorted.map((course: any) => ({
+          sorted.map((course) => ({
             id: course.id,
             name: course.title,
             instructor: course.instructor,
             enrollments: course.enrollments,
             revenue: course.revenue,
             status: course.status === "PUBLISHED" ? "active" : "draft",
-          }))
+          })),
         );
 
         // Calculate stats
-        const totalRevenue = courses.reduce((sum: number, course: any) => {
+        const totalRevenue = courses.reduce((sum: number, course) => {
           const courseRevenue = course.enrollments * Number(course.price);
           return sum + courseRevenue;
         }, 0);
 
         setStats((prev) => ({
           ...prev,
-          activeCourses: courses.filter((c: any) => c.status === "PUBLISHED")
-            .length,
+          activeCourses: courses.filter((c) => c.status === "PUBLISHED").length,
           totalRevenue: totalRevenue,
         }));
       }
@@ -89,13 +101,14 @@ export default function AdminDashboard() {
       // Fetch enrollments for completion rate
       const enrollmentsResponse = await fetch("/api/admin/enrollments");
       if (enrollmentsResponse.ok) {
-        const enrollments = await enrollmentsResponse.json();
+        const enrollments: { progress: number }[] =
+          await enrollmentsResponse.json();
         const completionRate =
           enrollments.length > 0
             ? Math.round(
-                (enrollments.filter((e: any) => e.progress === 100).length /
+                (enrollments.filter((e) => e.progress === 100).length /
                   enrollments.length) *
-                  100
+                  100,
               )
             : 0;
         setStats((prev) => ({
@@ -107,6 +120,11 @@ export default function AdminDashboard() {
       console.error("Failed to fetch dashboard data:", error);
     }
   };
+
+  useEffect(() => {
+    fetchDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AdminPage>

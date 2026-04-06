@@ -7,7 +7,6 @@ import { tiptapRendererExtensions } from "./tiptap-renderer-extensions";
 
 export function RichTextRenderer({ content }: { content: JSONContent }) {
   const editor = useEditor({
-    // @ts-ignore - Version mismatch between extensions but works at runtime
     extensions: tiptapRendererExtensions,
     content,
     editable: false,

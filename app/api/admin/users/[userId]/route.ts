@@ -1,4 +1,5 @@
 import "server-only";
+import type { UserRole, UserStatus } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/lib/generated/prisma/client";
@@ -104,8 +105,8 @@ export async function PATCH(
         ...(typeof name === "string" && name && { name }),
         ...(typeof email === "string" && email && { email }),
         ...(typeof image === "string" && image && { image }),
-        ...(roleUpper && { role: roleUpper as any }),
-        ...(statusUpper && { status: statusUpper as any }),
+        ...(roleUpper && { role: roleUpper as UserRole }),
+        ...(statusUpper && { status: statusUpper as UserStatus }),
       },
       select: {
         id: true,

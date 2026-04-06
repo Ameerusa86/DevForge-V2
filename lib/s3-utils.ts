@@ -1,5 +1,5 @@
 /**
- * Constructs a public URL for an S3/Tigris object
+ * Constructs a public URL for an S3-compatible object in Supabase Storage.
  * @param keyOrUrl - Either just the S3 key or a full URL
  * @returns Full public URL to access the object
  */
@@ -11,17 +11,15 @@ export function getS3PublicUrl(keyOrUrl: string): string {
     return keyOrUrl;
   }
 
-  // If it's already a full HTTP(S) URL, try to normalize bucket URLs so
-  // expiring presigned links still render. Otherwise return as-is for external URLs.
+  const publicBase = getSupabasePublicBaseUrl();
+
+  // If it's already a full HTTP(S) URL, normalize our own storage URLs so
+  // expiring signed links still render. Otherwise return as-is for external URLs.
   if (keyOrUrl.startsWith("http://") || keyOrUrl.startsWith("https://")) {
     try {
-      const url = new URL(keyOrUrl);
-      const bucketName =
-        process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || "learnhub-lms";
-
-      if (url.hostname.includes(bucketName)) {
-        const key = url.pathname.replace(/^\//, "");
-        return `https://${bucketName}.t3.storage.dev/${key}`;
+      const key = getS3KeyFromUrl(keyOrUrl);
+      if (key && publicBase) {
+        return `${publicBase}/${key}`;
       }
     } catch (_err) {
       // fall through
@@ -29,10 +27,8 @@ export function getS3PublicUrl(keyOrUrl: string): string {
     return keyOrUrl;
   }
 
-  // Otherwise construct the Tigris URL from the key
-  const bucketName = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || "learnhub-lms";
-  // Use bucket subdomain style: https://<bucket>.t3.storage.dev/<key>
-  return `https://${bucketName}.t3.storage.dev/${keyOrUrl}`;
+  // Otherwise construct the Supabase public object URL from the key.
+  return publicBase ? `${publicBase}/${keyOrUrl}` : keyOrUrl;
 }
 
 /**
@@ -70,7 +66,7 @@ export function getProxiedImageUrl(keyOrUrl: string): string {
 }
 
 /**
- * Extract the object key from a Tigris/S3 URL. Returns the input if it already
+ * Extract the object key from a Supabase Storage/S3 URL. Returns the input if it already
  * looks like a key. Returns null for data URLs or external URLs.
  */
 export function getS3KeyFromUrl(keyOrUrl: string): string | null {
@@ -85,18 +81,45 @@ export function getS3KeyFromUrl(keyOrUrl: string): string | null {
 
   try {
     const url = new URL(keyOrUrl);
-    const bucketName =
-      process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || "learnhub-lms";
+    const bucketName = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET;
+    const supabaseUrl =
+      process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 
-    // Only treat URLs that point at our bucket as deletable; ignore external images
-    // to avoid accidental deletes.
-    if (!url.hostname.includes(bucketName)) {
+    if (!bucketName || !supabaseUrl) {
       return null;
     }
 
-    const key = url.pathname.replace(/^\//, "");
-    return key || null;
+    const normalizedSupabaseHost = new URL(supabaseUrl).hostname;
+    if (url.hostname !== normalizedSupabaseHost) {
+      return null;
+    }
+
+    const publicPrefix = `/storage/v1/object/public/${bucketName}/`;
+    const signedPrefix = `/storage/v1/object/sign/${bucketName}/`;
+
+    if (url.pathname.startsWith(publicPrefix)) {
+      const key = url.pathname.slice(publicPrefix.length);
+      return key || null;
+    }
+
+    if (url.pathname.startsWith(signedPrefix)) {
+      const key = url.pathname.slice(signedPrefix.length);
+      return key || null;
+    }
+
+    return null;
   } catch (_error) {
     return null;
   }
+}
+
+function getSupabasePublicBaseUrl(): string {
+  const projectUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const bucketName = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET;
+
+  if (!projectUrl || !bucketName) return "";
+
+  const base = projectUrl.replace(/\/+$/, "");
+  return `${base}/storage/v1/object/public/${bucketName}`;
 }

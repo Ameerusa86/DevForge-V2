@@ -38,7 +38,12 @@ import type { Enrollment } from "@/types/course";
 export default function EnrollmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [enrollments, setEnrollments] = useState<any[]>([]);
+  type EnrollmentData = Enrollment & {
+    studentName: string;
+    email: string;
+    courseName: string;
+  };
+  const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -94,7 +99,8 @@ export default function EnrollmentsPage() {
     completedEnrollments: enrollments.filter((e) => e.progress === 100).length,
     averageProgress:
       Math.round(
-        enrollments.reduce((sum, e) => sum + e.progress, 0) / enrollments.length
+        enrollments.reduce((sum, e) => sum + e.progress, 0) /
+          enrollments.length,
       ) || 0,
   };
 
@@ -225,7 +231,7 @@ export default function EnrollmentsPage() {
                         <Progress value={enrollment.progress} className="h-2" />
                         <p
                           className={`text-xs font-medium ${getProgressColor(
-                            enrollment.progress
+                            enrollment.progress,
                           )}`}
                         >
                           {enrollment.progress}%

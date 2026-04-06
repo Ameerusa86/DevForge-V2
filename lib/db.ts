@@ -5,8 +5,17 @@ import { Pool } from "pg";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
+const databaseUrl =
+  process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error(
+    "Missing database URL. Set SUPABASE_DATABASE_URL (preferred) or DATABASE_URL.",
+  );
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
 });
 
 const adapter = new PrismaPg(pool);

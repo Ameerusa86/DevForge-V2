@@ -48,9 +48,23 @@ import {
   BookOpen,
 } from "lucide-react";
 
+type AdminCourse = {
+  id: string;
+  slug: string;
+  title: string;
+  instructor: string;
+  category: string;
+  level: string;
+  status: string;
+  price: number;
+  lessons: number;
+  enrollments: number;
+  rating: number;
+};
+
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<AdminCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -97,7 +111,7 @@ export default function CoursesPage() {
       if (response.ok) {
         const updated = await response.json();
         setCourses((prev) =>
-          prev.map((c) => (c.id === courseId ? updated : c))
+          prev.map((c) => (c.id === courseId ? updated : c)),
         );
       }
     } catch (error) {
@@ -162,7 +176,7 @@ export default function CoursesPage() {
     (course) =>
       course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.slug.toLowerCase().includes(searchQuery.toLowerCase())
+      course.slug.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const getStatusBadge = (status: string) => {
