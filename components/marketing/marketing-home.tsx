@@ -149,7 +149,8 @@ function HomeSkeleton() {
 
 function CourseCard({ course }: { course: HomeCourse }) {
   const imageUrl = course.imageUrl ? getS3PublicUrl(course.imageUrl) : null;
-  const appearance = categoryAppearance[course.category] || categoryAppearance.FULL_STACK;
+  const appearance =
+    categoryAppearance[course.category] || categoryAppearance.FULL_STACK;
 
   return (
     <article className="group overflow-hidden border border-[#e9eaf0] bg-white transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(18,24,40,0.1)]">
@@ -168,7 +169,9 @@ function CourseCard({ course }: { course: HomeCourse }) {
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-[#1d2026]/70 to-transparent" />
           <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
-            <span className={`inline-flex px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${appearance.cardClassName} text-[#1d2026]`}>
+            <span
+              className={`inline-flex px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${appearance.cardClassName} text-[#1d2026]`}
+            >
               {appearance.label}
             </span>
             <div className="bg-white px-2 py-1 text-xs font-semibold text-[#1d2026]">
@@ -298,15 +301,14 @@ export function MarketingHomePage() {
                   <div className="space-y-8">
                     <div className="space-y-4">
                       <p className="text-sm font-medium uppercase tracking-[0.16em] text-[#ff6636]">
-                        Live catalog, real course data
+                        Advance faster with DevForge
                       </p>
                       <h1 className="max-w-[648px] text-[40px] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[56px] lg:text-[72px] lg:leading-[74px]">
-                        Learn from the courses that are actually live right now.
+                        Master in-demand tech skills with confidence.
                       </h1>
                       <p className="max-w-[580px] text-lg leading-8 text-[#4e5566] lg:text-2xl">
-                        The homepage now pulls from published catalog data, so
-                        every course, count, and category here reflects what is
-                        currently available in DevForge.
+                        Premium, project-driven courses designed to get you
+                        job-ready faster.
                       </p>
                     </div>
 
@@ -315,7 +317,7 @@ export function MarketingHomePage() {
                         href="/courses"
                         className="inline-flex items-center justify-center gap-2 bg-[#ff6636] px-8 py-4 text-base font-semibold text-white transition hover:bg-[#e95a2b]"
                       >
-                        Explore live courses
+                        Start learning now
                       </Link>
                       <Link
                         href="/my-courses"
@@ -324,7 +326,7 @@ export function MarketingHomePage() {
                         <span className="inline-flex size-12 items-center justify-center border border-[#e9eaf0] bg-white">
                           <BookOpen className="size-5" />
                         </span>
-                        Continue my learning
+                        Resume my path
                       </Link>
                     </div>
 
@@ -339,7 +341,8 @@ export function MarketingHomePage() {
                       </span>
                       <span className="inline-flex items-center gap-2">
                         <Star className="size-4 text-[#23bd33]" />
-                        {totalReviews ? averageRating.toFixed(1) : "New"} average rating
+                        {totalReviews ? averageRating.toFixed(1) : "New"}{" "}
+                        average rating
                       </span>
                     </div>
                   </div>
@@ -347,11 +350,15 @@ export function MarketingHomePage() {
                   <div className="relative mx-auto w-full max-w-[760px]">
                     <div
                       className="absolute inset-y-4 right-0 hidden w-[92%] bg-[#1d2026] lg:block"
-                      style={{ clipPath: "polygon(18% 0,100% 0,82% 100%,0 100%)" }}
+                      style={{
+                        clipPath: "polygon(18% 0,100% 0,82% 100%,0 100%)",
+                      }}
                     />
                     <div
                       className="relative aspect-[900/548] overflow-hidden bg-[#1d2026] shadow-[0_24px_60px_rgba(29,32,38,0.18)]"
-                      style={{ clipPath: "polygon(18% 0,100% 0,82% 100%,0 100%)" }}
+                      style={{
+                        clipPath: "polygon(18% 0,100% 0,82% 100%,0 100%)",
+                      }}
                     >
                       <Image
                         src="/images/HeroImg.jpg"
@@ -374,7 +381,9 @@ export function MarketingHomePage() {
                           <p className="text-xs uppercase tracking-[0.08em] text-[#8c94a3]">
                             Courses
                           </p>
-                          <p className="font-semibold">{publishedCourses.length}</p>
+                          <p className="font-semibold">
+                            {publishedCourses.length}
+                          </p>
                         </div>
                       </div>
                       <div className="flex min-w-[140px] flex-1 items-center gap-3 border-r border-[#e9eaf0] pr-4">
@@ -385,7 +394,9 @@ export function MarketingHomePage() {
                           <p className="text-xs uppercase tracking-[0.08em] text-[#8c94a3]">
                             Learners
                           </p>
-                          <p className="font-semibold">{formatCompactNumber(totalEnrollments)}</p>
+                          <p className="font-semibold">
+                            {formatCompactNumber(totalEnrollments)}
+                          </p>
                         </div>
                       </div>
                       <div className="flex min-w-[140px] flex-1 items-center gap-3">
@@ -410,13 +421,14 @@ export function MarketingHomePage() {
                         Browse live categories
                       </h2>
                       <p className="mt-3 text-sm leading-6 text-[#6e7485] sm:text-base">
-                        Category counts are derived from the currently published course catalog.
+                        Choose your focus and start building.
                       </p>
                     </div>
                     <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {categoryCounts.map(([category, count]) => {
                         const appearance =
-                          categoryAppearance[category] || categoryAppearance.FULL_STACK;
+                          categoryAppearance[category] ||
+                          categoryAppearance.FULL_STACK;
                         const Icon = appearance.icon;
 
                         return (
@@ -424,7 +436,9 @@ export function MarketingHomePage() {
                             key={category}
                             className={`${appearance.cardClassName} flex items-center gap-5 p-5 transition hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(29,32,38,0.1)]`}
                           >
-                            <div className={`${appearance.iconClassName} flex size-16 items-center justify-center`}>
+                            <div
+                              className={`${appearance.iconClassName} flex size-16 items-center justify-center`}
+                            >
                               <Icon className="size-7" />
                             </div>
                             <div>
@@ -432,7 +446,8 @@ export function MarketingHomePage() {
                                 {appearance.label}
                               </h3>
                               <p className="mt-2 text-sm text-[#6e7485]">
-                                {count} live {count === 1 ? "course" : "courses"}
+                                {count} live{" "}
+                                {count === 1 ? "course" : "courses"}
                               </p>
                             </div>
                           </article>
@@ -449,7 +464,7 @@ export function MarketingHomePage() {
                         Most popular right now
                       </h2>
                       <p className="mt-3 text-sm leading-6 text-[#6e7485] sm:text-base">
-                        Sorted from live enrollment and review activity.
+                        Top picks learners enroll in first.
                       </p>
                     </div>
                     <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -469,7 +484,7 @@ export function MarketingHomePage() {
                             Top rated learning paths
                           </h2>
                           <p className="mt-3 max-w-[560px] text-sm leading-6 text-[#6e7485] sm:text-base">
-                            Featured from current rating and review data instead of a static shortlist.
+                            High-impact paths curated for outcomes.
                           </p>
                         </div>
                         <Link
@@ -502,7 +517,12 @@ export function MarketingHomePage() {
                             <div className="space-y-4 p-5">
                               <div className="flex flex-wrap items-center gap-3 text-xs text-[#8c94a3]">
                                 <span className="bg-[#fff2e5] px-2 py-1 font-semibold uppercase tracking-[0.08em] text-[#ff6636]">
-                                  {(categoryAppearance[course.category] || categoryAppearance.FULL_STACK).label}
+                                  {
+                                    (
+                                      categoryAppearance[course.category] ||
+                                      categoryAppearance.FULL_STACK
+                                    ).label
+                                  }
                                 </span>
                                 <span>{course.instructor}</span>
                               </div>
@@ -516,11 +536,14 @@ export function MarketingHomePage() {
                                 </span>
                                 <span className="inline-flex items-center gap-2">
                                   <Users className="size-4 text-[#8c94a3]" />
-                                  {formatCompactNumber(course.enrollments)} learners
+                                  {formatCompactNumber(course.enrollments)}{" "}
+                                  learners
                                 </span>
                                 <span className="inline-flex items-center gap-2">
                                   <Star className="size-4 fill-[#fd8e1f] text-[#fd8e1f]" />
-                                  {course.totalReviews > 0 ? course.rating.toFixed(1) : "New"}
+                                  {course.totalReviews > 0
+                                    ? course.rating.toFixed(1)
+                                    : "New"}
                                 </span>
                               </div>
                               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e9eaf0] pt-4">
@@ -551,7 +574,7 @@ export function MarketingHomePage() {
                             Recently published
                           </h2>
                           <p className="mt-3 text-sm leading-6 text-[#6e7485] sm:text-base">
-                            Pulled from the newest published dates in the live catalog.
+                            Newest releases, ready when you are.
                           </p>
                         </div>
                         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -565,10 +588,10 @@ export function MarketingHomePage() {
                         <div className="space-y-4">
                           <div>
                             <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#ff6636]">
-                              Live catalog summary
+                              Why learners choose DevForge
                             </p>
                             <h3 className="mt-2 text-2xl font-semibold">
-                              One source of truth for the homepage
+                              Clear paths. Real progress.
                             </h3>
                           </div>
                           <div className="bg-[#f5f7fa] p-4">
@@ -581,22 +604,22 @@ export function MarketingHomePage() {
                               </span>
                             </div>
                             <p className="mt-2 text-sm text-[#6e7485]">
-                              Category counts, ratings, and course selections here
-                              are all derived from live API data.
+                              Compare tracks, pick a goal, and start in minutes.
                             </p>
                           </div>
                           <div className="space-y-3 text-sm text-[#4e5566]">
                             <p className="inline-flex items-center gap-2">
                               <Sparkles className="size-4 text-[#23bd33]" />
-                              {uniqueInstructors} unique instructors in the live catalog
+                              {uniqueInstructors} vetted instructors
                             </p>
                             <p className="inline-flex items-center gap-2">
                               <Users className="size-4 text-[#564ffd]" />
-                              {formatCompactNumber(totalEnrollments)} learner enrollments tracked
+                              {formatCompactNumber(totalEnrollments)}{" "}
+                              enrollments and counting
                             </p>
                             <p className="inline-flex items-center gap-2">
                               <Clock3 className="size-4 text-[#ff6636]" />
-                              Courses update automatically as new items are published
+                              New classes added regularly
                             </p>
                           </div>
                           <div className="grid gap-3 pt-2">
