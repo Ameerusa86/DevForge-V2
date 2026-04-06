@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { StatsCard } from "@/components/admin/stats-card";
 import { RecentActivity } from "@/components/admin/recent-activity";
-import { recentActivities } from "@/lib/data/activities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -238,7 +237,7 @@ export default function AdminDashboard() {
 
         {/* Recent Activity */}
         <div className="lg:col-span-1">
-          <RecentActivity activities={recentActivities} />
+          <RecentActivity />
         </div>
       </div>
 
