@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -136,11 +137,16 @@ export function MarketingPublicHeader({
   showSearch?: boolean;
 }) {
   const { data: session, isPending } = authClient.useSession();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const isActive = (href: string) =>
     href === "/" ? activePath === "/" : activePath.startsWith(href);
   const isSignedIn = Boolean(session?.user);
-  const showGuestActions = !isPending && !isSignedIn;
-  const showSignedInActions = !isPending && isSignedIn;
+  // During SSR and the first client render (before mount), always show guest
+  // actions so the component tree matches and Radix IDs stay stable.
+  const showGuestActions = !mounted || (!isPending && !isSignedIn);
+  const showSignedInActions = mounted && !isPending && isSignedIn;
   const signedInUser = session?.user
     ? {
         id: session.user.id,
@@ -312,10 +318,16 @@ export function MarketingPublicHeader({
                 <>
                   <div className="hidden items-center gap-4 lg:flex">
                     <ThemeToggle className="size-10 rounded-none border-[#d7dae0] bg-white text-[#1d2026] hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636] dark:border-white/12 dark:bg-[#151822] dark:text-white dark:hover:border-[#ff6636] dark:hover:bg-[#1d2026]" />
-                    <Link href="/community" className="text-[#1d2026] hover:text-[#ff6636] dark:text-white">
+                    <Link
+                      href="/community"
+                      className="text-[#1d2026] hover:text-[#ff6636] dark:text-white"
+                    >
                       <Heart className="size-5" />
                     </Link>
-                    <Link href="/pricing" className="text-[#1d2026] hover:text-[#ff6636] dark:text-white">
+                    <Link
+                      href="/pricing"
+                      className="text-[#1d2026] hover:text-[#ff6636] dark:text-white"
+                    >
                       <ShoppingCart className="size-5" />
                     </Link>
                   </div>
