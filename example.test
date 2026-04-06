@@ -1,0 +1,38 @@
+AUTH_GOOGLE_CLIENT_SECRET="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"
+AUTH_GOOGLE_CLIENT_ID="201411483604-ih517tprrcued2e3itd0it6nf9chhabl.apps.googleusercontent.com"
+
+AUTH_GITHUB_CLIENT_SECRET="5b126851ed35126eb07762190f5179fdd86f2089"
+AUTH_GITHUB_CLIENT_ID="Ov23lijq56kT1eSxLaeh"
+
+BETTER_AUTH_SECRET="RYNXHJlrJwSdWRZUxZVYo1iYMcg5GJFv"
+BETTER_AUTH_URL="http://localhost:3000"
+
+# DATABASE_URL="postgresql://neondb_owner:npg_84fUcspuYRqw@ep-rapid-star-a8gf3ox8-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# AWS_ACCESS_KEY_ID="tid_hQVAQvDJuphy_jggwtbehtuLeyZgHoTFtscCljYKhDOlGyt_Dq"
+# AWS_SECRET_ACCESS_KEY="tsec_G3BYpPBEPyyeJ4BN6Y54bgevZAV7aO0K4V2+xUv39ONdNKpmjefhBLUSGovs5WaIKQikvC"
+# AWS_ENDPOINT_URL_S3="https://t3.storage.dev"
+# AWS_ENDPOINT_URL_IAM="https://iam.storage.dev"
+# AWS_REGION="auto"
+# NEXT_PUBLIC_AWS_BUCKET_NAME="learnhub-lms"
+
+# Database
+# Get this from Supabase: Connect -> ORMs -> Prisma / Transaction pooler
+# Connect to Supabase via connection pooling
+DATABASE_URL="postgresql://postgres.kjvguebsyzxvrljufwiv:rrfSc5cTlyU9zVrj@aws-1-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Direct connection to the database. Used for migrations
+DIRECT_URL="postgresql://postgres.kjvguebsyzxvrljufwiv:rrfSc5cTlyU9zVrj@aws-1-us-west-2.pooler.supabase.com:5432/postgres"
+
+# Supabase project
+SUPABASE_URL=https://kjvguebsyzxvrljufwiv.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://kjvguebsyzxvrljufwiv.supabase.co
+
+# Supabase S3-compatible storage
+SUPABASE_S3_ENDPOINT=https://kjvguebsyzxvrljufwiv.storage.supabase.co/storage/v1/s3
+SUPABASE_S3_REGION=us-west-2
+# Get these from Supabase: Storage -> S3 credentials
+SUPABASE_S3_ACCESS_KEY_ID=fdc1e5e88717bc1c8127e153fc1fbcdb
+SUPABASE_S3_SECRET_ACCESS_KEY=7d4207003ff828e240f6fc088c9b6f0def94ba332eb7adfcd13b5b30f7af8b81
+# Create a public bucket in Supabase Storage and put its name here
+NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=devforge-media
