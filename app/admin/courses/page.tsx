@@ -10,6 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   Table,
   TableBody,
   TableCell,
@@ -48,6 +55,8 @@ import {
   BookOpen,
   Loader2,
   CheckSquare,
+  CalendarDays,
+  Clock3,
 } from "lucide-react";
 
 type AdminCourse = {
@@ -64,7 +73,41 @@ type AdminCourse = {
   enrollments: number;
   rating: number;
   imageUrl?: string | null;
+  createdAt: string;
+  publishedAt?: string | null;
   updatedAt: string;
+};
+
+type CoursePreviewDetails = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  category: string;
+  level: string;
+  status: string;
+  price: number;
+  imageUrl?: string | null;
+  tags: string[];
+  durationMinutes?: number | null;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  instructor: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  lessons: Array<{ id: string }>;
+  enrollments: Array<{ id: string }>;
+};
+
+type CourseAuditEvent = {
+  id: string;
+  title: string;
+  description: string;
+  occurredAt: string;
+  type: "course" | "module" | "lesson" | "enrollment" | "review";
 };
 
 type AttentionFilter =
@@ -128,6 +171,12 @@ export default function CoursesPage() {
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
   const [pendingBulkAction, setPendingBulkAction] =
     useState<PendingBulkAction | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewCourseId, setPreviewCourseId] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewCourse, setPreviewCourse] =
+    useState<CoursePreviewDetails | null>(null);
+  const [previewAudit, setPreviewAudit] = useState<CourseAuditEvent[]>([]);
 
   useEffect(() => {
     fetchCourses();
@@ -192,6 +241,28 @@ export default function CoursesPage() {
     return true;
   };
 
+  const calculateHealthScore = (course: AdminCourse) => {
+    const statusScore =
+      course.status === "PUBLISHED" ? 30 : course.status === "DRAFT" ? 16 : 8;
+    const contentScore = Math.min(
+      25,
+      course.lessons * 2 + course.modules * 1.5,
+    );
+    const mediaScore = course.imageUrl ? 10 : 0;
+    const tractionScore = Math.min(20, course.enrollments * 2);
+    const qualityScore = Math.min(15, (course.rating / 5) * 15);
+
+    return Math.round(
+      statusScore + contentScore + mediaScore + tractionScore + qualityScore,
+    );
+  };
+
+  const getHealthTone = (score: number) => {
+    if (score >= 80) return "text-emerald-600";
+    if (score >= 60) return "text-amber-600";
+    return "text-rose-600";
+  };
+
   const handleToggleSelectCourse = (courseId: string) => {
     setSelectedCourseIds((prev) => {
       const next = new Set(prev);
@@ -218,6 +289,40 @@ export default function CoursesPage() {
       }
       return next;
     });
+  };
+
+  const openPreviewDrawer = async (courseId: string) => {
+    setPreviewOpen(true);
+    setPreviewCourseId(courseId);
+    setPreviewLoading(true);
+    setPreviewCourse(null);
+    setPreviewAudit([]);
+
+    try {
+      const [detailsResponse, auditResponse] = await Promise.all([
+        fetch(`/api/admin/courses/${courseId}`),
+        fetch(`/api/admin/courses/${courseId}/audit`),
+      ]);
+
+      if (!detailsResponse.ok) {
+        throw new Error("Failed to load course preview");
+      }
+
+      const details = (await detailsResponse.json()) as CoursePreviewDetails;
+      setPreviewCourse(details);
+
+      if (auditResponse.ok) {
+        const auditData = (await auditResponse.json()) as {
+          events: CourseAuditEvent[];
+        };
+        setPreviewAudit(auditData.events || []);
+      }
+    } catch (error) {
+      console.error("Failed to load course preview drawer:", error);
+      toast.error("Failed to load course preview");
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
   const handleUndoBulkUpdate = async (snapshots: BulkActionSnapshot[]) => {
@@ -736,186 +841,378 @@ export default function CoursesPage() {
                     <TableHead>Price</TableHead>
                     <TableHead className="text-center">Lessons</TableHead>
                     <TableHead className="text-center">Enrollments</TableHead>
+                    <TableHead>Health</TableHead>
                     <TableHead>Rating</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCourses.map((course) => (
-                    <TableRow key={course.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedCourseIds.has(course.id)}
-                          onCheckedChange={() =>
-                            handleToggleSelectCourse(course.id)
-                          }
-                          aria-label={`Select ${course.title}`}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium max-w-xs">
-                        <div>
-                          <p>{course.title}</p>
-                          <p className="text-xs text-muted-foreground">
-                            /{course.slug}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {course.instructor}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{course.category}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{course.level}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadge(course.status)}>
-                          {course.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {course.price > 0 ? `$${course.price}` : "Free"}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <BookOpen className="h-4 w-4 text-muted-foreground" />
-                          {course.lessons}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          {course.enrollments}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {course.rating > 0 ? (
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">{course.rating}</span>
-                            <span className="text-yellow-500">★</span>
+                  {filteredCourses.map((course) => {
+                    const healthScore = calculateHealthScore(course);
+
+                    return (
+                      <TableRow key={course.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedCourseIds.has(course.id)}
+                            onCheckedChange={() =>
+                              handleToggleSelectCourse(course.id)
+                            }
+                            aria-label={`Select ${course.title}`}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium max-w-xs">
+                          <div>
+                            <p>{course.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              /{course.slug}
+                            </p>
                           </div>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/courses/${course.slug}`}
-                                className="gap-2 flex"
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {course.instructor}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{course.category}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{course.level}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusBadge(course.status)}>
+                            {course.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {course.price > 0 ? `$${course.price}` : "Free"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <BookOpen className="h-4 w-4 text-muted-foreground" />
+                            {course.lessons}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            {course.enrollments}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-semibold ${getHealthTone(healthScore)}`}
+                            >
+                              {healthScore}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              /100
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {course.rating > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">
+                                {course.rating}
+                              </span>
+                              <span className="text-yellow-500">★</span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="gap-2"
+                                onClick={() => openPreviewDrawer(course.id)}
                               >
                                 <Eye className="h-4 w-4" />
-                                View Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/admin/courses/${course.id}/edit`}
-                                className="gap-2 flex"
+                                Quick Preview
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/courses/${course.slug}`}
+                                  className="gap-2 flex"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  View Details
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/admin/courses/${course.id}/edit`}
+                                  className="gap-2 flex"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  Edit Course
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/admin/courses/${course.id}/lessons`}
+                                  className="gap-2 flex"
+                                >
+                                  <BookOpen className="h-4 w-4" />
+                                  Manage Lessons
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/admin/enrollments?courseId=${course.id}`}
+                                  className="gap-2 flex"
+                                >
+                                  <Users className="h-4 w-4" />
+                                  View Enrollments
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel className="text-xs">
+                                Change Status
+                              </DropdownMenuLabel>
+                              <DropdownMenuItem
+                                className="gap-2"
+                                onClick={() =>
+                                  handleUpdateStatus(course.id, "PUBLISHED")
+                                }
+                                disabled={
+                                  updatingId === course.id ||
+                                  course.status === "PUBLISHED"
+                                }
                               >
-                                <Edit className="h-4 w-4" />
-                                Edit Course
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/admin/courses/${course.id}/lessons`}
-                                className="gap-2 flex"
+                                Publish
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="gap-2"
+                                onClick={() =>
+                                  handleUpdateStatus(course.id, "DRAFT")
+                                }
+                                disabled={
+                                  updatingId === course.id ||
+                                  course.status === "DRAFT"
+                                }
                               >
-                                <BookOpen className="h-4 w-4" />
-                                Manage Lessons
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/admin/enrollments?courseId=${course.id}`}
-                                className="gap-2 flex"
+                                Move to Draft
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="gap-2"
+                                onClick={() =>
+                                  handleUpdateStatus(course.id, "ARCHIVED")
+                                }
+                                disabled={
+                                  updatingId === course.id ||
+                                  course.status === "ARCHIVED"
+                                }
                               >
-                                <Users className="h-4 w-4" />
-                                View Enrollments
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="text-xs">
-                              Change Status
-                            </DropdownMenuLabel>
-                            <DropdownMenuItem
-                              className="gap-2"
-                              onClick={() =>
-                                handleUpdateStatus(course.id, "PUBLISHED")
-                              }
-                              disabled={
-                                updatingId === course.id ||
-                                course.status === "PUBLISHED"
-                              }
-                            >
-                              Publish
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="gap-2"
-                              onClick={() =>
-                                handleUpdateStatus(course.id, "DRAFT")
-                              }
-                              disabled={
-                                updatingId === course.id ||
-                                course.status === "DRAFT"
-                              }
-                            >
-                              Move to Draft
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="gap-2"
-                              onClick={() =>
-                                handleUpdateStatus(course.id, "ARCHIVED")
-                              }
-                              disabled={
-                                updatingId === course.id ||
-                                course.status === "ARCHIVED"
-                              }
-                            >
-                              Archive
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="gap-2"
-                              onClick={() => handleDuplicate(course.id)}
-                              disabled={duplicatingId === course.id}
-                            >
-                              {duplicatingId === course.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Copy className="h-4 w-4" />
-                              )}
-                              Duplicate with Lessons
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="gap-2 text-destructive"
-                              onClick={() => openDeleteDialog(course.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              Delete Course
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                                Archive
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="gap-2"
+                                onClick={() => handleDuplicate(course.id)}
+                                disabled={duplicatingId === course.id}
+                              >
+                                {duplicatingId === course.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Copy className="h-4 w-4" />
+                                )}
+                                Duplicate with Lessons
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="gap-2 text-destructive"
+                                onClick={() => openDeleteDialog(course.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete Course
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
         </Card>
       </AdminPage>
+
+      <Sheet
+        open={previewOpen}
+        onOpenChange={(open) => {
+          setPreviewOpen(open);
+          if (!open) {
+            setPreviewCourseId(null);
+            setPreviewCourse(null);
+            setPreviewAudit([]);
+          }
+        }}
+      >
+        <SheetContent side="right" className="w-full sm:max-w-[620px]">
+          <SheetHeader>
+            <SheetTitle>Course Preview</SheetTitle>
+            <SheetDescription>
+              Quick summary and audit timeline for the selected course.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            {previewLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading preview...
+              </div>
+            ) : previewCourse ? (
+              <div className="space-y-6">
+                <div className="rounded-lg border p-4">
+                  <h3 className="text-base font-semibold">
+                    {previewCourse.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    /{previewCourse.slug}
+                  </p>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {previewCourse.description}
+                  </p>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Status:</span>{" "}
+                      <span className="font-medium">
+                        {previewCourse.status}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Category:</span>{" "}
+                      <span className="font-medium">
+                        {previewCourse.category}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Lessons:</span>{" "}
+                      <span className="font-medium">
+                        {previewCourse.lessons.length}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Enrollments:
+                      </span>{" "}
+                      <span className="font-medium">
+                        {previewCourse.enrollments.length}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Price:</span>{" "}
+                      <span className="font-medium">
+                        {previewCourse.price > 0
+                          ? `$${previewCourse.price}`
+                          : "Free"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Level:</span>{" "}
+                      <span className="font-medium">{previewCourse.level}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {previewCourse.tags.length > 0 ? (
+                      previewCourse.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        No tags
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-4 space-y-1 text-xs text-muted-foreground">
+                    <p className="flex items-center gap-1">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      Created:{" "}
+                      {new Date(previewCourse.createdAt).toLocaleString()}
+                    </p>
+                    <p className="flex items-center gap-1">
+                      <Clock3 className="h-3.5 w-3.5" />
+                      Updated:{" "}
+                      {new Date(previewCourse.updatedAt).toLocaleString()}
+                    </p>
+                    {previewCourse.publishedAt ? (
+                      <p className="flex items-center gap-1">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        Published:{" "}
+                        {new Date(previewCourse.publishedAt).toLocaleString()}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="mb-3 text-sm font-semibold">Audit Timeline</h4>
+                  {previewAudit.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No audit events available.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {previewAudit.map((event) => (
+                        <div key={event.id} className="rounded-md border p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium">{event.title}</p>
+                            <Badge variant="outline" className="uppercase">
+                              {event.type}
+                            </Badge>
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {event.description}
+                          </p>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {new Date(event.occurredAt).toLocaleString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Select a course to preview.
+              </p>
+            )}
+          </div>
+
+          <div className="border-t p-4">
+            <div className="flex justify-end gap-2">
+              {previewCourseId ? (
+                <Link href={`/admin/courses/${previewCourseId}/edit`}>
+                  <Button variant="outline" size="sm">
+                    Edit Course
+                  </Button>
+                </Link>
+              ) : null}
+              <Button size="sm" onClick={() => setPreviewOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <AlertDialog
         open={bulkConfirmOpen}
