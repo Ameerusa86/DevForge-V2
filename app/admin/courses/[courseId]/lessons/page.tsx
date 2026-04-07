@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, use } from "react";
+import { useEffect, useMemo, useRef, useState, use } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Lesson, Module } from "@/types/course";
@@ -137,8 +137,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const [isCourseSaving, setIsCourseSaving] = useState(false);
   const [isArrangingByModule, setIsArrangingByModule] = useState(false);
   const [showUnassignedHeader, setShowUnassignedHeader] = useState(true);
+  const [showAdvancedLessonFields, setShowAdvancedLessonFields] =
+    useState(false);
   const [draggingModuleId, setDraggingModuleId] = useState<string | null>(null);
   const [draggingLessonId, setDraggingLessonId] = useState<string | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
@@ -160,6 +163,12 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     () => (editingId ? "Edit Lesson" : "Create Lesson"),
     [editingId],
   );
+
+  const focusTitleInput = () => {
+    window.requestAnimationFrame(() => {
+      titleInputRef.current?.focus();
+    });
+  };
 
   const moduleNameMap = useMemo(() => {
     return modules.reduce<Record<string, string>>((acc, moduleItem) => {
@@ -318,8 +327,19 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     }
   }, [modules.length, moduleForm.title]);
 
+  useEffect(() => {
+    if (!isDialogOpen) return;
+
+    const timeoutId = window.setTimeout(() => {
+      focusTitleInput();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isDialogOpen, editingId]);
+
   const openCreate = () => {
     setEditingId(null);
+    setShowAdvancedLessonFields(false);
     setFormData({
       title: "",
       order: lessons.length + 1,
@@ -333,6 +353,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
   const openEdit = (lesson: Lesson) => {
     setEditingId(lesson.id);
+    setShowAdvancedLessonFields(true);
     setFormData({
       title: lesson.title,
       order: lesson.order,
@@ -609,7 +630,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     }
   };
 
-  const handleSaveLesson = async () => {
+  const handleSaveLesson = async (keepOpen: boolean = false) => {
     if (!formData.title.trim() || !formData.content.trim()) {
       toast.error("Validation Error", {
         description: "Please fill in all required fields",
@@ -643,6 +664,15 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         toast.success("Lesson updated", {
           description: `${formData.title} has been updated.`,
         });
+
+        setIsDialogOpen(false);
+        setFormData({
+          title: "",
+          order: 1,
+          content: "",
+          isFree: false,
+          moduleId: "",
+        });
       } else {
         const response = await fetch("/api/admin/lessons", {
           method: "POST",
@@ -664,19 +694,44 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           [...prev, newLesson].sort((a, b) => a.order - b.order),
         );
 
-        toast.success("Lesson created", {
-          description: `${formData.title} has been added.`,
-        });
-      }
+        if (keepOpen) {
+          const nextOrder =
+            Math.max(
+              ...lessons.map((lesson) => lesson.order),
+              newLesson.order,
+            ) + 1;
 
-      setIsDialogOpen(false);
-      setFormData({
-        title: "",
-        order: 1,
-        content: "",
-        isFree: false,
-        moduleId: "",
-      });
+          const selectedModuleId = formData.moduleId;
+
+          setFormData({
+            title: "",
+            order: nextOrder,
+            content: LESSON_TEMPLATE,
+            isFree: false,
+            moduleId: selectedModuleId,
+          });
+          setShowAdvancedLessonFields(false);
+          setActiveTab("edit");
+          focusTitleInput();
+
+          toast.success("Lesson created", {
+            description: "Saved. Add the next lesson now.",
+          });
+        } else {
+          toast.success("Lesson created", {
+            description: `${formData.title} has been added.`,
+          });
+
+          setIsDialogOpen(false);
+          setFormData({
+            title: "",
+            order: 1,
+            content: "",
+            isFree: false,
+            moduleId: "",
+          });
+        }
+      }
     } catch (error) {
       toast.error("Failed to save lesson", {
         description: error instanceof Error ? error.message : "Unknown error",
@@ -829,6 +884,20 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const openBulkDeleteDialog = () => {
     setLessonToDelete(null);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleLessonDialogKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+  ) => {
+    const isSaveShortcut =
+      (event.ctrlKey || event.metaKey) && event.key === "Enter";
+
+    if (!isSaveShortcut || isSaving || editingId) {
+      return;
+    }
+
+    event.preventDefault();
+    void handleSaveLesson(true);
   };
 
   return (
@@ -1219,11 +1288,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
       {/* Lesson Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="flex h-[calc(100dvh-1rem)] max-h-[900px] max-w-[1100px] flex-col gap-0 overflow-hidden p-0 sm:h-[calc(100dvh-2rem)]">
+        <DialogContent
+          className="flex h-[calc(100dvh-1rem)] max-h-[900px] max-w-[1100px] flex-col gap-0 overflow-hidden border-[#d7dae0] bg-white p-0 text-[#1d2026] sm:h-[calc(100dvh-2rem)] dark:border-white/10 dark:bg-[#0f1218] dark:text-white"
+          onKeyDownCapture={handleLessonDialogKeyDown}
+        >
           {/* IMPORTANT: make the dialog a full-height flex column */}
           <div className="flex min-h-0 flex-1 flex-col">
             {/* Header */}
-            <div className="shrink-0 border-b px-4 py-4 pr-12 sm:px-6 sm:py-5 sm:pr-14 lg:px-8 lg:py-6">
+            <div className="shrink-0 border-b border-[#e9eaf0] bg-[#f8f9fb] px-4 py-4 pr-12 sm:px-6 sm:py-5 sm:pr-14 lg:px-8 lg:py-6 dark:border-white/10 dark:bg-[#141925]">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="text-2xl">{dialogTitle}</DialogTitle>
                 <DialogDescription className="text-sm">
@@ -1234,7 +1306,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </div>
 
             {/* Body (scroll region) */}
-            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
+            <div className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 dark:bg-[#0f1218]">
               <div className="space-y-6">
                 {/* Top fields */}
                 <div className="grid grid-cols-12 gap-4">
@@ -1244,54 +1316,19 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       Lesson Title <span className="text-destructive">*</span>
                     </Label>
                     <Input
+                      ref={titleInputRef}
                       id="lesson-title"
                       placeholder="e.g., Building a Navbar (Step by Step)"
                       value={formData.title}
                       onChange={(e) =>
                         setFormData({ ...formData, title: e.target.value })
                       }
-                      className="h-11 text-base"
+                      className="h-11 border-[#d7dae0] bg-white text-base focus-visible:border-[#ff6636] dark:border-white/12 dark:bg-[#151822]"
                     />
                   </div>
 
-                  {/* Order + Reset */}
-                  <div className="col-span-12 lg:col-span-5 grid grid-cols-12 gap-3">
-                    <div className="col-span-8 space-y-2">
-                      <Label htmlFor="lesson-order" className="text-sm">
-                        Order <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="lesson-order"
-                        type="number"
-                        min="1"
-                        value={formData.order}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            order: Number.isFinite(parseInt(e.target.value))
-                              ? parseInt(e.target.value)
-                              : 1,
-                          })
-                        }
-                        className="h-11 text-base"
-                      />
-                    </div>
-
-                    <div className="col-span-4 flex items-end">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-11 w-full gap-2"
-                        onClick={resetForm}
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                        Reset
-                      </Button>
-                    </div>
-                  </div>
-
                   {/* Module */}
-                  <div className="col-span-12 lg:col-span-7 space-y-2">
+                  <div className="col-span-12 lg:col-span-5 space-y-2">
                     <Label htmlFor="lesson-module" className="text-sm">
                       Module
                     </Label>
@@ -1304,7 +1341,10 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         })
                       }
                     >
-                      <SelectTrigger id="lesson-module" className="h-11">
+                      <SelectTrigger
+                        id="lesson-module"
+                        className="h-11 border-[#d7dae0] bg-white focus:border-[#ff6636] dark:border-white/12 dark:bg-[#151822]"
+                      >
                         <SelectValue placeholder="Choose a module" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1323,6 +1363,62 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="col-span-12 flex items-center justify-between rounded-md border border-[#e9eaf0] bg-[#f8f9fb] px-3 py-2 dark:border-white/10 dark:bg-[#141925]">
+                    <div>
+                      <p className="text-sm font-medium">Advanced options</p>
+                      <p className="text-xs text-muted-foreground">
+                        Set manual order or reset lesson template.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setShowAdvancedLessonFields((current) => !current)
+                      }
+                    >
+                      {showAdvancedLessonFields ? "Hide" : "Show"}
+                    </Button>
+                  </div>
+
+                  {showAdvancedLessonFields ? (
+                    <div className="col-span-12 grid grid-cols-12 gap-3">
+                      <div className="col-span-12 md:col-span-6 lg:col-span-4 space-y-2">
+                        <Label htmlFor="lesson-order" className="text-sm">
+                          Order <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="lesson-order"
+                          type="number"
+                          min="1"
+                          value={formData.order}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              order: Number.isFinite(parseInt(e.target.value))
+                                ? parseInt(e.target.value)
+                                : 1,
+                            })
+                          }
+                          className="h-11 border-[#d7dae0] bg-white text-base focus-visible:border-[#ff6636] dark:border-white/12 dark:bg-[#151822]"
+                        />
+                      </div>
+
+                      <div className="col-span-12 md:col-span-6 lg:col-span-3 flex items-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-11 w-full gap-2"
+                          onClick={resetForm}
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                          Reset
+                        </Button>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* Free Lesson Checkbox */}
@@ -1423,7 +1519,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </div>
 
             {/* Footer (always visible) */}
-            <div className="flex shrink-0 flex-col-reverse gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8">
+            <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-[#e9eaf0] bg-[#f8f9fb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8 dark:border-white/10 dark:bg-[#141925]">
               <Button
                 variant="outline"
                 className="w-full sm:w-auto"
@@ -1435,7 +1531,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               <div className="flex w-full items-center gap-2 sm:w-auto">
                 <Button
                   className="w-full sm:w-auto"
-                  onClick={handleSaveLesson}
+                  onClick={() => handleSaveLesson(false)}
                   disabled={isSaving}
                 >
                   {isSaving
@@ -1444,8 +1540,23 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       ? "Update Lesson"
                       : "Create Lesson"}
                 </Button>
+                {!editingId ? (
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={() => handleSaveLesson(true)}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? "Saving..." : "Create & Add Another"}
+                  </Button>
+                ) : null}
               </div>
             </div>
+            {!editingId ? (
+              <div className="shrink-0 border-t border-[#e9eaf0] bg-white px-4 py-2 text-xs text-muted-foreground sm:px-6 lg:px-8 dark:border-white/10 dark:bg-[#0f1218]">
+                Tip: press Ctrl+Enter (or Cmd+Enter) to create and continue.
+              </div>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
