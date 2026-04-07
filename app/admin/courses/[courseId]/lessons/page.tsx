@@ -61,6 +61,7 @@ import {
   Eye,
   PencilLine,
   FolderTree,
+  ArrowDownAZ,
 } from "lucide-react";
 
 interface LessonsPageProps {
@@ -134,6 +135,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModuleSaving, setIsModuleSaving] = useState(false);
   const [isCourseSaving, setIsCourseSaving] = useState(false);
+  const [isArrangingByModule, setIsArrangingByModule] = useState(false);
   const [showUnassignedHeader, setShowUnassignedHeader] = useState(true);
   const [draggingModuleId, setDraggingModuleId] = useState<string | null>(null);
   const [draggingLessonId, setDraggingLessonId] = useState<string | null>(null);
@@ -757,6 +759,53 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     }
   };
 
+  const handleArrangeLessonsByModule = async () => {
+    if (lessons.length <= 1) {
+      toast.info("Nothing to arrange", {
+        description: "Add more lessons to use module-based arrangement.",
+      });
+      return;
+    }
+
+    setIsArrangingByModule(true);
+
+    try {
+      const sortedModules = modules.slice().sort((a, b) => a.order - b.order);
+      const moduleRank = sortedModules.reduce<Record<string, number>>(
+        (acc, moduleItem, index) => {
+          acc[moduleItem.id] = index;
+          return acc;
+        },
+        {},
+      );
+
+      const arranged = lessons.slice().sort((a, b) => {
+        const aRank = a.moduleId ? (moduleRank[a.moduleId] ?? 9999) : 9999;
+        const bRank = b.moduleId ? (moduleRank[b.moduleId] ?? 9999) : 9999;
+
+        if (aRank !== bRank) {
+          return aRank - bRank;
+        }
+
+        if (a.order !== b.order) {
+          return a.order - b.order;
+        }
+
+        return a.title.localeCompare(b.title);
+      });
+
+      await persistLessonOrder(arranged);
+      toast.success("Lessons arranged", {
+        description: "Lessons are now ordered by module and lesson order.",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to arrange lessons by module");
+    } finally {
+      setIsArrangingByModule(false);
+    }
+  };
+
   const toggleSelectLesson = (id: string) => {
     setSelectedLessons((prev) => {
       const newSet = new Set(prev);
@@ -988,28 +1037,41 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle>Lessons ({lessons.length})</CardTitle>
-          {selectedLessons.size > 0 && (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={openBulkAssignDialog}
-                className="gap-2"
-              >
-                <FolderTree className="h-4 w-4" />
-                Assign {selectedLessons.size} to Module
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={openBulkDeleteDialog}
-                className="gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete {selectedLessons.size}
-              </Button>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleArrangeLessonsByModule}
+              className="gap-2"
+              disabled={isLoading || isSaving || isArrangingByModule}
+            >
+              <ArrowDownAZ className="h-4 w-4" />
+              {isArrangingByModule ? "Arranging..." : "Arrange by Module"}
+            </Button>
+
+            {selectedLessons.size > 0 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openBulkAssignDialog}
+                  className="gap-2"
+                >
+                  <FolderTree className="h-4 w-4" />
+                  Assign {selectedLessons.size} to Module
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={openBulkDeleteDialog}
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete {selectedLessons.size}
+                </Button>
+              </>
+            )}
+          </div>
         </CardHeader>
 
         <CardContent>
