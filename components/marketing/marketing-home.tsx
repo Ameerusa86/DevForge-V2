@@ -22,7 +22,7 @@ import {
   MarketingPublicFooter,
   MarketingPublicHeader,
 } from "@/components/marketing/public-chrome";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 
 interface HomeCourse {
   id: string;
@@ -148,7 +148,7 @@ function HomeSkeleton() {
 }
 
 function CourseCard({ course }: { course: HomeCourse }) {
-  const imageUrl = course.imageUrl ? getS3PublicUrl(course.imageUrl) : null;
+  const imageUrl = course.imageUrl ? getProxiedImageUrl(course.imageUrl) : null;
   const appearance =
     categoryAppearance[course.category] || categoryAppearance.FULL_STACK;
 
@@ -504,7 +504,7 @@ export function MarketingHomePage() {
                             <div className="relative min-h-[180px] overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026] sm:border-b-0 sm:border-r">
                               {course.imageUrl ? (
                                 <Image
-                                  src={getS3PublicUrl(course.imageUrl)}
+                                  src={getProxiedImageUrl(course.imageUrl)}
                                   alt={course.title}
                                   fill
                                   sizes="(max-width: 640px) 100vw, 220px"

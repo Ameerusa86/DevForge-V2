@@ -30,7 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -515,8 +515,8 @@ export default function MyCoursesPage() {
                 No enrolled courses yet
               </h2>
               <p className="mt-3 text-sm leading-7 text-[#6e7485]">
-                Browse the live catalog, pick a learning path, and your
-                progress dashboard will start here.
+                Browse the live catalog, pick a learning path, and your progress
+                dashboard will start here.
               </p>
               <Link
                 href="/courses"
@@ -536,7 +536,7 @@ export default function MyCoursesPage() {
                 }) => {
                   const course = enrollment.course;
                   const imageUrl = course.imageUrl
-                    ? getS3PublicUrl(course.imageUrl)
+                    ? getProxiedImageUrl(course.imageUrl)
                     : null;
                   const sortedLessons = course.lessons
                     .slice()
@@ -582,7 +582,9 @@ export default function MyCoursesPage() {
                               {course.level}
                             </span>
                             <span className="border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur">
-                              {actualProgress === 100 ? "Completed" : "In Progress"}
+                              {actualProgress === 100
+                                ? "Completed"
+                                : "In Progress"}
                             </span>
                           </div>
                           <h2 className="mt-4 text-2xl font-semibold leading-tight tracking-[-0.03em]">
@@ -637,7 +639,8 @@ export default function MyCoursesPage() {
                         <div>
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-[#6e7485]">
-                              {completedLessons}/{totalLessons} lessons completed
+                              {completedLessons}/{totalLessons} lessons
+                              completed
                             </span>
                             <span className="font-semibold text-[#1d2026]">
                               {actualProgress}%
@@ -730,9 +733,7 @@ export default function MyCoursesPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() =>
-                confirmUnenroll && handleUnenroll(confirmUnenroll)
-              }
+              onClick={() => confirmUnenroll && handleUnenroll(confirmUnenroll)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Unenroll

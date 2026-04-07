@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 import { toast } from "sonner";
 
 interface Course {
@@ -202,12 +202,15 @@ export default function DashboardPage() {
   }, [data]);
 
   const activeEnrollments = useMemo(
-    () => data?.enrollments.filter((enrollment) => enrollment.progress < 100) ?? [],
+    () =>
+      data?.enrollments.filter((enrollment) => enrollment.progress < 100) ?? [],
     [data],
   );
 
   const readyToStartCount = useMemo(
-    () => activeEnrollments.filter((enrollment) => enrollment.progress === 0).length,
+    () =>
+      activeEnrollments.filter((enrollment) => enrollment.progress === 0)
+        .length,
     [activeEnrollments],
   );
 
@@ -236,9 +239,10 @@ export default function DashboardPage() {
     [validRecentActivity],
   );
 
-  const resumeCourses = useMemo(() => activeEnrollments.slice(0, 3), [
-    activeEnrollments,
-  ]);
+  const resumeCourses = useMemo(
+    () => activeEnrollments.slice(0, 3),
+    [activeEnrollments],
+  );
 
   const lastActivityLabel = recentActivityPreview[0]
     ? formatDate(recentActivityPreview[0].completedAt)
@@ -373,9 +377,12 @@ export default function DashboardPage() {
                     <div className="mt-6">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-[#d0d3dd]">
-                          {nextFocus.completedLessons}/{nextFocus.totalLessons} lessons
+                          {nextFocus.completedLessons}/{nextFocus.totalLessons}{" "}
+                          lessons
                         </span>
-                        <span className="font-semibold">{nextFocus.progress}%</span>
+                        <span className="font-semibold">
+                          {nextFocus.progress}%
+                        </span>
                       </div>
                       <div className="mt-3 h-2 bg-white/10">
                         <div
@@ -474,7 +481,8 @@ export default function DashboardPage() {
         </section>
 
         <section className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-          {data.enrollments.length === 0 && recentActivityPreview.length === 0 ? (
+          {data.enrollments.length === 0 &&
+          recentActivityPreview.length === 0 ? (
             <div className="border border-dashed border-[#d7dae0] bg-white px-8 py-14 text-center">
               <div className="mx-auto flex size-14 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
                 <BookOpen className="size-6" />
@@ -520,9 +528,11 @@ export default function DashboardPage() {
                       {resumeCourses.map((enrollment) => {
                         const course = enrollment.course;
                         const imageUrl = course.imageUrl
-                          ? getS3PublicUrl(course.imageUrl)
+                          ? getProxiedImageUrl(course.imageUrl)
                           : null;
-                        const progressState = getProgressState(enrollment.progress);
+                        const progressState = getProgressState(
+                          enrollment.progress,
+                        );
 
                         return (
                           <article
@@ -568,7 +578,8 @@ export default function DashboardPage() {
                               <div className="mt-4">
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-[#6e7485]">
-                                    {enrollment.completedLessons}/{enrollment.totalLessons} lessons completed
+                                    {enrollment.completedLessons}/
+                                    {enrollment.totalLessons} lessons completed
                                   </span>
                                   <span className="font-semibold text-[#1d2026]">
                                     {enrollment.progress}%
@@ -692,7 +703,8 @@ export default function DashboardPage() {
                               </Link>
                               <p className="mt-2 text-sm leading-7 text-[#6e7485]">
                                 By {enrollment.course.instructor.name} ·{" "}
-                                {enrollment.completedLessons}/{enrollment.totalLessons} lessons
+                                {enrollment.completedLessons}/
+                                {enrollment.totalLessons} lessons
                               </p>
                             </div>
                             <span
@@ -738,7 +750,9 @@ export default function DashboardPage() {
                     <div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-[#d0d3dd]">Average progress</span>
-                        <span className="font-semibold">{averageProgress}%</span>
+                        <span className="font-semibold">
+                          {averageProgress}%
+                        </span>
                       </div>
                       <div className="mt-3 h-2 bg-white/10">
                         <div
@@ -769,7 +783,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[#d0d3dd]">Completed courses</span>
-                      <span className="font-semibold">{data.stats.completed}</span>
+                      <span className="font-semibold">
+                        {data.stats.completed}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[#d0d3dd]">Not started yet</span>
@@ -826,7 +842,7 @@ export default function DashboardPage() {
                     <div className="mt-6 space-y-4">
                       {data.recommendedCourses.slice(0, 3).map((course) => {
                         const imageUrl = course.imageUrl
-                          ? getS3PublicUrl(course.imageUrl)
+                          ? getProxiedImageUrl(course.imageUrl)
                           : null;
 
                         return (

@@ -15,7 +15,7 @@ import {
   MarketingPublicFooter,
   MarketingPublicHeader,
 } from "@/components/marketing/public-chrome";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -106,7 +106,9 @@ function LessonRow({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-base font-semibold text-[#1d2026]">{lesson.title}</p>
+          <p className="text-base font-semibold text-[#1d2026]">
+            {lesson.title}
+          </p>
           {lesson.isFree ? (
             <span className="bg-[#fff2e5] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#ff6636]">
               Preview
@@ -209,7 +211,9 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
     return points;
   }, [course, sortedLessons.length]);
 
-  const heroImage = course.imageUrl ? getS3PublicUrl(course.imageUrl) : null;
+  const heroImage = course.imageUrl
+    ? getProxiedImageUrl(course.imageUrl)
+    : null;
   const courseTags = course.tags ?? [];
   const showNoModuleHeader = course.showUnassignedHeader ?? true;
   const moduleCount = orderedModules.length;
@@ -368,7 +372,9 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       <span className="mt-0.5 flex size-8 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
                         <CheckCircle2 className="size-4" />
                       </span>
-                      <p className="text-sm leading-7 text-[#4e5566]">{point}</p>
+                      <p className="text-sm leading-7 text-[#4e5566]">
+                        {point}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -443,7 +449,10 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                                 </div>
                                 <span className="border border-[#e9eaf0] bg-[#f5f7fa] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
                                   {moduleItem.lessons.length}{" "}
-                                  {pluralize(moduleItem.lessons.length, "lesson")}
+                                  {pluralize(
+                                    moduleItem.lessons.length,
+                                    "lesson",
+                                  )}
                                 </span>
                               </div>
                             </AccordionTrigger>
@@ -570,13 +579,17 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       <span className="mt-1 flex size-8 items-center justify-center bg-white/10">
                         <PlayCircle className="size-4" />
                       </span>
-                      <p>Structured lesson ordering keeps the next step obvious.</p>
+                      <p>
+                        Structured lesson ordering keeps the next step obvious.
+                      </p>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="mt-1 flex size-8 items-center justify-center bg-white/10">
                         <Layers3 className="size-4" />
                       </span>
-                      <p>Module breakdown makes it easier to review and revisit.</p>
+                      <p>
+                        Module breakdown makes it easier to review and revisit.
+                      </p>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="mt-1 flex size-8 items-center justify-center bg-white/10">

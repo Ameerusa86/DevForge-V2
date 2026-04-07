@@ -73,7 +73,9 @@ export function AdminPageHeader({
           ) : null}
         </div>
         {actions ? (
-          <div className="flex flex-wrap items-center gap-3">{actions}</div>
+          <div className="flex w-full flex-wrap items-stretch gap-3 lg:w-auto lg:items-center lg:justify-end">
+            {actions}
+          </div>
         ) : null}
       </div>
     </section>

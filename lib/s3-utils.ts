@@ -49,19 +49,18 @@ export function getProxiedImageUrl(keyOrUrl: string): string {
     return keyOrUrl;
   }
 
-  // Extract just the key if it's a full URL
   let key = keyOrUrl;
+
   if (keyOrUrl.startsWith("http://") || keyOrUrl.startsWith("https://")) {
     const extractedKey = getS3KeyFromUrl(keyOrUrl);
-    if (extractedKey) {
-      key = extractedKey;
-    } else {
-      // For external URLs, return as-is
+
+    if (!extractedKey) {
       return keyOrUrl;
     }
+
+    key = extractedKey;
   }
 
-  // Return proxied URL with encoded key as path parameter
   return `/api/images/proxy/${encodeURIComponent(key)}`;
 }
 

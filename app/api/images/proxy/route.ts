@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { headStorageImage, getStorageImage } from "@/lib/server-s3-image";
 
 /**
  * Image proxy endpoint to serve course images through Next.js server
@@ -17,40 +17,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get the public S3 URL
-    const s3Url = getS3PublicUrl(imageKey);
+    const image = await getStorageImage(imageKey);
 
-    // Fetch the image from Supabase Storage
-    const imageResponse = await fetch(s3Url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-      // Cache for 7 days
-      cache: "force-cache",
-    });
-
-    if (!imageResponse.ok) {
-      console.error("Failed to fetch image from S3:", {
-        status: imageResponse.status,
-        key: imageKey,
-        url: s3Url,
-      });
+    if (!image) {
       return NextResponse.json(
         { error: "Failed to load image" },
         { status: 404 },
       );
     }
 
-    const buffer = await imageResponse.arrayBuffer();
-    const contentType =
-      imageResponse.headers.get("content-type") || "image/jpeg";
-
     // Return the image with proper cache headers
-    return new NextResponse(buffer, {
+    return new NextResponse(image.bytes, {
       status: 200,
       headers: {
-        "Content-Type": contentType,
+        "Content-Type": image.contentType,
         "Cache-Control": "public, max-age=604800, immutable", // 7 days
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
@@ -77,22 +57,19 @@ export async function HEAD(request: NextRequest) {
       );
     }
 
-    const s3Url = getS3PublicUrl(imageKey);
-    const imageResponse = await fetch(s3Url, {
-      method: "HEAD",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-    });
+    const image = await headStorageImage(imageKey);
 
-    const contentType =
-      imageResponse.headers.get("content-type") || "image/jpeg";
+    if (!image) {
+      return NextResponse.json(
+        { error: "Failed to load image" },
+        { status: 404 },
+      );
+    }
 
     return new NextResponse(null, {
       status: 200,
       headers: {
-        "Content-Type": contentType,
+        "Content-Type": image.contentType,
         "Cache-Control": "public, max-age=604800, immutable",
         "Access-Control-Allow-Origin": "*",
       },

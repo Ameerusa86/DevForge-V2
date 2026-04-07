@@ -147,9 +147,15 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         (!finalImageUrl || finalImageUrl.startsWith("data:"))
       ) {
         toast.info("Uploading course image...", { duration: 2400 });
-        const { key } = await handleS3Upload(uploadedImage, true);
-        finalImageUrl = key;
-        setImageUrl(key);
+        const { key, publicUrl: uploadedPublicUrl } = await handleS3Upload(
+          uploadedImage,
+          true,
+        );
+        // Persist the full public URL so it renders directly without needing
+        // client-side env var reconstruction.
+        const resolvedUrl = uploadedPublicUrl || key;
+        finalImageUrl = resolvedUrl;
+        setImageUrl(resolvedUrl);
       }
 
       const courseData = {

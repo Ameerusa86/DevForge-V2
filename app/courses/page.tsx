@@ -20,7 +20,10 @@ import {
   X,
 } from "lucide-react";
 
-import { MarketingPublicFooter, MarketingPublicHeader } from "@/components/marketing/public-chrome";
+import {
+  MarketingPublicFooter,
+  MarketingPublicHeader,
+} from "@/components/marketing/public-chrome";
 import { CourseCard } from "@/components/lms/course-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +43,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -128,9 +131,7 @@ function SummaryTile({ label, value, detail, icon: Icon }: SummaryTileProps) {
           <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
             {value}
           </p>
-          <p className="mt-2 text-sm leading-7 text-[#6e7485]">
-            {detail}
-          </p>
+          <p className="mt-2 text-sm leading-7 text-[#6e7485]">{detail}</p>
         </div>
         <span className="flex size-12 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
           <Icon className="size-5" />
@@ -175,10 +176,7 @@ function FilterOptionButton({
           )}
         >
           <span
-            className={cn(
-              "size-2",
-              active ? "bg-white" : "bg-transparent",
-            )}
+            className={cn("size-2", active ? "bg-white" : "bg-transparent")}
           />
         </span>
         <span className="text-sm font-medium">{label}</span>
@@ -188,9 +186,7 @@ function FilterOptionButton({
         <span
           className={cn(
             "px-2 py-1 text-xs font-semibold",
-            active
-              ? "bg-[#ff6636] text-white"
-              : "bg-[#eef1f5] text-[#243041]",
+            active ? "bg-[#ff6636] text-white" : "bg-[#eef1f5] text-[#243041]",
           )}
         >
           {count}
@@ -251,18 +247,17 @@ function CoursesPageContent() {
     if (isInitialized) return;
 
     const prices =
-      (searchParams
+      searchParams
         .get("prices")
         ?.split(",")
         .filter(
-          (value): value is PriceFilter =>
-            value === "free" || value === "paid",
-        ) ?? []);
+          (value): value is PriceFilter => value === "free" || value === "paid",
+        ) ?? [];
     const types =
-      (searchParams
+      searchParams
         .get("types")
         ?.split(",")
-        .filter((value): value is TypeFilter => value === "online") ?? []);
+        .filter((value): value is TypeFilter => value === "online") ?? [];
     const categories =
       searchParams.get("categories")?.split(",").filter(Boolean) ?? [];
     const tags = searchParams.get("tags")?.split(",").filter(Boolean) ?? [];
@@ -372,13 +367,13 @@ function CoursesPageContent() {
   );
 
   const totalEnrollments = useMemo(
-    () =>
-      publishedCourses.reduce((sum, course) => sum + course.enrollments, 0),
+    () => publishedCourses.reduce((sum, course) => sum + course.enrollments, 0),
     [publishedCourses],
   );
 
   const totalReviews = useMemo(
-    () => publishedCourses.reduce((sum, course) => sum + course.totalReviews, 0),
+    () =>
+      publishedCourses.reduce((sum, course) => sum + course.totalReviews, 0),
     [publishedCourses],
   );
 
@@ -675,7 +670,8 @@ function CoursesPageContent() {
                   </span>
 
                   <h1 className="mt-6 max-w-4xl text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[3.5rem] lg:text-[4.25rem]">
-                    Professional learning paths with a clearer sense of direction.
+                    Professional learning paths with a clearer sense of
+                    direction.
                   </h1>
 
                   <p className="mt-5 max-w-3xl text-base leading-8 text-[#6e7485] sm:text-lg">
@@ -1076,7 +1072,7 @@ function CoursesPageContent() {
                         description={course.description}
                         imageUrl={
                           course.imageUrl
-                            ? getS3PublicUrl(course.imageUrl)
+                            ? getProxiedImageUrl(course.imageUrl)
                             : undefined
                         }
                         level={normalizeLevel(course.level)}

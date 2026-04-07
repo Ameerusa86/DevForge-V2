@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getS3PublicUrl } from "@/lib/s3-utils";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 
 interface CoursePreviewProps {
   title: string;
@@ -27,15 +27,11 @@ export function CoursePreview({
         {imageUrl ? (
           <div className="w-full aspect-video rounded-lg overflow-hidden bg-muted/40">
             <img
-              src={getS3PublicUrl(imageUrl)}
+              src={getProxiedImageUrl(imageUrl)}
               alt="Course preview"
               className="w-full h-full object-contain p-3"
               onError={(e) => {
-                console.error(
-                  "Failed to load image:",
-                  getS3PublicUrl(imageUrl),
-                );
-                e.currentTarget.src = "";
+                e.currentTarget.style.display = "none";
               }}
             />
           </div>

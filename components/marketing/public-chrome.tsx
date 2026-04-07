@@ -147,6 +147,7 @@ export function MarketingPublicHeader({
   // actions so the component tree matches and Radix IDs stay stable.
   const showGuestActions = !mounted || (!isPending && !isSignedIn);
   const showSignedInActions = mounted && !isPending && isSignedIn;
+  const canRenderInteractiveMenus = mounted;
   const signedInUser = session?.user
     ? {
         id: session.user.id,
@@ -223,45 +224,55 @@ export function MarketingPublicHeader({
 
               {showSearch ? (
                 <div className="hidden flex-1 items-center gap-4 lg:flex">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className="inline-flex h-12 min-w-[190px] items-center justify-between border border-[#d7dae0] bg-white px-4 text-sm font-medium text-[#243041] transition hover:border-[#ff6636] data-[state=open]:border-[#ff6636] dark:border-white/12 dark:bg-[#151822] dark:text-white dark:hover:border-[#ff6636]"
-                      >
-                        Browse
-                        <ChevronDown className="size-4 text-[#8c94a3] dark:text-[#b7bac7]" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      className="w-[320px] rounded-none border-[#d7dae0] bg-white p-2 dark:border-white/12 dark:bg-[#151822]"
-                    >
-                      <DropdownMenuLabel className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3] dark:text-[#b7bac7]">
-                        Browse Catalog
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className="bg-[#e9eaf0] dark:bg-white/10" />
-                      {browseMenuItems.map((item) => (
-                        <DropdownMenuItem
-                          key={item.label}
-                          asChild
-                          className="rounded-none p-0 focus:bg-transparent"
+                  {canRenderInteractiveMenus ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex h-12 min-w-[190px] items-center justify-between border border-[#d7dae0] bg-white px-4 text-sm font-medium text-[#243041] transition hover:border-[#ff6636] data-[state=open]:border-[#ff6636] dark:border-white/12 dark:bg-[#151822] dark:text-white dark:hover:border-[#ff6636]"
                         >
-                          <Link
-                            href={item.href}
-                            className="flex w-full flex-col items-start gap-1 rounded-none px-3 py-3 text-left transition hover:bg-[#fff7f4] focus:bg-[#fff7f4] dark:hover:bg-white/10 dark:focus:bg-white/10"
+                          Browse
+                          <ChevronDown className="size-4 text-[#8c94a3] dark:text-[#b7bac7]" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        className="w-[320px] rounded-none border-[#d7dae0] bg-white p-2 dark:border-white/12 dark:bg-[#151822]"
+                      >
+                        <DropdownMenuLabel className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3] dark:text-[#b7bac7]">
+                          Browse Catalog
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-[#e9eaf0] dark:bg-white/10" />
+                        {browseMenuItems.map((item) => (
+                          <DropdownMenuItem
+                            key={item.label}
+                            asChild
+                            className="rounded-none p-0 focus:bg-transparent"
                           >
-                            <span className="text-sm font-semibold text-[#1d2026] dark:text-white">
-                              {item.label}
-                            </span>
-                            <span className="text-xs leading-5 text-[#6e7485] dark:text-[#b7bac7]">
-                              {item.description}
-                            </span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                            <Link
+                              href={item.href}
+                              className="flex w-full flex-col items-start gap-1 rounded-none px-3 py-3 text-left transition hover:bg-[#fff7f4] focus:bg-[#fff7f4] dark:hover:bg-white/10 dark:focus:bg-white/10"
+                            >
+                              <span className="text-sm font-semibold text-[#1d2026] dark:text-white">
+                                {item.label}
+                              </span>
+                              <span className="text-xs leading-5 text-[#6e7485] dark:text-[#b7bac7]">
+                                {item.description}
+                              </span>
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Link
+                      href="/courses"
+                      className="inline-flex h-12 min-w-[190px] items-center justify-between border border-[#d7dae0] bg-white px-4 text-sm font-medium text-[#243041] transition hover:border-[#ff6636] dark:border-white/12 dark:bg-[#151822] dark:text-white dark:hover:border-[#ff6636]"
+                    >
+                      Browse
+                      <ChevronDown className="size-4 text-[#8c94a3] dark:text-[#b7bac7]" />
+                    </Link>
+                  )}
                   <form
                     action="/courses"
                     className="flex h-12 flex-1 items-center gap-3 border border-[#d7dae0] bg-white px-4 focus-within:border-[#ff6636] dark:border-white/12 dark:bg-[#151822] dark:focus-within:border-[#ff6636]"
