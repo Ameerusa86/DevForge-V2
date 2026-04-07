@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, DollarSign, Check, X } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  DollarSign,
+  Check,
+  X,
+  Search,
+  ExternalLink,
+} from "lucide-react";
 
 interface PricingFeature {
   id: string;
@@ -46,6 +57,10 @@ export default function AdminPricingPage() {
   const [loading, setLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState<PricingPlan | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [planSearchQuery, setPlanSearchQuery] = useState("");
+  const [planFilter, setPlanFilter] = useState<"all" | "active" | "inactive">(
+    "all",
+  );
 
   const [formData, setFormData] = useState({
     name: "",
@@ -60,10 +75,9 @@ export default function AdminPricingPage() {
     buttonLink: "",
   });
 
-  const [newFeature, setNewFeature] = useState({
-    text: "",
-    included: true,
-  });
+  const [featureDrafts, setFeatureDrafts] = useState<
+    Record<string, { text: string; included: boolean }>
+  >({});
 
   useEffect(() => {
     fetchPlans();
@@ -142,10 +156,13 @@ export default function AdminPricingPage() {
   };
 
   const handleAddFeature = async (planId: string) => {
-    if (!newFeature.text.trim()) {
+    const draft = featureDrafts[planId] || { text: "", included: true };
+    if (!draft.text.trim()) {
       toast.error("Feature text is required");
       return;
     }
+
+    const plan = plans.find((p) => p.id === planId);
 
     try {
       const response = await fetch("/api/admin/pricing/features", {
@@ -153,7 +170,9 @@ export default function AdminPricingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           planId,
-          ...newFeature,
+          text: draft.text,
+          included: draft.included,
+          order: plan?.features.length ?? 0,
         }),
       });
 
@@ -161,7 +180,10 @@ export default function AdminPricingPage() {
 
       if (data.success) {
         toast.success("Feature added successfully");
-        setNewFeature({ text: "", included: true });
+        setFeatureDrafts((prev) => ({
+          ...prev,
+          [planId]: { text: "", included: true },
+        }));
         fetchPlans();
       } else {
         toast.error(data.error || "Failed to add feature");
@@ -257,6 +279,34 @@ export default function AdminPricingPage() {
     resetForm();
   };
 
+  const setFeatureDraft = (
+    planId: string,
+    update: Partial<{ text: string; included: boolean }>,
+  ) => {
+    setFeatureDrafts((prev) => ({
+      ...prev,
+      [planId]: {
+        text: prev[planId]?.text ?? "",
+        included: prev[planId]?.included ?? true,
+        ...update,
+      },
+    }));
+  };
+
+  const filteredPlans = plans.filter((plan) => {
+    const matchesSearch =
+      !planSearchQuery.trim() ||
+      plan.name.toLowerCase().includes(planSearchQuery.toLowerCase()) ||
+      (plan.description || "")
+        .toLowerCase()
+        .includes(planSearchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+    if (planFilter === "active") return plan.isActive;
+    if (planFilter === "inactive") return !plan.isActive;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -272,12 +322,53 @@ export default function AdminPricingPage() {
         title="Pricing Management"
         description="Edit plan structure, feature flags, calls to action, and merchandising across the pricing surface."
         actions={
-          <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Plan
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link href="/pricing" target="_blank" rel="noreferrer">
+              <Button variant="outline" className="gap-2">
+                <ExternalLink className="h-4 w-4" />
+                Open Public Pricing
+              </Button>
+            </Link>
+            <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Plan
+            </Button>
+          </div>
         }
       />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Total Plans</p>
+            <p className="mt-1 text-3xl font-bold">{plans.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Active Plans</p>
+            <p className="mt-1 text-3xl font-bold">
+              {plans.filter((plan) => plan.isActive).length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Popular Plans</p>
+            <p className="mt-1 text-3xl font-bold">
+              {plans.filter((plan) => plan.isPopular).length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Total Features</p>
+            <p className="mt-1 text-3xl font-bold">
+              {plans.reduce((sum, plan) => sum + plan.features.length, 0)}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Create/Edit Form */}
       {isCreating && (
@@ -433,9 +524,40 @@ export default function AdminPricingPage() {
         </Card>
       )}
 
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-3 md:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search plans by name or description..."
+                value={planSearchQuery}
+                onChange={(e) => setPlanSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select
+              value={planFilter}
+              onValueChange={(value) =>
+                setPlanFilter(value as "all" | "active" | "inactive")
+              }
+            >
+              <SelectTrigger className="md:w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Plans</SelectItem>
+                <SelectItem value="active">Active Only</SelectItem>
+                <SelectItem value="inactive">Inactive Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Pricing Plans List */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {plans.map((plan) => (
+        {filteredPlans.map((plan) => (
           <Card
             key={plan.id}
             className={plan.isPopular ? "border-primary" : ""}
@@ -445,6 +567,9 @@ export default function AdminPricingPage() {
                 <div className="flex-1">
                   <CardTitle className="flex items-center gap-2">
                     {plan.name}
+                    {!plan.isActive && (
+                      <Badge variant="outline">Inactive</Badge>
+                    )}
                     {plan.isPopular && (
                       <span className="text-xs font-normal text-primary">
                         (Popular)
@@ -538,12 +663,32 @@ export default function AdminPricingPage() {
                 <div className="flex gap-2">
                   <Input
                     placeholder="New feature..."
-                    value={newFeature.text}
+                    value={featureDrafts[plan.id]?.text || ""}
                     onChange={(e) =>
-                      setNewFeature({ ...newFeature, text: e.target.value })
+                      setFeatureDraft(plan.id, { text: e.target.value })
                     }
                     className="text-sm"
                   />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={
+                      featureDrafts[plan.id]?.included === false
+                        ? "outline"
+                        : "default"
+                    }
+                    onClick={() =>
+                      setFeatureDraft(plan.id, {
+                        included: !(featureDrafts[plan.id]?.included ?? true),
+                      })
+                    }
+                  >
+                    {(featureDrafts[plan.id]?.included ?? true) ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <X className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button size="sm" onClick={() => handleAddFeature(plan.id)}>
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -553,6 +698,14 @@ export default function AdminPricingPage() {
           </Card>
         ))}
       </div>
+
+      {plans.length > 0 && filteredPlans.length === 0 ? (
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            No plans match your current filters.
+          </CardContent>
+        </Card>
+      ) : null}
     </AdminPage>
   );
 }
