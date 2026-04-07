@@ -3,6 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
+import { logCourseAuditEventSafe } from "@/lib/course-audit";
 import { getErrorMessage } from "@/lib/utils";
 
 const ALLOWED_STATUSES = new Set(["PUBLISHED", "DRAFT", "ARCHIVED"]);
@@ -86,6 +87,31 @@ export async function PATCH(request: NextRequest) {
       where: { id: { in: courseIds } },
       data: updateData,
     });
+
+    const updatedCourses = await prisma.course.findMany({
+      where: { id: { in: courseIds } },
+      select: { id: true, title: true, slug: true },
+    });
+
+    const actionParts = [
+      status ? `status -> ${status}` : null,
+      category ? `category -> ${category}` : null,
+    ].filter(Boolean);
+
+    await Promise.all(
+      updatedCourses.map((course) =>
+        logCourseAuditEventSafe({
+          courseId: course.id,
+          title: "Bulk update applied",
+          description:
+            actionParts.length > 0
+              ? `Bulk action updated ${actionParts.join(" and ")}.`
+              : "Bulk action updated this course.",
+          type: "course",
+          actionUrl: `/admin/courses/${course.id}/edit`,
+        }),
+      ),
+    );
 
     return NextResponse.json({
       success: true,

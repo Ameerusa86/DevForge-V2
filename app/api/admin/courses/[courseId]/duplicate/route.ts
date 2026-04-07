@@ -3,6 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
+import { logCourseAuditEventSafe } from "@/lib/course-audit";
 import { generateSlug } from "@/lib/slug";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -119,6 +120,22 @@ export async function POST(
       }
 
       return createdCourse;
+    });
+
+    await logCourseAuditEventSafe({
+      courseId,
+      title: "Course duplicated",
+      description: `Created duplicate \"${duplicated.title}\".`,
+      type: "course",
+      actionUrl: `/admin/courses/${duplicated.id}/edit`,
+    });
+
+    await logCourseAuditEventSafe({
+      courseId: duplicated.id,
+      title: "Course copy created",
+      description: `This course was duplicated from \"${sourceCourse.title}\".`,
+      type: "course",
+      actionUrl: `/admin/courses/${duplicated.id}/edit`,
     });
 
     return NextResponse.json(

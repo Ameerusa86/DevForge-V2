@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { generateSlug } from "@/lib/slug";
 import { getErrorMessage } from "@/lib/utils";
 import { notifyCoursePublished } from "@/lib/notification-utils";
+import { logCourseAuditEventSafe } from "@/lib/course-audit";
 import { CourseWithStats } from "@/types/api-response";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -145,6 +146,24 @@ export async function POST(request: NextRequest) {
         );
         // Don't fail the API if notification fails
       }
+    }
+
+    await logCourseAuditEventSafe({
+      courseId: course.id,
+      title: "Course created",
+      description: `${course.title} was created as ${course.status}.`,
+      type: "course",
+      actionUrl: `/admin/courses/${course.id}/edit`,
+    });
+
+    if (course.status === "PUBLISHED") {
+      await logCourseAuditEventSafe({
+        courseId: course.id,
+        title: "Course published",
+        description: `${course.title} was published at creation time.`,
+        type: "course",
+        actionUrl: `/courses/${course.slug}`,
+      });
     }
 
     return NextResponse.json(course, { status: 201 });

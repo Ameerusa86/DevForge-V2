@@ -108,6 +108,7 @@ type CourseAuditEvent = {
   description: string;
   occurredAt: string;
   type: "course" | "module" | "lesson" | "enrollment" | "review";
+  actionUrl?: string | null;
 };
 
 type AttentionFilter =
@@ -1181,6 +1182,14 @@ export default function CoursesPage() {
                           <p className="mt-1 text-xs text-muted-foreground">
                             {event.description}
                           </p>
+                          {event.actionUrl ? (
+                            <Link
+                              href={event.actionUrl}
+                              className="mt-2 inline-flex text-xs font-medium text-[#ff6636] hover:underline"
+                            >
+                              Open related item
+                            </Link>
+                          ) : null}
                           <p className="mt-2 text-xs text-muted-foreground">
                             {new Date(event.occurredAt).toLocaleString()}
                           </p>

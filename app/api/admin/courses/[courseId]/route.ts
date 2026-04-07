@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 import { deleteS3Object } from "@/lib/s3-delete";
+import { logCourseAuditEventSafe } from "@/lib/course-audit";
 import {
   notifyCoursePublished,
   createNotification,
@@ -159,6 +160,51 @@ export async function PATCH(
       }
     }
 
+    const updateFields = [
+      title !== undefined ? "title" : null,
+      slug !== undefined ? "slug" : null,
+      description !== undefined ? "description" : null,
+      category !== undefined ? "category" : null,
+      level !== undefined ? "level" : null,
+      price !== undefined ? "price" : null,
+      durationMinutes !== undefined ? "duration" : null,
+      imageUrl !== undefined ? "image" : null,
+      tags !== undefined ? "tags" : null,
+      status !== undefined ? "status" : null,
+      showUnassignedHeader !== undefined ? "curriculum settings" : null,
+    ].filter(Boolean) as string[];
+
+    await logCourseAuditEventSafe({
+      courseId,
+      title: "Course updated",
+      description:
+        updateFields.length > 0
+          ? `Updated fields: ${updateFields.join(", ")}.`
+          : "Course metadata updated.",
+      type: "course",
+      actionUrl: `/admin/courses/${courseId}/edit`,
+    });
+
+    if (status === "PUBLISHED" && currentCourse?.status !== "PUBLISHED") {
+      await logCourseAuditEventSafe({
+        courseId,
+        title: "Course published",
+        description: `${course.title} was published.`,
+        type: "course",
+        actionUrl: `/courses/${course.slug}`,
+      });
+    }
+
+    if (status === "ARCHIVED" && currentCourse?.status !== "ARCHIVED") {
+      await logCourseAuditEventSafe({
+        courseId,
+        title: "Course archived",
+        description: `${course.title} was archived.`,
+        type: "course",
+        actionUrl: `/admin/courses/${courseId}/edit`,
+      });
+    }
+
     return NextResponse.json({
       ...course,
       instructor: course.instructor.name,
@@ -190,7 +236,7 @@ export async function DELETE(
 
     const course = await prisma.course.findUnique({
       where: { id: courseId },
-      select: { imageUrl: true },
+      select: { imageUrl: true, title: true },
     });
 
     if (!course) {
@@ -198,6 +244,14 @@ export async function DELETE(
     }
 
     await prisma.course.delete({ where: { id: courseId } });
+
+    await logCourseAuditEventSafe({
+      courseId,
+      title: "Course deleted",
+      description: `${course.title} was deleted from the catalog.`,
+      type: "course",
+      actionUrl: null,
+    });
 
     if (course.imageUrl) {
       const deleted = await deleteS3Object(course.imageUrl);
