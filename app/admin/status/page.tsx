@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ import {
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
+  Search,
   Plus,
   Trash2,
   Wrench,
@@ -109,13 +111,23 @@ export default function AdminStatusPage() {
     description: "",
     status: "INVESTIGATING",
     severity: "MINOR",
+    affectedServices: [] as string[],
   });
   const [newMaintenance, setNewMaintenance] = useState({
     title: "",
     description: "",
     scheduledStart: "",
     scheduledEnd: "",
+    affectedServices: [] as string[],
   });
+  const [serviceSearch, setServiceSearch] = useState("");
+  const [incidentFilter, setIncidentFilter] = useState<
+    "ALL" | "OPEN" | "RESOLVED"
+  >("ALL");
+  const [incidentSearch, setIncidentSearch] = useState("");
+  const [maintenanceFilter, setMaintenanceFilter] = useState<
+    "ALL" | "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
+  >("ALL");
 
   useEffect(() => {
     loadData();
@@ -387,6 +399,38 @@ export default function AdminStatusPage() {
     );
   }
 
+  const filteredServices = services.filter((service) => {
+    if (!serviceSearch.trim()) return true;
+    const q = serviceSearch.toLowerCase();
+    return (
+      service.name.toLowerCase().includes(q) ||
+      (service.description || "").toLowerCase().includes(q)
+    );
+  });
+
+  const filteredIncidents = incidents.filter((incident) => {
+    const matchesSearch =
+      !incidentSearch.trim() ||
+      incident.title.toLowerCase().includes(incidentSearch.toLowerCase()) ||
+      incident.description.toLowerCase().includes(incidentSearch.toLowerCase());
+
+    const isResolved = incident.status === "RESOLVED";
+    const matchesStatus =
+      incidentFilter === "ALL" ||
+      (incidentFilter === "OPEN" && !isResolved) ||
+      (incidentFilter === "RESOLVED" && isResolved);
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const filteredMaintenance = maintenance.filter((maint) => {
+    return maintenanceFilter === "ALL" || maint.status === maintenanceFilter;
+  });
+
+  const serviceNameById = new Map(
+    services.map((service) => [service.id, service.name]),
+  );
+
   const StatusIcon = systemStatus ? statusIcons[systemStatus.status] : Activity;
 
   return (
@@ -396,16 +440,55 @@ export default function AdminStatusPage() {
         title="Status Page Management"
         description="Monitor and manage system status, services, incidents, and planned maintenance windows."
         actions={
-          <Button
-            variant="outline"
-            onClick={() => window.open("/status", "_blank")}
-            className="gap-2"
-          >
-            <Activity className="h-4 w-4" />
-            View Public Page
-          </Button>
+          <Link href="/status" target="_blank" rel="noreferrer">
+            <Button variant="outline" className="gap-2">
+              <Activity className="h-4 w-4" />
+              View Public Page
+            </Button>
+          </Link>
         }
       />
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Overall Status</p>
+            <p className="mt-1 text-2xl font-bold">
+              {systemStatus?.status || "UNKNOWN"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Active Services</p>
+            <p className="mt-1 text-2xl font-bold">
+              {services.filter((s) => s.isActive).length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Open Incidents</p>
+            <p className="mt-1 text-2xl font-bold">
+              {incidents.filter((i) => i.status !== "RESOLVED").length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">
+              Upcoming Maintenance
+            </p>
+            <p className="mt-1 text-2xl font-bold">
+              {
+                maintenance.filter(
+                  (m) => m.status === "SCHEDULED" || m.status === "IN_PROGRESS",
+                ).length
+              }
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* System Status Overview */}
       <Card>
@@ -548,12 +631,26 @@ export default function AdminStatusPage() {
               <CardTitle>Manage Services</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search services..."
+                  value={serviceSearch}
+                  onChange={(e) => setServiceSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
               {services.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   No services yet. Add your first service above.
                 </p>
+              ) : filteredServices.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No services match your search.
+                </p>
               ) : (
-                services.map((service) => (
+                filteredServices.map((service) => (
                   <Card
                     key={service.id}
                     className={!service.isActive ? "opacity-60" : ""}
@@ -745,6 +842,39 @@ export default function AdminStatusPage() {
                     </Select>
                   </div>
                 </div>
+
+                {services.length > 0 ? (
+                  <div className="space-y-2">
+                    <Label>Affected Services</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {services.map((service) => {
+                        const selected = newIncident.affectedServices.includes(
+                          service.id,
+                        );
+                        return (
+                          <Button
+                            key={service.id}
+                            type="button"
+                            size="sm"
+                            variant={selected ? "default" : "outline"}
+                            onClick={() => {
+                              setNewIncident((prev) => ({
+                                ...prev,
+                                affectedServices: selected
+                                  ? prev.affectedServices.filter(
+                                      (id) => id !== service.id,
+                                    )
+                                  : [...prev.affectedServices, service.id],
+                              }));
+                            }}
+                          >
+                            {service.name}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
               </div>
               <Button onClick={addIncident} className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -758,12 +888,43 @@ export default function AdminStatusPage() {
               <CardTitle>Active & Recent Incidents</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="flex flex-col gap-3 md:flex-row">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search incidents..."
+                    value={incidentSearch}
+                    onChange={(e) => setIncidentSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select
+                  value={incidentFilter}
+                  onValueChange={(value) =>
+                    setIncidentFilter(value as "ALL" | "OPEN" | "RESOLVED")
+                  }
+                >
+                  <SelectTrigger className="md:w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All incidents</SelectItem>
+                    <SelectItem value="OPEN">Open incidents</SelectItem>
+                    <SelectItem value="RESOLVED">Resolved incidents</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {incidents.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   No incidents reported
                 </p>
+              ) : filteredIncidents.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No incidents match your filters.
+                </p>
               ) : (
-                incidents.map((incident) => (
+                filteredIncidents.map((incident) => (
                   <Card key={incident.id}>
                     <CardContent className="p-4 space-y-4">
                       <div className="flex items-start justify-between gap-4">
@@ -787,6 +948,16 @@ export default function AdminStatusPage() {
                           <p className="text-xs text-muted-foreground">
                             Started:{" "}
                             {new Date(incident.startedAt).toLocaleString()}
+                            {incident.affectedServices.length > 0 ? (
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {incident.affectedServices.map((serviceId) => (
+                                  <Badge key={serviceId} variant="outline">
+                                    {serviceNameById.get(serviceId) ||
+                                      "Unknown service"}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : null}
                             {incident.resolvedAt &&
                               ` • Resolved: ${new Date(incident.resolvedAt).toLocaleString()}`}
                           </p>
@@ -897,6 +1068,38 @@ export default function AdminStatusPage() {
                     />
                   </div>
                 </div>
+
+                {services.length > 0 ? (
+                  <div className="space-y-2">
+                    <Label>Affected Services</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {services.map((service) => {
+                        const selected =
+                          newMaintenance.affectedServices.includes(service.id);
+                        return (
+                          <Button
+                            key={service.id}
+                            type="button"
+                            size="sm"
+                            variant={selected ? "default" : "outline"}
+                            onClick={() => {
+                              setNewMaintenance((prev) => ({
+                                ...prev,
+                                affectedServices: selected
+                                  ? prev.affectedServices.filter(
+                                      (id) => id !== service.id,
+                                    )
+                                  : [...prev.affectedServices, service.id],
+                              }));
+                            }}
+                          >
+                            {service.name}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
               </div>
               <Button onClick={addMaintenance} className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -910,12 +1113,41 @@ export default function AdminStatusPage() {
               <CardTitle>Scheduled & Past Maintenance</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <Select
+                value={maintenanceFilter}
+                onValueChange={(value) =>
+                  setMaintenanceFilter(
+                    value as
+                      | "ALL"
+                      | "SCHEDULED"
+                      | "IN_PROGRESS"
+                      | "COMPLETED"
+                      | "CANCELLED",
+                  )
+                }
+              >
+                <SelectTrigger className="w-full md:w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All maintenance</SelectItem>
+                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In progress</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+
               {maintenance.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   No maintenance scheduled
                 </p>
+              ) : filteredMaintenance.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No maintenance windows match this filter.
+                </p>
               ) : (
-                maintenance.map((maint) => (
+                filteredMaintenance.map((maint) => (
                   <Card key={maint.id}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
@@ -931,6 +1163,16 @@ export default function AdminStatusPage() {
                           <p className="text-xs text-muted-foreground">
                             {new Date(maint.scheduledStart).toLocaleString()} →{" "}
                             {new Date(maint.scheduledEnd).toLocaleString()}
+                            {maint.affectedServices.length > 0 ? (
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {maint.affectedServices.map((serviceId) => (
+                                  <Badge key={serviceId} variant="outline">
+                                    {serviceNameById.get(serviceId) ||
+                                      "Unknown service"}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : null}
                           </p>
                         </div>
                         <div className="flex gap-2">
