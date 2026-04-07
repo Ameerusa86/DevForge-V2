@@ -4,12 +4,18 @@ import { generateSlug } from "@/lib/slug";
 import { getErrorMessage } from "@/lib/utils";
 import { notifyCoursePublished } from "@/lib/notification-utils";
 import { logCourseAuditEventSafe } from "@/lib/course-audit";
+import {
+  applyDueCourseSchedules,
+  getCourseSchedules,
+} from "@/lib/course-schedule";
 import { CourseWithStats } from "@/types/api-response";
 import { NextRequest, NextResponse } from "next/server";
 
 // GET /api/admin/courses - Get all courses
 export async function GET() {
   try {
+    await applyDueCourseSchedules();
+
     const courses = await prisma.course.findMany({
       include: {
         instructor: {
@@ -32,6 +38,13 @@ export async function GET() {
         createdAt: "desc",
       },
     });
+
+    const schedules = await getCourseSchedules(
+      courses.map((course) => course.id),
+    );
+    const scheduleByCourseId = new Map(
+      schedules.map((schedule) => [schedule.courseId, schedule]),
+    );
 
     // Transform data to include derived fields
     const coursesWithStats = courses.map((course: (typeof courses)[0]) => {
@@ -56,6 +69,7 @@ export async function GET() {
         createdAt: course.createdAt.toISOString(),
         updatedAt: course.updatedAt.toISOString(),
         publishedAt: course.publishedAt?.toISOString(),
+        schedule: scheduleByCourseId.get(course.id) || null,
       };
     }) as CourseWithStats[];
 

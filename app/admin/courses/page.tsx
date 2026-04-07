@@ -10,6 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -76,6 +85,12 @@ type AdminCourse = {
   createdAt: string;
   publishedAt?: string | null;
   updatedAt: string;
+  schedule?: {
+    courseId: string;
+    publishAt: string | null;
+    unpublishAt: string | null;
+    updatedAt: string;
+  } | null;
 };
 
 type CoursePreviewDetails = {
@@ -153,6 +168,16 @@ type PendingBulkAction = {
   payload: BulkUpdatePayload;
 };
 
+type SortMode = "newest" | "oldest" | "stale-first" | "health-low";
+
+type InstructorWorkload = {
+  instructor: string;
+  courses: number;
+  published: number;
+  draft: number;
+  enrollments: number;
+};
+
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [courses, setCourses] = useState<AdminCourse[]>([]);
@@ -178,6 +203,15 @@ export default function CoursesPage() {
   const [previewCourse, setPreviewCourse] =
     useState<CoursePreviewDetails | null>(null);
   const [previewAudit, setPreviewAudit] = useState<CourseAuditEvent[]>([]);
+  const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [scheduleCourse, setScheduleCourse] = useState<AdminCourse | null>(
+    null,
+  );
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [publishAtInput, setPublishAtInput] = useState("");
+  const [unpublishAtInput, setUnpublishAtInput] = useState("");
 
   useEffect(() => {
     fetchCourses();
@@ -262,6 +296,116 @@ export default function CoursesPage() {
     if (score >= 80) return "text-emerald-600";
     if (score >= 60) return "text-amber-600";
     return "text-rose-600";
+  };
+
+  const getFreshness = (updatedAt: string) => {
+    const updated = new Date(updatedAt).getTime();
+    const days = Math.max(
+      0,
+      Math.floor((Date.now() - updated) / (1000 * 60 * 60 * 24)),
+    );
+
+    if (days <= 7) {
+      return {
+        label: "Fresh",
+        sublabel: `${days}d`,
+        className: "text-emerald-600",
+      };
+    }
+
+    if (days <= 30) {
+      return {
+        label: "Aging",
+        sublabel: `${days}d`,
+        className: "text-amber-600",
+      };
+    }
+
+    return { label: "Stale", sublabel: `${days}d`, className: "text-rose-600" };
+  };
+
+  const toDateTimeLocalValue = (isoValue: string | null | undefined) => {
+    if (!isoValue) return "";
+    const date = new Date(isoValue);
+    const tzOffsetMs = date.getTimezoneOffset() * 60 * 1000;
+    const localDate = new Date(date.getTime() - tzOffsetMs);
+    return localDate.toISOString().slice(0, 16);
+  };
+
+  const openScheduleDialog = async (course: AdminCourse) => {
+    setScheduleDialogOpen(true);
+    setScheduleCourse(course);
+    setScheduleLoading(true);
+    setPublishAtInput(toDateTimeLocalValue(course.schedule?.publishAt));
+    setUnpublishAtInput(toDateTimeLocalValue(course.schedule?.unpublishAt));
+
+    try {
+      const response = await fetch(`/api/admin/courses/${course.id}/schedule`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch schedule");
+      }
+
+      const data = (await response.json()) as {
+        schedule: {
+          publishAt: string | null;
+          unpublishAt: string | null;
+        } | null;
+      };
+
+      setPublishAtInput(toDateTimeLocalValue(data.schedule?.publishAt));
+      setUnpublishAtInput(toDateTimeLocalValue(data.schedule?.unpublishAt));
+    } catch (error) {
+      console.error("Failed to load schedule:", error);
+      toast.error("Failed to load schedule");
+    } finally {
+      setScheduleLoading(false);
+    }
+  };
+
+  const handleSaveSchedule = async () => {
+    if (!scheduleCourse) return;
+
+    setSavingSchedule(true);
+    try {
+      const publishAt = publishAtInput
+        ? new Date(publishAtInput).toISOString()
+        : null;
+      const unpublishAt = unpublishAtInput
+        ? new Date(unpublishAtInput).toISOString()
+        : null;
+
+      if (
+        publishAt &&
+        unpublishAt &&
+        new Date(unpublishAt) <= new Date(publishAt)
+      ) {
+        toast.error("Unpublish time must be after publish time");
+        return;
+      }
+
+      const response = await fetch(
+        `/api/admin/courses/${scheduleCourse.id}/schedule`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ publishAt, unpublishAt }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save schedule");
+      }
+
+      toast.success("Schedule updated");
+      setScheduleDialogOpen(false);
+      setScheduleCourse(null);
+      await fetchCourses();
+    } catch (error) {
+      console.error("Failed to save schedule:", error);
+      toast.error("Failed to update schedule");
+    } finally {
+      setSavingSchedule(false);
+    }
   };
 
   const handleToggleSelectCourse = (courseId: string) => {
@@ -544,15 +688,37 @@ export default function CoursesPage() {
     }
   };
 
-  const filteredCourses = courses.filter((course) => {
-    const matchesSearch =
-      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.slug.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredCourses = courses
+    .filter((course) => {
+      const matchesSearch =
+        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.slug.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
-    return matchesAttentionFilter(course, activeAttentionFilter);
-  });
+      if (!matchesSearch) return false;
+      return matchesAttentionFilter(course, activeAttentionFilter);
+    })
+    .sort((a, b) => {
+      if (sortMode === "newest") {
+        return (
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+      }
+
+      if (sortMode === "oldest") {
+        return (
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+        );
+      }
+
+      if (sortMode === "stale-first") {
+        return (
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+        );
+      }
+
+      return calculateHealthScore(a) - calculateHealthScore(b);
+    });
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {
@@ -574,6 +740,32 @@ export default function CoursesPage() {
       courses.filter((c) => c.rating > 0).length
     ).toFixed(1),
   };
+
+  const instructorWorkloads: InstructorWorkload[] = Object.values(
+    courses.reduce<Record<string, InstructorWorkload>>((acc, course) => {
+      if (!acc[course.instructor]) {
+        acc[course.instructor] = {
+          instructor: course.instructor,
+          courses: 0,
+          published: 0,
+          draft: 0,
+          enrollments: 0,
+        };
+      }
+
+      acc[course.instructor].courses += 1;
+      acc[course.instructor].enrollments += course.enrollments;
+
+      if (course.status === "PUBLISHED") {
+        acc[course.instructor].published += 1;
+      }
+      if (course.status === "DRAFT") {
+        acc[course.instructor].draft += 1;
+      }
+
+      return acc;
+    }, {}),
+  ).sort((a, b) => b.courses - a.courses || b.enrollments - a.enrollments);
 
   const attentionCounts: Record<AttentionFilter, number> = {
     all: courses.length,
@@ -683,6 +875,27 @@ export default function CoursesPage() {
                 <Download className="h-4 w-4" />
                 Export
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">Sort</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Sort courses</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setSortMode("newest")}>
+                    Newest updated
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortMode("oldest")}>
+                    Oldest updated
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortMode("stale-first")}>
+                    Stale first
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortMode("health-low")}>
+                    Lowest health first
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -815,6 +1028,42 @@ export default function CoursesPage() {
           </Card>
         ) : null}
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Instructor Workload</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {instructorWorkloads.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No instructor workload data yet.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {instructorWorkloads.slice(0, 6).map((item) => (
+                  <div
+                    key={item.instructor}
+                    className="flex flex-col gap-2 rounded-md border p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="font-medium">{item.instructor}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.courses} course(s), {item.enrollments} total
+                        enrollments
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <Badge variant="default">
+                        Published {item.published}
+                      </Badge>
+                      <Badge variant="secondary">Draft {item.draft}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Courses Table */}
         <Card>
           <CardHeader>
@@ -843,6 +1092,8 @@ export default function CoursesPage() {
                     <TableHead className="text-center">Lessons</TableHead>
                     <TableHead className="text-center">Enrollments</TableHead>
                     <TableHead>Health</TableHead>
+                    <TableHead>Freshness</TableHead>
+                    <TableHead>Schedule</TableHead>
                     <TableHead>Rating</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -850,6 +1101,7 @@ export default function CoursesPage() {
                 <TableBody>
                   {filteredCourses.map((course) => {
                     const healthScore = calculateHealthScore(course);
+                    const freshness = getFreshness(course.updatedAt);
 
                     return (
                       <TableRow key={course.id}>
@@ -910,6 +1162,45 @@ export default function CoursesPage() {
                               /100
                             </span>
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span
+                              className={`text-sm font-medium ${freshness.className}`}
+                            >
+                              {freshness.label}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {freshness.sublabel}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {course.schedule?.publishAt ||
+                          course.schedule?.unpublishAt ? (
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              {course.schedule.publishAt ? (
+                                <p>
+                                  Publish:{" "}
+                                  {new Date(
+                                    course.schedule.publishAt,
+                                  ).toLocaleString()}
+                                </p>
+                              ) : null}
+                              {course.schedule.unpublishAt ? (
+                                <p>
+                                  Unpublish:{" "}
+                                  {new Date(
+                                    course.schedule.unpublishAt,
+                                  ).toLocaleString()}
+                                </p>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No schedule
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell>
                           {course.rating > 0 ? (
@@ -977,6 +1268,13 @@ export default function CoursesPage() {
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="gap-2"
+                                onClick={() => openScheduleDialog(course)}
+                              >
+                                <CalendarDays className="h-4 w-4" />
+                                Set Schedule
+                              </DropdownMenuItem>
                               <DropdownMenuLabel className="text-xs">
                                 Change Status
                               </DropdownMenuLabel>
@@ -1222,6 +1520,77 @@ export default function CoursesPage() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <Dialog
+        open={scheduleDialogOpen}
+        onOpenChange={(open) => {
+          setScheduleDialogOpen(open);
+          if (!open) {
+            setScheduleCourse(null);
+            setPublishAtInput("");
+            setUnpublishAtInput("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Schedule Course</DialogTitle>
+            <DialogDescription>
+              Set timed publish and unpublish dates for{" "}
+              {scheduleCourse?.title || "this course"}.
+            </DialogDescription>
+          </DialogHeader>
+
+          {scheduleLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading schedule...
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="publish-at">Publish at</Label>
+                <Input
+                  id="publish-at"
+                  type="datetime-local"
+                  value={publishAtInput}
+                  onChange={(e) => setPublishAtInput(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="unpublish-at">Unpublish at</Label>
+                <Input
+                  id="unpublish-at"
+                  type="datetime-local"
+                  value={unpublishAtInput}
+                  onChange={(e) => setUnpublishAtInput(e.target.value)}
+                />
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Leave either field empty to remove that schedule.
+              </p>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setScheduleDialogOpen(false)}
+              disabled={savingSchedule}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveSchedule}
+              disabled={scheduleLoading || savingSchedule || !scheduleCourse}
+            >
+              {savingSchedule ? "Saving..." : "Save Schedule"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={bulkConfirmOpen}
