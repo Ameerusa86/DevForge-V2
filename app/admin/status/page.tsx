@@ -259,6 +259,7 @@ export default function AdminStatusPage() {
           description: "",
           status: "INVESTIGATING",
           severity: "MINOR",
+          affectedServices: [],
         });
         toast.success("Incident created");
       } else {
@@ -336,6 +337,7 @@ export default function AdminStatusPage() {
           description: "",
           scheduledStart: "",
           scheduledEnd: "",
+          affectedServices: [],
         });
         toast.success("Maintenance window created");
       } else {
