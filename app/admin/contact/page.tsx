@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,8 @@ import {
   MapPin,
   Clock,
   MessageSquare,
+  ExternalLink,
+  Search,
 } from "lucide-react";
 
 interface ContactSettings {
@@ -54,6 +57,7 @@ interface Faq {
 export default function AdminContactPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [settingsDirty, setSettingsDirty] = useState(false);
   const [settings, setSettings] = useState<ContactSettings>({
     id: "",
     email: "",
@@ -67,8 +71,11 @@ export default function AdminContactPage() {
     heroTitle: "",
     heroSubtitle: "",
   });
+  const [initialSettings, setInitialSettings] =
+    useState<ContactSettings | null>(null);
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [newFaq, setNewFaq] = useState({ question: "", answer: "" });
+  const [faqSearchQuery, setFaqSearchQuery] = useState("");
 
   useEffect(() => {
     loadData();
@@ -81,6 +88,7 @@ export default function AdminContactPage() {
 
       if (data.success) {
         setSettings(data.data.settings);
+        setInitialSettings(data.data.settings);
         setFaqs(data.data.faqs);
       } else {
         toast.error("Failed to load contact settings");
@@ -106,6 +114,8 @@ export default function AdminContactPage() {
       if (data.success) {
         toast.success("Contact settings updated successfully");
         setSettings(data.data);
+        setInitialSettings(data.data);
+        setSettingsDirty(false);
       } else {
         toast.error(data.error || "Failed to update settings");
       }
@@ -226,6 +236,36 @@ export default function AdminContactPage() {
     setFaqs(faqs.map((f) => (f.id === id ? { ...f, [field]: value } : f)));
   };
 
+  const handleSettingsChange = (
+    field: keyof ContactSettings,
+    value: string,
+  ) => {
+    const next = { ...settings, [field]: value };
+    setSettings(next);
+
+    if (!initialSettings) {
+      setSettingsDirty(true);
+      return;
+    }
+
+    const hasChanges = (
+      Object.keys(initialSettings) as Array<keyof ContactSettings>
+    )
+      .filter((key) => key !== "id")
+      .some((key) => next[key] !== initialSettings[key]);
+
+    setSettingsDirty(hasChanges);
+  };
+
+  const filteredFaqs = faqs.filter((faq) => {
+    if (!faqSearchQuery.trim()) return true;
+    const q = faqSearchQuery.toLowerCase();
+    return (
+      faq.question.toLowerCase().includes(q) ||
+      faq.answer.toLowerCase().includes(q)
+    );
+  });
+
   if (loading) {
     return (
       <div className="p-8">
@@ -242,7 +282,56 @@ export default function AdminContactPage() {
         eyebrow="Public support surface"
         title="Contact Page Settings"
         description="Manage contact information, response expectations, and FAQ content displayed on the public support page."
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href="/contact" target="_blank" rel="noreferrer">
+              <Button variant="outline" className="gap-2">
+                <ExternalLink className="h-4 w-4" />
+                Open Public Contact
+              </Button>
+            </Link>
+            {settingsDirty ? (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (initialSettings) {
+                    setSettings(initialSettings);
+                    setSettingsDirty(false);
+                    toast.info("Unsaved changes discarded");
+                  }
+                }}
+              >
+                Discard Changes
+              </Button>
+            ) : null}
+          </div>
+        }
       />
+
+      <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Total FAQs</p>
+            <p className="mt-1 text-3xl font-bold">{faqs.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Active FAQs</p>
+            <p className="mt-1 text-3xl font-bold">
+              {faqs.filter((faq) => faq.isActive).length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Inactive FAQs</p>
+            <p className="mt-1 text-3xl font-bold">
+              {faqs.filter((faq) => !faq.isActive).length}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -269,7 +358,7 @@ export default function AdminContactPage() {
                   id="heroTitle"
                   value={settings.heroTitle}
                   onChange={(e) =>
-                    setSettings({ ...settings, heroTitle: e.target.value })
+                    handleSettingsChange("heroTitle", e.target.value)
                   }
                   placeholder="Contact Us"
                 />
@@ -280,7 +369,7 @@ export default function AdminContactPage() {
                   id="heroSubtitle"
                   value={settings.heroSubtitle}
                   onChange={(e) =>
-                    setSettings({ ...settings, heroSubtitle: e.target.value })
+                    handleSettingsChange("heroSubtitle", e.target.value)
                   }
                   placeholder="Have questions? We'd love to hear from you..."
                   rows={3}
@@ -303,9 +392,7 @@ export default function AdminContactPage() {
                 id="email"
                 type="email"
                 value={settings.email}
-                onChange={(e) =>
-                  setSettings({ ...settings, email: e.target.value })
-                }
+                onChange={(e) => handleSettingsChange("email", e.target.value)}
                 placeholder="support@devforge.com"
               />
             </CardContent>
@@ -323,9 +410,7 @@ export default function AdminContactPage() {
               <Input
                 id="phone"
                 value={settings.phone}
-                onChange={(e) =>
-                  setSettings({ ...settings, phone: e.target.value })
-                }
+                onChange={(e) => handleSettingsChange("phone", e.target.value)}
                 placeholder="+1 (234) 567-890"
               />
             </CardContent>
@@ -345,7 +430,7 @@ export default function AdminContactPage() {
                   id="addressLine1"
                   value={settings.addressLine1}
                   onChange={(e) =>
-                    setSettings({ ...settings, addressLine1: e.target.value })
+                    handleSettingsChange("addressLine1", e.target.value)
                   }
                   placeholder="123 Learning Street"
                 />
@@ -356,7 +441,7 @@ export default function AdminContactPage() {
                   id="addressLine2"
                   value={settings.addressLine2}
                   onChange={(e) =>
-                    setSettings({ ...settings, addressLine2: e.target.value })
+                    handleSettingsChange("addressLine2", e.target.value)
                   }
                   placeholder="Tech City, TC 12345"
                 />
@@ -367,7 +452,7 @@ export default function AdminContactPage() {
                   id="addressLine3"
                   value={settings.addressLine3}
                   onChange={(e) =>
-                    setSettings({ ...settings, addressLine3: e.target.value })
+                    handleSettingsChange("addressLine3", e.target.value)
                   }
                   placeholder="United States"
                 />
@@ -391,10 +476,7 @@ export default function AdminContactPage() {
                   id="businessHoursLine1"
                   value={settings.businessHoursLine1}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      businessHoursLine1: e.target.value,
-                    })
+                    handleSettingsChange("businessHoursLine1", e.target.value)
                   }
                   placeholder="Monday - Friday"
                 />
@@ -407,10 +489,7 @@ export default function AdminContactPage() {
                   id="businessHoursLine2"
                   value={settings.businessHoursLine2}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      businessHoursLine2: e.target.value,
-                    })
+                    handleSettingsChange("businessHoursLine2", e.target.value)
                   }
                   placeholder="9:00 AM - 6:00 PM EST"
                 />
@@ -431,7 +510,7 @@ export default function AdminContactPage() {
                 id="responseTime"
                 value={settings.responseTime}
                 onChange={(e) =>
-                  setSettings({ ...settings, responseTime: e.target.value })
+                  handleSettingsChange("responseTime", e.target.value)
                 }
                 placeholder="We typically respond within 24 hours..."
                 rows={3}
@@ -442,12 +521,16 @@ export default function AdminContactPage() {
           <div className="flex justify-end">
             <Button
               onClick={handleSaveSettings}
-              disabled={saving}
+              disabled={saving || !settingsDirty}
               size="lg"
               className="gap-2"
             >
               <Save className="h-4 w-4" />
-              {saving ? "Saving..." : "Save All Changes"}
+              {saving
+                ? "Saving..."
+                : settingsDirty
+                  ? "Save All Changes"
+                  : "No Changes"}
             </Button>
           </div>
         </TabsContent>
@@ -500,17 +583,31 @@ export default function AdminContactPage() {
             <CardHeader>
               <CardTitle>Manage FAQs</CardTitle>
               <CardDescription>
-                Edit, reorder, or delete existing FAQs. Inactive FAQs won&apos;t be
-                shown on the public page.
+                Edit, reorder, or delete existing FAQs. Inactive FAQs won&apos;t
+                be shown on the public page.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search FAQs by question or answer..."
+                  value={faqSearchQuery}
+                  onChange={(e) => setFaqSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
               {faqs.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   No FAQs yet. Add your first FAQ above.
                 </p>
+              ) : filteredFaqs.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No FAQs match your search.
+                </p>
               ) : (
-                faqs.map((faq, index) => (
+                filteredFaqs.map((faq, index) => (
                   <Card
                     key={faq.id}
                     className={!faq.isActive ? "opacity-60" : ""}
@@ -552,16 +649,31 @@ export default function AdminContactPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleMoveFaq(index, "up")}
-                            disabled={index === 0}
+                            onClick={() => {
+                              const realIndex = faqs.findIndex(
+                                (f) => f.id === faq.id,
+                              );
+                              void handleMoveFaq(realIndex, "up");
+                            }}
+                            disabled={
+                              faqs.findIndex((f) => f.id === faq.id) === 0
+                            }
                           >
                             <MoveUp className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleMoveFaq(index, "down")}
-                            disabled={index === faqs.length - 1}
+                            onClick={() => {
+                              const realIndex = faqs.findIndex(
+                                (f) => f.id === faq.id,
+                              );
+                              void handleMoveFaq(realIndex, "down");
+                            }}
+                            disabled={
+                              faqs.findIndex((f) => f.id === faq.id) ===
+                              faqs.length - 1
+                            }
                           >
                             <MoveDown className="h-4 w-4" />
                           </Button>
