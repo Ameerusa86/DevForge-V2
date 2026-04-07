@@ -19,6 +19,7 @@ export async function GET() {
           },
         },
         enrollments: true,
+        modules: true,
         lessons: true,
         reviews: {
           select: {
@@ -43,8 +44,9 @@ export async function GET() {
         ...course,
         instructor: course.instructor.name,
         enrollments: course.enrollments.length,
+        modules: course.modules.length,
         lessons: course.lessons.length,
-        rating: averageRating,
+        rating: Number(averageRating.toFixed(1)),
         totalReviews: reviews.length,
         price: Number(course.price),
         revenue: `$${(
