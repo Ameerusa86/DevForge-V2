@@ -160,19 +160,17 @@ function FilterOptionButton({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex w-full items-center justify-between border px-4 py-3 text-left transition",
+        "flex w-full items-center justify-between border px-4 py-3 text-left transition-colors",
         active
-          ? "border-[#ff6636] bg-[#fff2e5] text-[#1d2026]"
-          : "border-[#cfd5df] bg-[#fcfdff] text-[#243041] hover:border-[#ff6636] hover:bg-white hover:text-[#1d2026]",
+          ? "border-primary/70 bg-primary/15 text-foreground"
+          : "border-border bg-card text-foreground/90 hover:border-primary/60 hover:bg-muted/60 hover:text-foreground",
       )}
     >
       <span className="flex items-center gap-3">
         <span
           className={cn(
             "flex size-5 items-center justify-center border",
-            active
-              ? "border-[#ff6636] bg-[#ff6636]"
-              : "border-[#dfe1e6] bg-[#f5f7fa]",
+            active ? "border-primary bg-primary" : "border-border bg-muted/60",
           )}
         >
           <span
@@ -186,7 +184,9 @@ function FilterOptionButton({
         <span
           className={cn(
             "px-2 py-1 text-xs font-semibold",
-            active ? "bg-[#ff6636] text-white" : "bg-[#eef1f5] text-[#243041]",
+            active
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground",
           )}
         >
           {count}
@@ -554,10 +554,10 @@ function CoursesPageContent() {
     <div className="space-y-8">
       <section className="space-y-3">
         <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Price
           </p>
-          <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <p className="text-sm leading-6 text-muted-foreground">
             Choose between complimentary and premium learning paths.
           </p>
         </div>
@@ -579,10 +579,10 @@ function CoursesPageContent() {
 
       <section className="space-y-3">
         <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Delivery
           </p>
-          <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <p className="text-sm leading-6 text-muted-foreground">
             Every DevForge course is available online and self-paced.
           </p>
         </div>
@@ -597,10 +597,10 @@ function CoursesPageContent() {
       {categoryCounts.length > 0 ? (
         <section className="space-y-3">
           <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               Categories
             </p>
-            <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="text-sm leading-6 text-muted-foreground">
               Narrow the catalog by discipline and focus area.
             </p>
           </div>
@@ -621,10 +621,10 @@ function CoursesPageContent() {
       {tagCounts.length > 0 ? (
         <section className="space-y-3">
           <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               Levels
             </p>
-            <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="text-sm leading-6 text-muted-foreground">
               Match your next course to your current depth.
             </p>
           </div>
@@ -646,7 +646,7 @@ function CoursesPageContent() {
         <Button
           variant="outline"
           onClick={clearAllFilters}
-          className="h-11 w-full rounded-none border-[#e9eaf0] bg-white text-[#1d2026] hover:border-[#ff6636] hover:bg-[#f5f7fa]"
+          className="h-11 w-full rounded-none border-border bg-card text-foreground hover:border-primary hover:bg-muted"
         >
           Reset all filters
         </Button>
@@ -786,18 +786,18 @@ function CoursesPageContent() {
                         if (isSortOption(value)) setSortBy(value);
                       }}
                     >
-                      <SelectTrigger className="h-14 rounded-none !border-2 !border-[#c7cfdd] !bg-white px-4 text-sm font-medium !text-[#1d2026] shadow-none hover:!border-[#98a2b3] focus:!border-[#ff6636] focus:ring-[4px] focus:ring-[#ff6636]/12 focus-visible:!border-[#ff6636] focus-visible:ring-[4px] focus-visible:ring-[#ff6636]/12">
+                      <SelectTrigger className="h-14 rounded-none border-2 border-border bg-card px-4 text-sm font-medium text-foreground shadow-none hover:border-ring/60 focus:border-primary focus:ring-[4px] focus:ring-primary/12 focus-visible:border-primary focus-visible:ring-[4px] focus-visible:ring-primary/12">
                         <SelectValue placeholder="Newest arrivals" />
                       </SelectTrigger>
                       <SelectContent
                         align="end"
-                        className="min-w-56 rounded-none border-[#c7cfdd] bg-white shadow-[0_18px_40px_rgba(18,24,40,0.14)]"
+                        className="min-w-56 rounded-none border-border bg-popover shadow-[0_18px_40px_rgba(18,24,40,0.14)]"
                       >
                         {SORT_OPTIONS.map((option) => (
                           <SelectItem
                             key={option.value}
                             value={option.value}
-                            className="rounded-none px-3 py-2 text-sm font-medium text-[#243041] focus:bg-[#fff2e5] focus:text-[#1d2026]"
+                            className="rounded-none px-3 py-2 text-sm font-medium text-popover-foreground focus:bg-primary/10 focus:text-foreground"
                           >
                             {option.label}
                           </SelectItem>

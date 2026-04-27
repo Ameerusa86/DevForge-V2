@@ -33,7 +33,7 @@ export default function RootLayout({
         >
           {children}
           <PasswordChangeGuard />
-          <Toaster />
+          <Toaster theme="system" />
         </ThemeProvider>
       </body>
     </html>

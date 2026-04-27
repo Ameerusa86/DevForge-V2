@@ -53,56 +53,56 @@ const categoryAppearance: Record<
   FRONTEND: {
     label: "Frontend",
     icon: MonitorPlay,
-    cardClassName: "bg-[#ebebff]",
-    iconClassName: "bg-white text-[#564ffd]",
+    cardClassName: "bg-chart-1/15",
+    iconClassName: "bg-card text-chart-1",
   },
   BACKEND: {
     label: "Backend",
     icon: Database,
-    cardClassName: "bg-[#e1f7e3]",
-    iconClassName: "bg-white text-[#23bd33]",
+    cardClassName: "bg-chart-3/15",
+    iconClassName: "bg-card text-chart-3",
   },
   FULL_STACK: {
     label: "Full Stack",
     icon: Layers3,
-    cardClassName: "bg-[#ffeee8]",
-    iconClassName: "bg-white text-[#ff6636]",
+    cardClassName: "bg-primary/12",
+    iconClassName: "bg-card text-primary",
   },
   PYTHON: {
     label: "Python",
     icon: Code2,
-    cardClassName: "bg-[#fff2e5]",
-    iconClassName: "bg-white text-[#fd8e1f]",
+    cardClassName: "bg-chart-2/18",
+    iconClassName: "bg-card text-chart-2",
   },
   JAVASCRIPT: {
     label: "JavaScript",
     icon: Braces,
-    cardClassName: "bg-[#ebebff]",
-    iconClassName: "bg-white text-[#564ffd]",
+    cardClassName: "bg-chart-1/15",
+    iconClassName: "bg-card text-chart-1",
   },
   TYPESCRIPT: {
     label: "TypeScript",
     icon: Braces,
-    cardClassName: "bg-[#f5f7fa]",
-    iconClassName: "bg-white text-[#6e7485]",
+    cardClassName: "bg-muted/70",
+    iconClassName: "bg-card text-muted-foreground",
   },
   CSHARP: {
     label: "C#",
     icon: Code2,
-    cardClassName: "bg-[#e1f7e3]",
-    iconClassName: "bg-white text-[#23bd33]",
+    cardClassName: "bg-chart-3/15",
+    iconClassName: "bg-card text-chart-3",
   },
   DOT_NET: {
     label: ".NET",
     icon: Globe,
-    cardClassName: "bg-[#ffeee8]",
-    iconClassName: "bg-white text-[#ff6636]",
+    cardClassName: "bg-primary/12",
+    iconClassName: "bg-card text-primary",
   },
   ASP_NET: {
     label: "ASP.NET",
     icon: Globe,
-    cardClassName: "bg-[#fff2e5]",
-    iconClassName: "bg-white text-[#fd8e1f]",
+    cardClassName: "bg-chart-2/18",
+    iconClassName: "bg-card text-chart-2",
   },
 };
 
@@ -122,26 +122,26 @@ function HomeSkeleton() {
     <div className="space-y-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_520px]">
         <div className="space-y-4">
-          <div className="h-4 w-44 bg-[#e9eaf0]" />
-          <div className="h-20 w-full max-w-[640px] bg-[#e9eaf0]" />
-          <div className="h-8 w-full max-w-[560px] bg-[#f1f3f7]" />
+          <div className="h-4 w-44 bg-muted" />
+          <div className="h-20 w-full max-w-[640px] bg-muted" />
+          <div className="h-8 w-full max-w-[560px] bg-muted/70" />
           <div className="flex gap-4">
-            <div className="h-14 w-40 bg-[#e9eaf0]" />
-            <div className="h-14 w-40 bg-[#f1f3f7]" />
+            <div className="h-14 w-40 bg-muted" />
+            <div className="h-14 w-40 bg-muted/70" />
           </div>
         </div>
-        <div className="aspect-[860/560] bg-[#e9eaf0]" />
+        <div className="aspect-[860/560] bg-muted" />
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="h-32 bg-[#e9eaf0]" />
-        <div className="h-32 bg-[#e9eaf0]" />
-        <div className="h-32 bg-[#e9eaf0]" />
-        <div className="h-32 bg-[#e9eaf0]" />
+        <div className="h-32 bg-muted" />
+        <div className="h-32 bg-muted" />
+        <div className="h-32 bg-muted" />
+        <div className="h-32 bg-muted" />
       </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        <div className="h-[360px] bg-[#e9eaf0]" />
-        <div className="h-[360px] bg-[#e9eaf0]" />
-        <div className="h-[360px] bg-[#e9eaf0]" />
+        <div className="h-[360px] bg-muted" />
+        <div className="h-[360px] bg-muted" />
+        <div className="h-[360px] bg-muted" />
       </div>
     </div>
   );
@@ -153,9 +153,9 @@ function CourseCard({ course }: { course: HomeCourse }) {
     categoryAppearance[course.category] || categoryAppearance.FULL_STACK;
 
   return (
-    <article className="group overflow-hidden border border-[#e9eaf0] bg-white transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(18,24,40,0.1)]">
+    <article className="group overflow-hidden border border-border bg-card transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(18,24,40,0.1)]">
       <Link href={`/courses/${course.slug}`} className="block">
-        <div className="relative aspect-[244/180] overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026]">
+        <div className="relative aspect-[244/180] overflow-hidden border-b border-border bg-[#1d2026]">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -170,11 +170,11 @@ function CourseCard({ course }: { course: HomeCourse }) {
           <div className="absolute inset-0 bg-gradient-to-t from-[#1d2026]/70 to-transparent" />
           <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
             <span
-              className={`inline-flex px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${appearance.cardClassName} text-[#1d2026]`}
+              className={`inline-flex px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${appearance.cardClassName} text-foreground`}
             >
               {appearance.label}
             </span>
-            <div className="bg-white px-2 py-1 text-xs font-semibold text-[#1d2026]">
+            <div className="bg-card px-2 py-1 text-xs font-semibold text-card-foreground">
               {formatPrice(course.price)}
             </div>
           </div>
@@ -183,27 +183,27 @@ function CourseCard({ course }: { course: HomeCourse }) {
 
       <div className="space-y-4 p-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#8c94a3]">
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
             {course.instructor}
           </p>
           <Link href={`/courses/${course.slug}`}>
-            <h3 className="mt-2 text-sm font-semibold leading-6 text-[#1d2026] transition hover:text-[#ff6636]">
+            <h3 className="mt-2 text-sm font-semibold leading-6 text-foreground transition hover:text-[#ff6636]">
               {course.title}
             </h3>
           </Link>
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#e9eaf0] pt-3 text-xs text-[#6e7485]">
+        <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Star className="size-3.5 fill-[#fd8e1f] text-[#fd8e1f]" />
             {course.totalReviews > 0 ? course.rating.toFixed(1) : "New"}
           </span>
           <span className="inline-flex items-center gap-1">
-            <Users className="size-3.5 text-[#8c94a3]" />
+            <Users className="size-3.5 text-muted-foreground" />
             {formatCompactNumber(course.enrollments)}
           </span>
           <span className="inline-flex items-center gap-1">
-            <BookOpen className="size-3.5 text-[#8c94a3]" />
+            <BookOpen className="size-3.5 text-muted-foreground" />
             {course.lessons}
           </span>
         </div>
@@ -287,11 +287,11 @@ export function MarketingHomePage() {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-white text-[#1d2026]">
+    <div className="min-h-screen bg-background text-foreground">
       <MarketingPublicHeader activePath="/" />
 
       <main>
-        <section className="overflow-hidden bg-gradient-to-b from-[#f5f7fa] via-[#f5f7fa] to-white">
+        <section className="overflow-hidden bg-gradient-to-b from-muted/70 via-muted/40 to-background">
           <div className="mx-auto max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
             {loading ? (
               <HomeSkeleton />
@@ -306,7 +306,7 @@ export function MarketingHomePage() {
                       <h1 className="max-w-[648px] text-[40px] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[56px] lg:text-[72px] lg:leading-[74px]">
                         Master in-demand tech skills with confidence.
                       </h1>
-                      <p className="max-w-[580px] text-lg leading-8 text-[#4e5566] lg:text-2xl">
+                      <p className="max-w-[580px] text-lg leading-8 text-muted-foreground lg:text-2xl">
                         Premium, project-driven courses designed to get you
                         job-ready faster.
                       </p>
@@ -323,14 +323,14 @@ export function MarketingHomePage() {
                         href="/my-courses"
                         className="inline-flex items-center gap-3 text-sm font-semibold transition hover:text-[#ff6636]"
                       >
-                        <span className="inline-flex size-12 items-center justify-center border border-[#e9eaf0] bg-white">
+                        <span className="inline-flex size-12 items-center justify-center border border-border bg-card">
                           <BookOpen className="size-5" />
                         </span>
                         Resume my path
                       </Link>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-6 text-sm text-[#6e7485]">
+                    <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
                       <span className="inline-flex items-center gap-2">
                         <Sparkles className="size-4 text-[#ff6636]" />
                         {publishedCourses.length} published courses
@@ -372,13 +372,13 @@ export function MarketingHomePage() {
                       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(29,32,38,0.08)_0%,rgba(29,32,38,0.18)_100%)]" />
                     </div>
 
-                    <div className="mt-4 flex max-w-[520px] flex-wrap gap-3 bg-white p-4 shadow-[0_18px_40px_rgba(29,32,38,0.1)] sm:absolute sm:-bottom-6 sm:left-0 sm:mt-0">
-                      <div className="flex min-w-[140px] flex-1 items-center gap-3 border-r border-[#e9eaf0] pr-4">
+                    <div className="mt-4 flex max-w-[520px] flex-wrap gap-3 bg-card p-4 shadow-[0_18px_40px_rgba(29,32,38,0.1)] sm:absolute sm:-bottom-6 sm:left-0 sm:mt-0">
+                      <div className="flex min-w-[140px] flex-1 items-center gap-3 border-r border-border pr-4">
                         <div className="flex size-11 items-center justify-center bg-[#ebebff] text-[#564ffd]">
                           <BookOpen className="size-5" />
                         </div>
                         <div>
-                          <p className="text-xs uppercase tracking-[0.08em] text-[#8c94a3]">
+                          <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                             Courses
                           </p>
                           <p className="font-semibold">
@@ -386,12 +386,12 @@ export function MarketingHomePage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex min-w-[140px] flex-1 items-center gap-3 border-r border-[#e9eaf0] pr-4">
+                      <div className="flex min-w-[140px] flex-1 items-center gap-3 border-r border-border pr-4">
                         <div className="flex size-11 items-center justify-center bg-[#e1f7e3] text-[#23bd33]">
                           <Users className="size-5" />
                         </div>
                         <div>
-                          <p className="text-xs uppercase tracking-[0.08em] text-[#8c94a3]">
+                          <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                             Learners
                           </p>
                           <p className="font-semibold">
@@ -404,7 +404,7 @@ export function MarketingHomePage() {
                           <Globe className="size-5" />
                         </div>
                         <div>
-                          <p className="text-xs uppercase tracking-[0.08em] text-[#8c94a3]">
+                          <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                             Instructors
                           </p>
                           <p className="font-semibold">{uniqueInstructors}</p>
@@ -414,13 +414,13 @@ export function MarketingHomePage() {
                   </div>
                 </div>
 
-                <section className="bg-[#f5f7fa] py-16 lg:py-20">
+                <section className="bg-muted/35 py-16 lg:py-20">
                   <div className="mx-auto max-w-[1320px] px-0">
                     <div className="mx-auto max-w-[640px] text-center">
-                      <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d2026] sm:text-[32px]">
+                      <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground sm:text-[32px]">
                         Browse live categories
                       </h2>
-                      <p className="mt-3 text-sm leading-6 text-[#6e7485] sm:text-base">
+                      <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
                         Choose your focus and start building.
                       </p>
                     </div>
@@ -442,10 +442,10 @@ export function MarketingHomePage() {
                               <Icon className="size-7" />
                             </div>
                             <div>
-                              <h3 className="text-base font-semibold text-[#1d2026]">
+                              <h3 className="text-base font-semibold text-foreground">
                                 {appearance.label}
                               </h3>
-                              <p className="mt-2 text-sm text-[#6e7485]">
+                              <p className="mt-2 text-sm text-muted-foreground">
                                 {count} live{" "}
                                 {count === 1 ? "course" : "courses"}
                               </p>
@@ -460,10 +460,10 @@ export function MarketingHomePage() {
                 <section className="py-4">
                   <div className="mx-auto max-w-[1320px] px-0">
                     <div className="mx-auto max-w-[640px] text-center">
-                      <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d2026] sm:text-[32px]">
+                      <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground sm:text-[32px]">
                         Most popular right now
                       </h2>
-                      <p className="mt-3 text-sm leading-6 text-[#6e7485] sm:text-base">
+                      <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
                         Top picks learners enroll in first.
                       </p>
                     </div>
@@ -475,21 +475,21 @@ export function MarketingHomePage() {
                   </div>
                 </section>
 
-                <section className="bg-[#f5f7fa] py-16 lg:py-20">
+                <section className="bg-muted/35 py-16 lg:py-20">
                   <div className="mx-auto max-w-[1480px] px-0">
-                    <div className="border border-[#e9eaf0] bg-white px-6 py-8 sm:px-10 lg:px-20 lg:py-16">
+                    <div className="border border-border bg-card px-6 py-8 sm:px-10 lg:px-20 lg:py-16">
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
-                          <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d2026] sm:text-[32px]">
+                          <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground sm:text-[32px]">
                             Top rated learning paths
                           </h2>
-                          <p className="mt-3 max-w-[560px] text-sm leading-6 text-[#6e7485] sm:text-base">
+                          <p className="mt-3 max-w-[560px] text-sm leading-6 text-muted-foreground sm:text-base">
                             High-impact paths curated for outcomes.
                           </p>
                         </div>
                         <Link
                           href="/courses"
-                          className="inline-flex items-center gap-2 text-sm font-semibold text-[#1d2026] transition hover:text-[#ff6636]"
+                          className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-primary"
                         >
                           Browse all courses
                           <ArrowRight className="size-4" />
@@ -499,9 +499,9 @@ export function MarketingHomePage() {
                         {featuredCourses.map((course) => (
                           <article
                             key={course.id}
-                            className="grid overflow-hidden border border-[#e9eaf0] bg-white sm:grid-cols-[220px_minmax(0,1fr)]"
+                            className="grid overflow-hidden border border-border bg-card sm:grid-cols-[220px_minmax(0,1fr)]"
                           >
-                            <div className="relative min-h-[180px] overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026] sm:border-b-0 sm:border-r">
+                            <div className="relative min-h-[180px] overflow-hidden border-b border-border bg-[#1d2026] sm:border-b-0 sm:border-r">
                               {course.imageUrl ? (
                                 <Image
                                   src={getProxiedImageUrl(course.imageUrl)}
@@ -515,8 +515,8 @@ export function MarketingHomePage() {
                               )}
                             </div>
                             <div className="space-y-4 p-5">
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-[#8c94a3]">
-                                <span className="bg-[#fff2e5] px-2 py-1 font-semibold uppercase tracking-[0.08em] text-[#ff6636]">
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                <span className="bg-primary/10 px-2 py-1 font-semibold uppercase tracking-[0.08em] text-primary">
                                   {
                                     (
                                       categoryAppearance[course.category] ||
@@ -526,16 +526,16 @@ export function MarketingHomePage() {
                                 </span>
                                 <span>{course.instructor}</span>
                               </div>
-                              <h3 className="text-lg font-semibold leading-7 text-[#1d2026]">
+                              <h3 className="text-lg font-semibold leading-7 text-foreground">
                                 {course.title}
                               </h3>
-                              <div className="flex flex-wrap gap-5 text-sm text-[#6e7485]">
+                              <div className="flex flex-wrap gap-5 text-sm text-muted-foreground">
                                 <span className="inline-flex items-center gap-2">
-                                  <BookOpen className="size-4 text-[#8c94a3]" />
+                                  <BookOpen className="size-4 text-muted-foreground" />
                                   {course.lessons} lessons
                                 </span>
                                 <span className="inline-flex items-center gap-2">
-                                  <Users className="size-4 text-[#8c94a3]" />
+                                  <Users className="size-4 text-muted-foreground" />
                                   {formatCompactNumber(course.enrollments)}{" "}
                                   learners
                                 </span>
@@ -546,8 +546,8 @@ export function MarketingHomePage() {
                                     : "New"}
                                 </span>
                               </div>
-                              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e9eaf0] pt-4">
-                                <div className="text-sm font-semibold text-[#1d2026]">
+                              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                                <div className="text-sm font-semibold text-foreground">
                                   {formatPrice(course.price)}
                                 </div>
                                 <Link
@@ -570,10 +570,10 @@ export function MarketingHomePage() {
                     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                       <div>
                         <div className="mx-auto max-w-[640px] text-center xl:mx-0 xl:text-left">
-                          <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d2026] sm:text-[32px]">
+                          <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground sm:text-[32px]">
                             Recently published
                           </h2>
-                          <p className="mt-3 text-sm leading-6 text-[#6e7485] sm:text-base">
+                          <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
                             Newest releases, ready when you are.
                           </p>
                         </div>
@@ -584,7 +584,7 @@ export function MarketingHomePage() {
                         </div>
                       </div>
 
-                      <aside className="border border-[#e9eaf0] bg-white p-6 shadow-[0_12px_24px_rgba(29,32,38,0.08)]">
+                      <aside className="border border-border bg-card p-6 shadow-[0_12px_24px_rgba(29,32,38,0.08)]">
                         <div className="space-y-4">
                           <div>
                             <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#ff6636]">
@@ -594,20 +594,20 @@ export function MarketingHomePage() {
                               Clear paths. Real progress.
                             </h3>
                           </div>
-                          <div className="bg-[#f5f7fa] p-4">
+                          <div className="bg-muted/40 p-4">
                             <div className="flex items-end gap-3">
                               <span className="text-4xl font-semibold">
                                 {publishedCourses.length}
                               </span>
-                              <span className="pb-1 text-sm text-[#8c94a3]">
+                              <span className="pb-1 text-sm text-muted-foreground">
                                 published courses
                               </span>
                             </div>
-                            <p className="mt-2 text-sm text-[#6e7485]">
+                            <p className="mt-2 text-sm text-muted-foreground">
                               Compare tracks, pick a goal, and start in minutes.
                             </p>
                           </div>
-                          <div className="space-y-3 text-sm text-[#4e5566]">
+                          <div className="space-y-3 text-sm text-muted-foreground">
                             <p className="inline-flex items-center gap-2">
                               <Sparkles className="size-4 text-[#23bd33]" />
                               {uniqueInstructors} vetted instructors
@@ -631,7 +631,7 @@ export function MarketingHomePage() {
                             </Link>
                             <Link
                               href="/my-courses"
-                              className="inline-flex items-center justify-center border border-[#d7dae0] bg-white px-5 py-3 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:text-[#ff6636]"
+                              className="inline-flex items-center justify-center border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground transition hover:border-[#ff6636] hover:text-[#ff6636]"
                             >
                               View my learning
                             </Link>

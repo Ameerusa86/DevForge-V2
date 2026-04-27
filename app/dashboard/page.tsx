@@ -111,26 +111,26 @@ function getProgressState(progress: number) {
   if (progress >= 100) {
     return {
       label: "Completed",
-      className: "bg-[#1d2026] text-white",
+      className: "bg-primary text-primary-foreground",
     };
   }
 
   if (progress > 0) {
     return {
       label: "In Progress",
-      className: "bg-[#fff2e5] text-[#ff6636]",
+      className: "bg-primary/10 text-primary",
     };
   }
 
   return {
     label: "Ready to Start",
-    className: "border border-[#e9eaf0] bg-white text-[#4e5566]",
+    className: "border border-border bg-card text-muted-foreground",
   };
 }
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-[#1d2026]">
+    <div className="min-h-screen bg-background text-foreground">
       <MarketingPublicHeader activePath="/dashboard" showSearch={false} />
       {children}
       <MarketingPublicFooter />
@@ -274,14 +274,14 @@ export default function DashboardPage() {
     return (
       <DashboardShell>
         <div className="mx-auto flex min-h-[70vh] max-w-[1320px] items-center justify-center px-4 sm:px-6 lg:px-8">
-          <div className="border border-[#e9eaf0] bg-white px-8 py-10 text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+          <div className="border border-border bg-card px-8 py-10 text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Dashboard unavailable
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
               The dashboard could not be loaded.
             </h1>
-            <p className="mt-4 text-sm leading-7 text-[#6e7485]">
+            <p className="mt-4 text-sm leading-7 text-muted-foreground">
               Try the request again. The page still reads from the live
               dashboard API.
             </p>
@@ -300,25 +300,25 @@ export default function DashboardPage() {
   return (
     <DashboardShell>
       <main>
-        <section className="border-b border-[#e9eaf0] bg-white">
+        <section className="border-b border-border bg-card">
           <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
             <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
               <div className="max-w-[760px]">
                 <Link
                   href="/my-courses"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-[#4e5566] transition hover:text-[#ff6636]"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
                 >
                   <BookOpen className="size-4" />
                   Open full course manager
                 </Link>
 
-                <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Dashboard
                 </p>
                 <h1 className="mt-3 text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[3.4rem]">
                   Welcome back, {firstName}. Here is what matters next.
                 </h1>
-                <p className="mt-5 max-w-[700px] text-base leading-8 text-[#6e7485]">
+                <p className="mt-5 max-w-[700px] text-base leading-8 text-muted-foreground">
                   This page is now your summary hub: current focus, recent
                   lesson completions, and progress across every active path.
                   Course management stays on `/my-courses`.
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                     variant="outline"
                     onClick={handleRefresh}
                     disabled={refreshing}
-                    className="rounded-none border-[#d7dae0] bg-white px-5 py-3 text-sm font-semibold text-[#1d2026] hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                    className="rounded-none border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:border-primary hover:bg-muted hover:text-primary"
                   >
                     <RefreshCw
                       className={`mr-2 size-4 ${refreshing ? "animate-spin" : ""}`}
@@ -345,8 +345,8 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="border border-[#1d2026] bg-[#1d2026] p-6 text-white">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d0d3dd]">
+              <div className="border border-border bg-card p-6 text-card-foreground">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Current focus
                 </p>
                 {nextFocus ? (
@@ -356,27 +356,27 @@ export default function DashboardPage() {
                         <p className="text-2xl font-semibold tracking-[-0.03em]">
                           {nextFocus.course.title}
                         </p>
-                        <p className="mt-2 text-sm leading-7 text-[#d0d3dd]">
+                        <p className="mt-2 text-sm leading-7 text-muted-foreground">
                           By {nextFocus.course.instructor.name}
                         </p>
                       </div>
-                      <div className="flex size-12 items-center justify-center border border-white/10 bg-white/10">
+                      <div className="flex size-12 items-center justify-center border border-border bg-muted/40">
                         <Target className="size-5" />
                       </div>
                     </div>
 
                     <div className="mt-6 flex flex-wrap gap-2">
-                      <span className="border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
+                      <span className="border border-border bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
                         {nextFocus.course.category}
                       </span>
-                      <span className="border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
+                      <span className="border border-border bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
                         {nextFocus.course.level}
                       </span>
                     </div>
 
                     <div className="mt-6">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#d0d3dd]">
+                        <span className="text-muted-foreground">
                           {nextFocus.completedLessons}/{nextFocus.totalLessons}{" "}
                           lessons
                         </span>
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                           {nextFocus.progress}%
                         </span>
                       </div>
-                      <div className="mt-3 h-2 bg-white/10">
+                      <div className="mt-3 h-2 bg-muted">
                         <div
                           className="h-full bg-[#ff6636]"
                           style={{ width: `${nextFocus.progress}%` }}
@@ -406,12 +406,12 @@ export default function DashboardPage() {
                         <p className="text-2xl font-semibold tracking-[-0.03em]">
                           No active path yet
                         </p>
-                        <p className="mt-2 text-sm leading-7 text-[#d0d3dd]">
+                        <p className="mt-2 text-sm leading-7 text-muted-foreground">
                           Browse the catalog and enroll in a course. Your
                           summary dashboard will start here.
                         </p>
                       </div>
-                      <div className="flex size-12 items-center justify-center border border-white/10 bg-white/10">
+                      <div className="flex size-12 items-center justify-center border border-border bg-muted/40">
                         <LayoutDashboard className="size-5" />
                       </div>
                     </div>
@@ -428,51 +428,51 @@ export default function DashboardPage() {
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted/35 p-5">
+                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   <LayoutDashboard className="size-3.5 text-[#ff6636]" />
                   Active Paths
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {data.stats.totalEnrolled}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Total courses currently attached to your account.
                 </p>
               </div>
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted/35 p-5">
+                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   <TrendingUp className="size-3.5 text-[#ff6636]" />
                   Moving Now
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {data.stats.inProgress}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Courses where progress has already started.
                 </p>
               </div>
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted/35 p-5">
+                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   <Sparkles className="size-3.5 text-[#ff6636]" />
                   Ready To Start
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {readyToStartCount}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Enrolled paths that have not started yet.
                 </p>
               </div>
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted/35 p-5">
+                <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   <Activity className="size-3.5 text-[#ff6636]" />
                   Lessons Done
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {data.stats.totalLessonsCompleted}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Lesson completions recorded by the API.
                 </p>
               </div>
@@ -483,14 +483,14 @@ export default function DashboardPage() {
         <section className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
           {data.enrollments.length === 0 &&
           recentActivityPreview.length === 0 ? (
-            <div className="border border-dashed border-[#d7dae0] bg-white px-8 py-14 text-center">
-              <div className="mx-auto flex size-14 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+            <div className="border border-dashed border-border bg-card px-8 py-14 text-center">
+              <div className="mx-auto flex size-14 items-center justify-center bg-primary/10 text-primary">
                 <BookOpen className="size-6" />
               </div>
-              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                 No learning activity yet
               </h2>
-              <p className="mt-3 text-sm leading-7 text-[#6e7485]">
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
                 Enroll in a course and the dashboard will start filling with
                 focus items, activity history, and progress summaries.
               </p>
@@ -505,19 +505,19 @@ export default function DashboardPage() {
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_380px]">
               <div className="space-y-6">
                 {resumeCourses.length > 0 ? (
-                  <section className="border border-[#e9eaf0] bg-white p-6 sm:p-8">
+                  <section className="border border-border bg-card p-6 sm:p-8">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                           Resume learning
                         </p>
-                        <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                        <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                           Your next actions, not every course action.
                         </h2>
                       </div>
                       <Link
                         href="/my-courses"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-[#ff6636] transition hover:text-[#e95a2b]"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary/85"
                       >
                         Open my courses
                         <ArrowRight className="size-4" />
@@ -537,9 +537,9 @@ export default function DashboardPage() {
                         return (
                           <article
                             key={enrollment.id}
-                            className="grid gap-4 border border-[#e9eaf0] bg-[#f5f7fa] p-4 lg:grid-cols-[160px_minmax(0,1fr)_auto] lg:items-center"
+                            className="grid gap-4 border border-border bg-muted/35 p-4 lg:grid-cols-[160px_minmax(0,1fr)_auto] lg:items-center"
                           >
-                            <div className="relative h-28 overflow-hidden border border-[#e9eaf0] bg-[#1d2026]">
+                            <div className="relative h-28 overflow-hidden border border-border bg-[#1d2026]">
                               {imageUrl ? (
                                 <Image
                                   src={imageUrl}
@@ -555,10 +555,10 @@ export default function DashboardPage() {
 
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                                <span className="bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                                   {course.category}
                                 </span>
-                                <span className="border border-[#e9eaf0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
+                                <span className="border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                                   {course.level}
                                 </span>
                                 <span
@@ -568,30 +568,30 @@ export default function DashboardPage() {
                                 </span>
                               </div>
 
-                              <h3 className="mt-4 text-xl font-semibold leading-tight text-[#1d2026]">
+                              <h3 className="mt-4 text-xl font-semibold leading-tight text-foreground">
                                 {course.title}
                               </h3>
-                              <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                              <p className="mt-2 text-sm leading-7 text-muted-foreground">
                                 By {course.instructor.name}
                               </p>
 
                               <div className="mt-4">
                                 <div className="flex items-center justify-between text-sm">
-                                  <span className="text-[#6e7485]">
+                                  <span className="text-muted-foreground">
                                     {enrollment.completedLessons}/
                                     {enrollment.totalLessons} lessons completed
                                   </span>
-                                  <span className="font-semibold text-[#1d2026]">
+                                  <span className="font-semibold text-foreground">
                                     {enrollment.progress}%
                                   </span>
                                 </div>
                                 <Progress
                                   value={enrollment.progress}
-                                  className="mt-3 h-2 bg-[#e9eaf0]"
+                                  className="mt-3 h-2 bg-muted"
                                 />
                               </div>
 
-                              <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-[#6e7485]">
+                              <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                                 <span className="inline-flex items-center gap-2">
                                   <CalendarRange className="size-4 text-[#ff6636]" />
                                   Added {formatDate(enrollment.enrolledAt)}
@@ -612,7 +612,7 @@ export default function DashboardPage() {
                               </Link>
                               <Link
                                 href="/my-courses"
-                                className="inline-flex items-center justify-center border border-[#d7dae0] bg-white px-5 py-3 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                                className="inline-flex items-center justify-center border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-muted hover:text-primary"
                               >
                                 Manage path
                               </Link>
@@ -625,12 +625,12 @@ export default function DashboardPage() {
                 ) : null}
 
                 {recentActivityPreview.length > 0 ? (
-                  <section className="border border-[#e9eaf0] bg-white p-6 sm:p-8">
+                  <section className="border border-border bg-card p-6 sm:p-8">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         Recent activity
                       </p>
-                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                         Lesson completions in timeline form.
                       </h2>
                     </div>
@@ -640,21 +640,21 @@ export default function DashboardPage() {
                         <Link
                           key={`${activity.lessonId}-${activity.completedAt}`}
                           href={`/courses/${activity.lesson.course.slug}`}
-                          className="block border border-[#e9eaf0] bg-[#f5f7fa] p-5 transition hover:border-[#ff6636] hover:bg-[#fffaf6]"
+                          className="block border border-border bg-muted/35 p-5 transition hover:border-primary hover:bg-muted"
                         >
                           <div className="grid gap-4 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-start">
-                            <div className="flex size-12 items-center justify-center bg-white text-[#ff6636]">
+                            <div className="flex size-12 items-center justify-center bg-card text-primary">
                               <CheckCircle2 className="size-5" />
                             </div>
                             <div className="min-w-0">
-                              <p className="text-base font-semibold text-[#1d2026]">
+                              <p className="text-base font-semibold text-foreground">
                                 {activity.lesson.title}
                               </p>
-                              <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                              <p className="mt-2 text-sm leading-7 text-muted-foreground">
                                 {activity.lesson.course.title}
                               </p>
                             </div>
-                            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#4e5566]">
+                            <span className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
                               <Clock3 className="size-4 text-[#ff6636]" />
                               {formatDate(activity.completedAt)}
                             </span>
@@ -665,19 +665,19 @@ export default function DashboardPage() {
                   </section>
                 ) : null}
 
-                <section className="border border-[#e9eaf0] bg-white p-6 sm:p-8">
+                <section className="border border-border bg-card p-6 sm:p-8">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         Progress map
                       </p>
-                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                         Every enrolled path, one compact list.
                       </h2>
                     </div>
                     <Link
                       href="/my-courses"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#ff6636] transition hover:text-[#e95a2b]"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary/85"
                     >
                       Full course actions
                       <ArrowRight className="size-4" />
@@ -691,17 +691,17 @@ export default function DashboardPage() {
                       return (
                         <article
                           key={enrollment.id}
-                          className="border border-[#e9eaf0] bg-[#f5f7fa] p-5"
+                          className="border border-border bg-muted/35 p-5"
                         >
                           <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="min-w-0">
                               <Link
                                 href={`/courses/${enrollment.course.slug}`}
-                                className="text-lg font-semibold text-[#1d2026] transition hover:text-[#ff6636]"
+                                className="text-lg font-semibold text-foreground transition hover:text-primary"
                               >
                                 {enrollment.course.title}
                               </Link>
-                              <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                              <p className="mt-2 text-sm leading-7 text-muted-foreground">
                                 By {enrollment.course.instructor.name} ·{" "}
                                 {enrollment.completedLessons}/
                                 {enrollment.totalLessons} lessons
@@ -716,14 +716,16 @@ export default function DashboardPage() {
 
                           <div className="mt-5">
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-[#6e7485]">Completion</span>
-                              <span className="font-semibold text-[#1d2026]">
+                              <span className="text-muted-foreground">
+                                Completion
+                              </span>
+                              <span className="font-semibold text-foreground">
                                 {enrollment.progress}%
                               </span>
                             </div>
                             <Progress
                               value={enrollment.progress}
-                              className="mt-3 h-2 bg-[#e9eaf0]"
+                              className="mt-3 h-2 bg-muted"
                             />
                           </div>
                         </article>
@@ -734,27 +736,29 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="border border-[#1d2026] bg-[#1d2026] p-6 text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d0d3dd]">
+                <div className="border border-border bg-card p-6 text-card-foreground">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Learning overview
                   </p>
                   <div className="mt-4 flex items-end gap-3">
                     <span className="text-[52px] font-semibold leading-none tracking-[-0.05em]">
                       {averageProgress}%
                     </span>
-                    <span className="pb-1 text-sm font-medium text-[#d0d3dd]">
+                    <span className="pb-1 text-sm font-medium text-muted-foreground">
                       average progress
                     </span>
                   </div>
                   <div className="mt-6 space-y-5">
                     <div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#d0d3dd]">Average progress</span>
+                        <span className="text-muted-foreground">
+                          Average progress
+                        </span>
                         <span className="font-semibold">
                           {averageProgress}%
                         </span>
                       </div>
-                      <div className="mt-3 h-2 bg-white/10">
+                      <div className="mt-3 h-2 bg-muted">
                         <div
                           className="h-full bg-[#ff6636]"
                           style={{ width: `${averageProgress}%` }}
@@ -764,58 +768,66 @@ export default function DashboardPage() {
 
                     <div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#d0d3dd]">Completion rate</span>
+                        <span className="text-muted-foreground">
+                          Completion rate
+                        </span>
                         <span className="font-semibold">{completionRate}%</span>
                       </div>
-                      <div className="mt-3 h-2 bg-white/10">
+                      <div className="mt-3 h-2 bg-muted">
                         <div
-                          className="h-full bg-white"
+                          className="h-full bg-foreground"
                           style={{ width: `${completionRate}%` }}
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 space-y-4 border-t border-white/10 pt-5 text-sm">
+                  <div className="mt-6 space-y-4 border-t border-border pt-5 text-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-[#d0d3dd]">Last activity</span>
+                      <span className="text-muted-foreground">
+                        Last activity
+                      </span>
                       <span className="font-semibold">{lastActivityLabel}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[#d0d3dd]">Completed courses</span>
+                      <span className="text-muted-foreground">
+                        Completed courses
+                      </span>
                       <span className="font-semibold">
                         {data.stats.completed}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[#d0d3dd]">Not started yet</span>
+                      <span className="text-muted-foreground">
+                        Not started yet
+                      </span>
                       <span className="font-semibold">{readyToStartCount}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="border border-[#e9eaf0] bg-white p-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                <div className="border border-border bg-card p-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Quick links
                   </p>
                   <div className="mt-5 grid gap-3">
                     <Link
                       href="/my-courses"
-                      className="inline-flex items-center justify-between border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                      className="inline-flex items-center justify-between border border-border bg-muted/35 px-4 py-4 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-muted hover:text-primary"
                     >
                       Open my courses
                       <ArrowRight className="size-4" />
                     </Link>
                     <Link
                       href="/profile"
-                      className="inline-flex items-center justify-between border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                      className="inline-flex items-center justify-between border border-border bg-muted/35 px-4 py-4 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-muted hover:text-primary"
                     >
                       Profile settings
                       <ArrowRight className="size-4" />
                     </Link>
                     <Link
                       href="/courses"
-                      className="inline-flex items-center justify-between border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                      className="inline-flex items-center justify-between border border-border bg-muted/35 px-4 py-4 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-muted hover:text-primary"
                     >
                       Browse catalog
                       <ArrowRight className="size-4" />
@@ -824,16 +836,16 @@ export default function DashboardPage() {
                 </div>
 
                 {data.recommendedCourses.length > 0 ? (
-                  <div className="border border-[#e9eaf0] bg-white p-6">
+                  <div className="border border-border bg-card p-6">
                     <div className="flex items-start gap-3">
-                      <div className="flex size-12 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+                      <div className="flex size-12 items-center justify-center bg-primary/10 text-primary">
                         <Sparkles className="size-5" />
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                           Recommended next
                         </p>
-                        <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                        <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                           Explore something outside your current queue.
                         </h2>
                       </div>
@@ -849,9 +861,9 @@ export default function DashboardPage() {
                           <Link
                             key={course.id}
                             href={`/courses/${course.slug}`}
-                            className="grid gap-4 border border-[#e9eaf0] bg-[#f5f7fa] p-4 sm:grid-cols-[96px_minmax(0,1fr)] transition hover:border-[#ff6636] hover:bg-[#fffaf6]"
+                            className="grid gap-4 border border-border bg-muted/35 p-4 sm:grid-cols-[96px_minmax(0,1fr)] transition hover:border-primary hover:bg-muted"
                           >
-                            <div className="relative h-24 overflow-hidden border border-[#e9eaf0] bg-[#1d2026]">
+                            <div className="relative h-24 overflow-hidden border border-border bg-[#1d2026]">
                               {imageUrl ? (
                                 <Image
                                   src={imageUrl}
@@ -866,20 +878,20 @@ export default function DashboardPage() {
                             </div>
                             <div className="min-w-0">
                               <div className="flex flex-wrap gap-2">
-                                <span className="bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                                <span className="bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                                   {course.category}
                                 </span>
-                                <span className="border border-[#e9eaf0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
+                                <span className="border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                                   {course.level}
                                 </span>
                               </div>
-                              <h3 className="mt-3 text-lg font-semibold leading-tight text-[#1d2026]">
+                              <h3 className="mt-3 text-lg font-semibold leading-tight text-foreground">
                                 {course.title}
                               </h3>
-                              <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                              <p className="mt-2 text-sm leading-7 text-muted-foreground">
                                 By {course.instructor.name}
                               </p>
-                              <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-[#6e7485]">
+                              <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                                 <span className="inline-flex items-center gap-2">
                                   <BookOpen className="size-4 text-[#ff6636]" />
                                   {course.lessons.length} lessons
