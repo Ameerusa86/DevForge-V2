@@ -383,7 +383,7 @@ export default function MyCoursesPage() {
 
   if (shouldRedirectToLogin || isPending || loading) {
     return (
-      <div className="min-h-screen bg-[#f5f7fa] text-[#1d2026]">
+      <div className="min-h-screen bg-background text-foreground">
         <MarketingPublicHeader activePath="/my-courses" showSearch={false} />
         <div className="mx-auto max-w-[1320px] px-4 py-12 sm:px-6 lg:px-8">
           <div className="space-y-6">
@@ -406,29 +406,29 @@ export default function MyCoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-[#1d2026]">
+    <div className="min-h-screen bg-background text-foreground">
       <MarketingPublicHeader activePath="/my-courses" showSearch={false} />
 
       <main>
-        <section className="border-b border-[#e9eaf0] bg-white">
+        <section className="border-b border-border bg-card">
           <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
             <div className="flex flex-wrap items-start justify-between gap-6">
               <div className="max-w-[760px]">
                 <Link
                   href="/courses"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-[#4e5566] transition hover:text-[#ff6636]"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
                 >
                   <ArrowLeft className="size-4" />
                   Back to catalog
                 </Link>
 
-                <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   My learning
                 </p>
                 <h1 className="mt-3 text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[3.4rem]">
                   Keep moving through your enrolled courses.
                 </h1>
-                <p className="mt-5 max-w-[680px] text-base leading-8 text-[#6e7485]">
+                <p className="mt-5 max-w-[680px] text-base leading-8 text-muted-foreground">
                   Track current progress, jump back into lessons, review
                   completed courses, and manage your active learning paths from
                   one place.
@@ -440,7 +440,7 @@ export default function MyCoursesPage() {
                   variant="outline"
                   onClick={handleRefresh}
                   disabled={refreshing}
-                  className="rounded-none border-[#d7dae0] bg-white px-5 py-3 text-sm font-semibold text-[#1d2026] hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                  className="rounded-none border-border bg-card px-5 py-3 text-sm font-semibold text-foreground hover:border-primary hover:bg-primary/5 hover:text-primary"
                 >
                   <RefreshCw
                     className={`mr-2 size-4 ${refreshing ? "animate-spin" : ""}`}
@@ -457,47 +457,47 @@ export default function MyCoursesPage() {
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Enrolled
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {enrollments.length}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Active learning paths in your account.
                 </p>
               </div>
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   In Progress
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {activeCourses.length}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Courses with lessons still left to finish.
                 </p>
               </div>
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Completed
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {completedCourses.length}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Courses you can review or certify now.
                 </p>
               </div>
-              <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="border border-border bg-muted p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Avg Progress
                 </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   {averageProgress}%
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Average completion across your learning queue.
                 </p>
               </div>
@@ -507,14 +507,14 @@ export default function MyCoursesPage() {
 
         <section className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
           {enrollmentsWithProgress.length === 0 ? (
-            <div className="border border-dashed border-[#d7dae0] bg-white px-8 py-14 text-center">
-              <div className="mx-auto flex size-14 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+            <div className="border border-dashed border-border bg-card px-8 py-14 text-center">
+              <div className="mx-auto flex size-14 items-center justify-center bg-primary/10 text-primary">
                 <BookOpen className="size-6" />
               </div>
-              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                 No enrolled courses yet
               </h2>
-              <p className="mt-3 text-sm leading-7 text-[#6e7485]">
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
                 Browse the live catalog, pick a learning path, and your progress
                 dashboard will start here.
               </p>
@@ -547,7 +547,7 @@ export default function MyCoursesPage() {
                   return (
                     <article
                       key={enrollment.id}
-                      className="group overflow-hidden border border-[#e9eaf0] bg-white transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(18,24,40,0.08)]"
+                      className="group overflow-hidden border border-border bg-card transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
                     >
                       <div className="relative aspect-video w-full overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026]">
                         {imageUrl ? (
@@ -563,7 +563,7 @@ export default function MyCoursesPage() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1d2026] via-[#1d2026]/25 to-transparent" />
                         <div className="absolute left-0 right-0 top-0 flex items-start justify-between gap-3 p-4">
-                          <span className="bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1d2026]">
+                          <span className="bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground">
                             {course.category}
                           </span>
                           <button
@@ -594,43 +594,43 @@ export default function MyCoursesPage() {
                       </div>
 
                       <div className="space-y-5 p-5">
-                        <p className="line-clamp-3 text-sm leading-7 text-[#6e7485]">
+                        <p className="line-clamp-3 text-sm leading-7 text-muted-foreground">
                           {course.description}
                         </p>
 
                         <div className="flex flex-wrap gap-2">
-                          <span className="inline-flex items-center gap-2 bg-[#fff2e5] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                          <span className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                             <Tag className="size-3.5" />
                             {course.category}
                           </span>
-                          <span className="inline-flex items-center gap-2 border border-[#e9eaf0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
-                            <GraduationCap className="size-3.5 text-[#ff6636]" />
+                          <span className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                            <GraduationCap className="size-3.5 text-primary" />
                             {course.level}
                           </span>
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-3">
-                          <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                          <div className="border border-border bg-muted px-4 py-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                               Lessons
                             </p>
-                            <p className="mt-2 text-base font-semibold text-[#1d2026]">
+                            <p className="mt-2 text-base font-semibold text-foreground">
                               {totalLessons}
                             </p>
                           </div>
-                          <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                          <div className="border border-border bg-muted px-4 py-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                               Duration
                             </p>
-                            <p className="mt-2 text-base font-semibold text-[#1d2026]">
+                            <p className="mt-2 text-base font-semibold text-foreground">
                               {formatDuration(course.durationMinutes)}
                             </p>
                           </div>
-                          <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                          <div className="border border-border bg-muted px-4 py-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                               Progress
                             </p>
-                            <p className="mt-2 text-base font-semibold text-[#1d2026]">
+                            <p className="mt-2 text-base font-semibold text-foreground">
                               {actualProgress}%
                             </p>
                           </div>
@@ -638,32 +638,32 @@ export default function MyCoursesPage() {
 
                         <div>
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-[#6e7485]">
+                            <span className="text-muted-foreground">
                               {completedLessons}/{totalLessons} lessons
                               completed
                             </span>
-                            <span className="font-semibold text-[#1d2026]">
+                            <span className="font-semibold text-foreground">
                               {actualProgress}%
                             </span>
                           </div>
                           <Progress
                             value={actualProgress}
-                            className="mt-3 h-2 bg-[#e9eaf0]"
+                            className="mt-3 h-2"
                           />
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-[#6e7485]">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                           <span className="inline-flex items-center gap-2">
-                            <BookOpen className="size-4 text-[#ff6636]" />
+                            <BookOpen className="size-4 text-primary" />
                             {course.lessons.length} lessons
                           </span>
                           <span className="inline-flex items-center gap-2">
-                            <Clock3 className="size-4 text-[#ff6636]" />
+                            <Clock3 className="size-4 text-primary" />
                             {formatDuration(course.durationMinutes)}
                           </span>
                         </div>
 
-                        <p className="text-sm font-medium text-[#4e5566]">
+                        <p className="text-sm font-medium text-foreground/80">
                           By {course.instructor.name}
                         </p>
 
@@ -671,7 +671,7 @@ export default function MyCoursesPage() {
                           <div className="grid gap-3">
                             <Link
                               href={`/certificates/${enrollment.id}`}
-                              className="inline-flex items-center justify-center bg-[#1d2026] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#111318]"
+                              className="inline-flex items-center justify-center bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:bg-foreground/90"
                             >
                               <Award className="mr-2 size-4" />
                               View certificate
@@ -681,13 +681,13 @@ export default function MyCoursesPage() {
                               onClick={() =>
                                 handleOpenReview(course.id, course.title)
                               }
-                              className="inline-flex items-center justify-center border border-[#d7dae0] bg-white px-5 py-3 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
+                              className="inline-flex items-center justify-center border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                             >
                               <Star
                                 className={`mr-2 size-4 ${
                                   hasReview
                                     ? "fill-[#fd8e1f] text-[#fd8e1f]"
-                                    : "text-[#ff6636]"
+                                    : "text-primary"
                                 }`}
                               />
                               {hasReview ? "Update review" : "Write review"}

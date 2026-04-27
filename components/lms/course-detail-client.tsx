@@ -101,27 +101,27 @@ function LessonRow({
   return (
     <Link
       href={`/courses/${courseSlug}/lessons/${lesson.id}`}
-      className="group flex items-start gap-4 border border-[#e9eaf0] bg-white px-4 py-4 transition hover:border-[#ff6636] hover:bg-[#fffaf6]"
+      className="group flex items-start gap-4 border border-border bg-card px-4 py-4 transition hover:border-primary hover:bg-primary/5"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center bg-[#fff2e5] text-sm font-semibold text-[#ff6636]">
+      <span className="flex size-10 shrink-0 items-center justify-center bg-primary/10 text-sm font-semibold text-primary">
         {lesson.order}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-base font-semibold text-[#1d2026]">
+          <p className="text-base font-semibold text-foreground">
             {lesson.title}
           </p>
           {lesson.isFree ? (
-            <span className="bg-[#fff2e5] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#ff6636]">
+            <span className="bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
               Preview
             </span>
           ) : null}
         </div>
-        <p className="mt-2 text-sm text-[#6e7485]">
+        <p className="mt-2 text-sm text-muted-foreground">
           Lesson {lesson.order} in this learning path.
         </p>
       </div>
-      <ArrowRight className="mt-1 size-4 shrink-0 text-[#8c94a3] transition group-hover:text-[#ff6636]" />
+      <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
     </Link>
   );
 }
@@ -281,15 +281,15 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
       : null;
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-[#1d2026]">
+    <div className="min-h-screen bg-background text-foreground">
       <MarketingPublicHeader activePath="/courses" />
 
       <main>
-        <section className="border-b border-[#e9eaf0] bg-white">
+        <section className="border-b border-border bg-card">
           <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
             <Link
               href="/courses"
-              className="inline-flex items-center gap-2 text-sm font-medium text-[#4e5566] transition hover:text-[#ff6636]"
+              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
             >
               <ArrowLeft className="size-4" />
               Back to courses
@@ -298,16 +298,16 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
             <div className="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="max-w-[760px]">
                 <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 bg-[#fff2e5] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                  <span className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                     <Tag className="size-3.5" />
                     {course.category}
                   </span>
-                  <span className="inline-flex items-center gap-2 border border-[#e9eaf0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
-                    <GraduationCap className="size-3.5 text-[#ff6636]" />
+                  <span className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                    <GraduationCap className="size-3.5 text-primary" />
                     {course.level}
                   </span>
-                  <span className="inline-flex items-center gap-2 border border-[#e9eaf0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
-                    <Users className="size-3.5 text-[#ff6636]" />
+                  <span className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                    <Users className="size-3.5 text-primary" />
                     {formatCompactNumber(course.enrollments)} enrolled
                   </span>
                   {course.price <= 0 ? (
@@ -321,13 +321,13 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                 <h1 className="mt-6 text-[2.4rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[3.3rem]">
                   {course.title}
                 </h1>
-                <p className="mt-5 max-w-[680px] text-base leading-8 text-[#6e7485]">
+                <p className="mt-5 max-w-[680px] text-base leading-8 text-muted-foreground">
                   {course.description}
                 </p>
 
                 <div className="mt-8 grid gap-4 md:grid-cols-3">
-                  <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                  <div className="border border-border bg-muted px-4 py-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Lessons
                     </p>
                     <p className="mt-2 text-lg font-semibold">
@@ -335,16 +335,16 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       {pluralize(sortedLessons.length, "lesson")}
                     </p>
                   </div>
-                  <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                  <div className="border border-border bg-muted px-4 py-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Duration
                     </p>
                     <p className="mt-2 text-lg font-semibold">
                       {formatDuration(course.durationMinutes)}
                     </p>
                   </div>
-                  <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                  <div className="border border-border bg-muted px-4 py-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Modules
                     </p>
                     <p className="mt-2 text-lg font-semibold">
@@ -358,7 +358,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     {courseTags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center border border-[#e9eaf0] bg-[#f5f7fa] px-3 py-2 text-sm font-medium text-[#4e5566]"
+                        className="inline-flex items-center border border-border bg-muted px-3 py-2 text-sm font-medium text-foreground/75"
                       >
                         {tag}
                       </span>
@@ -414,23 +414,23 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
         <section className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-8">
-              <section className="border border-[#e9eaf0] bg-white p-6 sm:p-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <section className="border border-border bg-card p-6 sm:p-8">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   What you will learn
                 </p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                   Course overview and outcomes
                 </h2>
                 <div className="mt-8 grid gap-4 md:grid-cols-2">
                   {learningPoints.map((point) => (
                     <div
                       key={point}
-                      className="flex items-start gap-3 border border-[#e9eaf0] bg-[#f5f7fa] p-4"
+                      className="flex items-start gap-3 border border-border bg-muted p-4"
                     >
-                      <span className="mt-0.5 flex size-8 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+                      <span className="mt-0.5 flex size-8 items-center justify-center bg-primary/10 text-primary">
                         <CheckCircle2 className="size-4" />
                       </span>
-                      <p className="text-sm leading-7 text-[#4e5566]">
+                      <p className="text-sm leading-7 text-foreground/80">
                         {point}
                       </p>
                     </div>
@@ -439,22 +439,22 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
               </section>
 
               {sortedLessons.length > 0 ? (
-                <section className="border border-[#e9eaf0] bg-white p-6 sm:p-8">
+                <section className="border border-border bg-card p-6 sm:p-8">
                   <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         Curriculum
                       </p>
-                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                         Lesson breakdown
                       </h2>
                     </div>
-                    <div className="flex flex-wrap gap-3 text-sm font-medium text-[#4e5566]">
-                      <span className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-2">
+                    <div className="flex flex-wrap gap-3 text-sm font-medium text-foreground/75">
+                      <span className="border border-border bg-muted px-4 py-2">
                         {sortedLessons.length}{" "}
                         {pluralize(sortedLessons.length, "lesson")}
                       </span>
-                      <span className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-2">
+                      <span className="border border-border bg-muted px-4 py-2">
                         {moduleCount} {pluralize(moduleCount, "module")}
                       </span>
                     </div>
@@ -463,7 +463,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                   {unassignedLessons.length > 0 ? (
                     <div className="mt-8 space-y-4">
                       {showNoModuleHeader ? (
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                           Standalone lessons
                         </p>
                       ) : null}
@@ -486,26 +486,26 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                           <AccordionItem
                             key={moduleItem.id}
                             value={moduleItem.id}
-                            className="border border-[#e9eaf0] px-0"
+                            className="border border-border px-0"
                           >
                             <AccordionTrigger className="px-5 py-4 text-left hover:no-underline">
                               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                 <div className="flex items-start gap-3">
-                                  <span className="flex size-10 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+                                  <span className="flex size-10 items-center justify-center bg-primary/10 text-primary">
                                     <Layers3 className="size-4" />
                                   </span>
                                   <div>
-                                    <p className="text-lg font-semibold text-[#1d2026]">
+                                    <p className="text-lg font-semibold text-foreground">
                                       {moduleItem.title}
                                     </p>
                                     {moduleItem.description ? (
-                                      <p className="mt-1 text-sm leading-7 text-[#6e7485]">
+                                      <p className="mt-1 text-sm leading-7 text-muted-foreground">
                                         {moduleItem.description}
                                       </p>
                                     ) : null}
                                   </div>
                                 </div>
-                                <span className="border border-[#e9eaf0] bg-[#f5f7fa] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
+                                <span className="border border-border bg-muted px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
                                   {moduleItem.lessons.length}{" "}
                                   {pluralize(
                                     moduleItem.lessons.length,
@@ -538,10 +538,10 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
               <section className="space-y-4">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Reviews
                   </p>
-                  <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                  <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                     What learners are saying
                   </h2>
                 </div>
@@ -558,18 +558,18 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                         }
                       />
                     ) : (
-                      <div className="border border-[#e9eaf0] bg-white p-5 text-sm leading-7 text-[#4e5566]">
+                      <div className="border border-border bg-card p-5 text-sm leading-7 text-foreground/75">
                         Finish this course to unlock reviews. Your current
                         progress is {enrollmentProgress ?? 0}%.
                       </div>
                     )
                   ) : (
-                    <div className="border border-[#e9eaf0] bg-white p-5 text-sm leading-7 text-[#4e5566]">
+                    <div className="border border-border bg-card p-5 text-sm leading-7 text-foreground/75">
                       Enroll in this course to leave a review after completion.
                     </div>
                   )
                 ) : (
-                  <div className="border border-[#e9eaf0] bg-white p-5 text-sm leading-7 text-[#4e5566]">
+                  <div className="border border-border bg-card p-5 text-sm leading-7 text-foreground/75">
                     Sign in and enroll to leave your review after completing the
                     course.
                   </div>
@@ -584,19 +584,19 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
             <aside className="space-y-6">
               <div className="sticky top-24 space-y-6">
-                <div className="border border-[#e9eaf0] bg-white p-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                <div className="border border-border bg-card p-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Enrollment
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-4">
-                    <h2 className="text-4xl font-semibold tracking-[-0.04em] text-[#1d2026]">
+                    <h2 className="text-4xl font-semibold tracking-[-0.04em] text-foreground">
                       {formatPrice(course.price)}
                     </h2>
-                    <span className="bg-[#fff2e5] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                    <span className="bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                       {course.level}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-[#6e7485]">
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
                     By {course.instructor}. Enroll to track progress, return to
                     lessons anytime, and keep the course in your dashboard.
                   </p>
@@ -630,31 +630,31 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     )}
                   </div>
 
-                  <div className="mt-6 space-y-3 border-t border-[#e9eaf0] pt-6">
-                    <div className="flex items-center justify-between text-sm text-[#4e5566]">
+                  <div className="mt-6 space-y-3 border-t border-border pt-6">
+                    <div className="flex items-center justify-between text-sm text-foreground/75">
                       <span className="inline-flex items-center gap-2">
-                        <BookOpen className="size-4 text-[#ff6636]" />
+                        <BookOpen className="size-4 text-primary" />
                         Lessons
                       </span>
-                      <span className="font-semibold text-[#1d2026]">
+                      <span className="font-semibold text-foreground">
                         {sortedLessons.length}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-[#4e5566]">
+                    <div className="flex items-center justify-between text-sm text-foreground/75">
                       <span className="inline-flex items-center gap-2">
-                        <Clock3 className="size-4 text-[#ff6636]" />
+                        <Clock3 className="size-4 text-primary" />
                         Duration
                       </span>
-                      <span className="font-semibold text-[#1d2026]">
+                      <span className="font-semibold text-foreground">
                         {formatDuration(course.durationMinutes)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-[#4e5566]">
+                    <div className="flex items-center justify-between text-sm text-foreground/75">
                       <span className="inline-flex items-center gap-2">
-                        <Users className="size-4 text-[#ff6636]" />
+                        <Users className="size-4 text-primary" />
                         Learners
                       </span>
-                      <span className="font-semibold text-[#1d2026]">
+                      <span className="font-semibold text-foreground">
                         {formatCompactNumber(course.enrollments)}
                       </span>
                     </div>

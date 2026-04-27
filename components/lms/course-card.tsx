@@ -18,9 +18,12 @@ type CourseCardProps = {
 };
 
 const levelToneMap = {
-  Beginner: "bg-[#e1f7e3] text-[#15711f]",
-  Intermediate: "bg-[#fff2e5] text-[#65390c]",
-  Advanced: "bg-[#ebebff] text-[#342f98]",
+  Beginner:
+    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  Intermediate:
+    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+  Advanced:
+    "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400",
 } as const;
 
 export function CourseCard({
@@ -42,12 +45,14 @@ export function CourseCard({
   const hasReviews =
     typeof rating === "number" && typeof reviewsCount === "number";
   const hasProgress = typeof progress === "number";
-  const levelTone = level ? levelToneMap[level] : "bg-[#f5f7fa] text-[#4e5566]";
+  const levelTone = level
+    ? levelToneMap[level]
+    : "bg-muted text-muted-foreground";
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden border border-[#e9eaf0] bg-white transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(29,32,38,0.1)]">
+    <article className="group flex h-full flex-col overflow-hidden border border-border bg-card transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
       <Link href={href} className="block">
-        <div className="relative aspect-video overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026]">
+        <div className="relative aspect-video overflow-hidden border-b border-border bg-[#1d2026]">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -63,7 +68,7 @@ export function CourseCard({
           <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
             <div className="flex max-w-[70%] flex-wrap gap-2">
               {topic ? (
-                <span className="inline-flex bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#4e5566]">
+                <span className="inline-flex bg-card px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-foreground/75">
                   {topic}
                 </span>
               ) : null}
@@ -76,7 +81,7 @@ export function CourseCard({
               ) : null}
             </div>
 
-            <div className="bg-white px-2 py-1 text-xs font-semibold text-[#1d2026]">
+            <div className="bg-card px-2 py-1 text-xs font-semibold text-foreground">
               {hasProgress ? `${progress}% complete` : priceLabel || "Free"}
             </div>
           </div>
@@ -84,29 +89,29 @@ export function CourseCard({
       </Link>
 
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8c94a3]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {instructor ? `By ${instructor}` : "DevForge course"}
         </p>
 
         <Link href={href} className="mt-3 block">
-          <h3 className="text-[1.35rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d2026] transition group-hover:text-[#ff6636]">
+          <h3 className="text-[1.35rem] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground transition group-hover:text-primary">
             {title}
           </h3>
         </Link>
 
         {description ? (
-          <p className="mt-3 line-clamp-3 text-sm leading-7 text-[#6e7485]">
+          <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">
             {description}
           </p>
         ) : null}
 
         <div className="mt-5 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center gap-2 border border-[#e9eaf0] bg-[#f5f7fa] px-3 py-1.5 font-medium text-[#4e5566]">
+          <span className="inline-flex items-center gap-2 border border-border bg-muted px-3 py-1.5 font-medium text-foreground/75">
             <BookOpen className="size-3.5 text-[#ff6636]" />
             {lessonsCount ? `${lessonsCount} lessons` : "Structured course"}
           </span>
           {hasReviews ? (
-            <span className="inline-flex items-center gap-2 border border-[#e9eaf0] bg-[#f5f7fa] px-3 py-1.5 font-medium text-[#4e5566]">
+            <span className="inline-flex items-center gap-2 border border-border bg-muted px-3 py-1.5 font-medium text-foreground/75">
               <Star className="size-3.5 fill-[#fd8e1f] text-[#fd8e1f]" />
               {rating.toFixed(1)} · {reviewsCount} reviews
             </span>
@@ -114,12 +119,12 @@ export function CourseCard({
         </div>
 
         {hasProgress ? (
-          <div className="mt-5 border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-3">
-            <div className="flex items-center justify-between text-xs font-medium text-[#6e7485]">
+          <div className="mt-5 border border-border bg-muted px-4 py-3">
+            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
               <span>Progress</span>
-              <span className="text-[#1d2026]">{progress}% complete</span>
+              <span className="text-foreground">{progress}% complete</span>
             </div>
-            <div className="mt-3 h-2 w-full bg-[#e9eaf0]">
+            <div className="mt-3 h-2 w-full bg-border">
               <div
                 className="h-full bg-[#ff6636]"
                 style={{ width: `${Math.max(0, Math.min(progress, 100))}%` }}
@@ -129,9 +134,9 @@ export function CourseCard({
         ) : null}
 
         <div className="mt-auto pt-5">
-          <div className="flex items-end justify-between gap-4 border border-[#e9eaf0] bg-[#f5f7fa] p-4">
+          <div className="flex items-end justify-between gap-4 border border-border bg-muted p-4">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8c94a3]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {hasProgress
                   ? "Progress"
                   : hasReviews
@@ -140,26 +145,26 @@ export function CourseCard({
               </p>
               <div className="mt-1 flex flex-wrap items-end gap-2">
                 {hasProgress ? (
-                  <span className="text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                  <span className="text-2xl font-semibold tracking-[-0.03em] text-foreground">
                     {progress}%
                   </span>
                 ) : hasReviews ? (
                   <>
-                    <span className="inline-flex items-center gap-2 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                    <span className="inline-flex items-center gap-2 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                       <Star className="size-5 fill-[#fd8e1f] text-[#fd8e1f]" />
                       {rating.toFixed(1)}
                     </span>
-                    <span className="pb-1 text-xs font-medium text-[#8c94a3]">
+                    <span className="pb-1 text-xs font-medium text-muted-foreground">
                       from {reviewsCount} reviews
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                    <span className="text-2xl font-semibold tracking-[-0.03em] text-foreground">
                       {priceLabel || "Free"}
                     </span>
                     {level ? (
-                      <span className="pb-1 text-xs font-medium text-[#8c94a3]">
+                      <span className="pb-1 text-xs font-medium text-muted-foreground">
                         {level}
                       </span>
                     ) : null}

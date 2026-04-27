@@ -122,18 +122,20 @@ type SummaryTileProps = {
 
 function SummaryTile({ label, value, detail, icon: Icon }: SummaryTileProps) {
   return (
-    <div className="border border-[#e9eaf0] bg-white p-5">
+    <div className="border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {label}
           </p>
-          <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+          <p className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
             {value}
           </p>
-          <p className="mt-2 text-sm leading-7 text-[#6e7485]">{detail}</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            {detail}
+          </p>
         </div>
-        <span className="flex size-12 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+        <span className="flex size-12 items-center justify-center bg-primary/10 text-primary">
           <Icon className="size-5" />
         </span>
       </div>
@@ -211,11 +213,11 @@ function ActiveFilterChip({
     <button
       type="button"
       onClick={onRemove}
-      className="inline-flex items-center gap-2 border border-[#ffd8cb] bg-[#fff2e5] px-3 py-2 text-sm font-semibold text-[#243041] transition hover:border-[#ff6636] hover:text-[#1d2026]"
+      className="inline-flex items-center gap-2 border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
     >
-      {Icon ? <Icon className="size-3.5 text-[#ff6636]" /> : null}
+      {Icon ? <Icon className="size-3.5 text-primary" /> : null}
       <span>{label}</span>
-      <span className="flex size-5 items-center justify-center bg-white text-[#ff6636]">
+      <span className="flex size-5 items-center justify-center bg-primary/15 text-primary">
         <X className="size-3.5" />
       </span>
     </button>
@@ -655,16 +657,16 @@ function CoursesPageContent() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5f7fa] text-[#1d2026]">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <MarketingPublicHeader activePath="/courses" />
 
       <main className="flex-1">
         <div className="page-shell-full py-10 sm:py-12">
-          <section className="border border-[#e9eaf0] bg-white p-6 sm:p-8 lg:p-10">
+          <section className="border border-border bg-card p-6 sm:p-8 lg:p-10">
             <div>
               <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_26rem]">
                 <div className="max-w-4xl">
-                  <span className="inline-flex items-center gap-2 bg-[#fff2e5] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                  <span className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                     <Sparkles className="size-3.5" />
                     Course Catalog
                   </span>
@@ -674,41 +676,41 @@ function CoursesPageContent() {
                     direction.
                   </h1>
 
-                  <p className="mt-5 max-w-3xl text-base leading-8 text-[#6e7485] sm:text-lg">
+                  <p className="mt-5 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
                     Browse structured courses, compare disciplines at a glance,
                     and narrow the catalog fast without losing the sense of what
                     each program is for.
                   </p>
 
                   <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                    <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-4">
-                      <Compass className="size-5 text-[#ff6636]" />
-                      <p className="mt-3 text-sm font-semibold text-[#1d2026]">
+                    <div className="border border-border bg-muted p-4">
+                      <Compass className="size-5 text-primary" />
+                      <p className="mt-3 text-sm font-semibold text-foreground">
                         Curated direction
                       </p>
-                      <p className="mt-1 text-sm leading-7 text-[#6e7485]">
+                      <p className="mt-1 text-sm leading-7 text-muted-foreground">
                         Focus the list by topic, level, and cost without losing
                         momentum.
                       </p>
                     </div>
 
-                    <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-4">
-                      <Layers3 className="size-5 text-[#ff6636]" />
-                      <p className="mt-3 text-sm font-semibold text-[#1d2026]">
+                    <div className="border border-border bg-muted p-4">
+                      <Layers3 className="size-5 text-primary" />
+                      <p className="mt-3 text-sm font-semibold text-foreground">
                         Clear structure
                       </p>
-                      <p className="mt-1 text-sm leading-7 text-[#6e7485]">
+                      <p className="mt-1 text-sm leading-7 text-muted-foreground">
                         Every card surfaces duration, lessons, and learning
                         depth before you commit.
                       </p>
                     </div>
 
-                    <div className="border border-[#e9eaf0] bg-[#f5f7fa] p-4">
-                      <MonitorPlay className="size-5 text-[#ff6636]" />
-                      <p className="mt-3 text-sm font-semibold text-[#1d2026]">
+                    <div className="border border-border bg-muted p-4">
+                      <MonitorPlay className="size-5 text-primary" />
+                      <p className="mt-3 text-sm font-semibold text-foreground">
                         Online by default
                       </p>
-                      <p className="mt-1 text-sm leading-7 text-[#6e7485]">
+                      <p className="mt-1 text-sm leading-7 text-muted-foreground">
                         Designed for remote learning and paced so you can ship
                         alongside the material.
                       </p>
@@ -748,26 +750,26 @@ function CoursesPageContent() {
                 </div>
               </div>
 
-              <div className="mt-8 border border-[#d7dae0] bg-white p-5 shadow-[0_10px_30px_rgba(18,24,40,0.05)] sm:p-6">
+              <div className="mt-8 border border-border bg-card p-5 sm:p-6">
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6e7485]">
+                    <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Search the catalog
                     </label>
                     <div className="relative">
-                      <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#667085]" />
+                      <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         type="text"
                         placeholder="Search by title, instructor, or topic"
                         value={searchQuery}
                         onChange={(event) => setSearchQuery(event.target.value)}
-                        className="h-14 rounded-none !border-2 !border-[#c7cfdd] !bg-white pl-11 pr-11 text-sm font-medium !text-[#1d2026] shadow-none placeholder:font-normal placeholder:text-[#667085] hover:!border-[#98a2b3] focus-visible:!border-[#ff6636] focus-visible:ring-[4px] focus-visible:ring-[#ff6636]/12"
+                        className="h-14 rounded-none !border-2 !border-border !bg-card pl-11 pr-11 text-sm font-medium !text-foreground shadow-none placeholder:font-normal placeholder:text-muted-foreground hover:!border-ring/60 focus-visible:!border-primary focus-visible:ring-[4px] focus-visible:ring-primary/12"
                       />
                       {searchQuery ? (
                         <button
                           type="button"
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#667085] transition hover:text-[#1d2026]"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
                           aria-label="Clear search"
                         >
                           <X className="size-4" />
@@ -777,7 +779,7 @@ function CoursesPageContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6e7485]">
+                    <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Sort by
                     </label>
                     <Select
@@ -809,23 +811,23 @@ function CoursesPageContent() {
 
                 <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-2 bg-[#fff2e5] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
+                    <span className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                       Popular tracks
                     </span>
                     {topCategories.length > 0 ? (
                       topCategories.map(([category, count]) => (
                         <span
                           key={category}
-                          className="inline-flex items-center gap-2 border border-[#d7dae0] bg-white px-3 py-2 text-sm font-semibold text-[#243041]"
+                          className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground"
                         >
                           <span>{category}</span>
-                          <span className="bg-[#eef1f5] px-2 py-0.5 text-xs font-semibold text-[#243041]">
+                          <span className="bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                             {count}
                           </span>
                         </span>
                       ))
                     ) : (
-                      <span className="inline-flex items-center border border-dashed border-[#d7dae0] px-3 py-2 text-sm text-[#8c94a3]">
+                      <span className="inline-flex items-center border border-dashed border-border px-3 py-2 text-sm text-muted-foreground">
                         Categories will appear once courses are published.
                       </span>
                     )}
@@ -837,11 +839,11 @@ function CoursesPageContent() {
                       onOpenChange={setMobileFiltersOpen}
                     >
                       <SheetTrigger asChild>
-                        <Button className="h-11 rounded-none bg-[#1d2026] px-4 text-white hover:bg-[#101318]">
+                        <Button className="h-11 rounded-none bg-foreground px-4 text-background hover:bg-foreground/90">
                           <SlidersHorizontal className="mr-2 size-4" />
                           Filters
                           {activeFilterCount > 0 ? (
-                            <span className="ml-2 inline-flex min-w-5 items-center justify-center bg-white px-1.5 py-0.5 text-xs font-semibold text-[#1d2026]">
+                            <span className="ml-2 inline-flex min-w-5 items-center justify-center bg-background/20 px-1.5 py-0.5 text-xs font-semibold">
                               {activeFilterCount}
                             </span>
                           ) : null}
@@ -849,7 +851,7 @@ function CoursesPageContent() {
                       </SheetTrigger>
                       <SheetContent
                         side="left"
-                        className="w-[min(24rem,100vw)] overflow-y-auto border-[#e9eaf0] bg-[#f5f7fa]"
+                        className="w-[min(24rem,100vw)] overflow-y-auto border-border bg-background"
                       >
                         <SheetHeader>
                           <SheetTitle>Filter courses</SheetTitle>
@@ -870,15 +872,15 @@ function CoursesPageContent() {
 
           <div className="mt-10 grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
             <aside className="hidden lg:block">
-              <div className="sticky top-24 border border-[#e9eaf0] bg-white">
-                <div className="border-b border-[#e9eaf0] px-5 py-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+              <div className="sticky top-24 border border-border bg-card">
+                <div className="border-b border-border px-5 py-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Refine catalog
                   </p>
-                  <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                  <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                     Filter by fit
                   </h2>
-                  <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
                     Tighten the list by cost, discipline, and depth.
                   </p>
                 </div>
@@ -889,18 +891,18 @@ function CoursesPageContent() {
             </aside>
 
             <section className="space-y-6">
-              <div className="border border-[#e9eaf0] bg-white p-5 sm:p-6">
+              <div className="border border-border bg-card p-5 sm:p-6">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Catalog results
                     </p>
-                    <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                    <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
                       {loading
                         ? "Loading the latest courses"
                         : `Showing ${from}-${to} of ${filteredAndSortedCourses.length}`}
                     </h2>
-                    <p className="mt-2 text-sm leading-7 text-[#6e7485]">
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">
                       {hasActiveFilters
                         ? `Refined by your current search and selections. Sorted by ${currentSortLabel.toLowerCase()}.`
                         : `All published courses, sorted by ${currentSortLabel.toLowerCase()}.`}
@@ -908,20 +910,20 @@ function CoursesPageContent() {
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                    <div className="border border-border bg-muted px-4 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         Current sort
                       </p>
-                      <p className="mt-2 text-sm font-medium text-[#1d2026]">
+                      <p className="mt-2 text-sm font-medium text-foreground">
                         {currentSortLabel}
                       </p>
                     </div>
 
-                    <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                    <div className="border border-border bg-muted px-4 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         Page
                       </p>
-                      <p className="mt-2 text-sm font-medium text-[#1d2026]">
+                      <p className="mt-2 text-sm font-medium text-foreground">
                         {Math.min(currentPage, Math.max(totalPages, 1))} of{" "}
                         {Math.max(totalPages, 1)}
                       </p>
@@ -975,7 +977,7 @@ function CoursesPageContent() {
                       variant="ghost"
                       size="sm"
                       onClick={clearAllFilters}
-                      className="h-9 rounded-none border border-[#e9eaf0] bg-white px-4 text-sm text-[#4e5566] hover:border-[#ff6636] hover:bg-[#f5f7fa] hover:text-[#1d2026]"
+                      className="h-9 rounded-none border border-border bg-card px-4 text-sm text-foreground/75 hover:border-primary hover:bg-muted hover:text-foreground"
                     >
                       Clear all
                     </Button>
@@ -988,7 +990,7 @@ function CoursesPageContent() {
                   {Array.from({ length: 9 }).map((_, index) => (
                     <div
                       key={index}
-                      className="overflow-hidden border border-[#e9eaf0] bg-white"
+                      className="overflow-hidden border border-border bg-card"
                     >
                       <Skeleton className="aspect-[16/10] w-full rounded-none" />
                       <div className="space-y-4 p-5">
@@ -1001,7 +1003,7 @@ function CoursesPageContent() {
                           <Skeleton className="h-8 w-28 rounded-none" />
                           <Skeleton className="h-8 w-32 rounded-none" />
                         </div>
-                        <div className="border border-[#e9eaf0] p-3">
+                        <div className="border border-border p-3">
                           <Skeleton className="h-3 w-20 rounded-none" />
                           <Skeleton className="mt-3 h-8 w-28 rounded-none" />
                         </div>
@@ -1010,16 +1012,16 @@ function CoursesPageContent() {
                   ))}
                 </div>
               ) : filteredAndSortedCourses.length === 0 ? (
-                <div className="flex min-h-[28rem] flex-col items-center justify-center border border-dashed border-[#d7dae0] bg-white px-8 py-12 text-center">
+                <div className="flex min-h-[28rem] flex-col items-center justify-center border border-dashed border-border bg-card px-8 py-12 text-center">
                   {hasActiveFilters ? (
                     <>
-                      <div className="flex size-16 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+                      <div className="flex size-16 items-center justify-center bg-primary/10 text-primary">
                         <Filter className="size-8" />
                       </div>
-                      <h3 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                      <h3 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                         No courses match this combination
                       </h3>
-                      <p className="mt-3 max-w-xl text-sm leading-7 text-[#6e7485]">
+                      <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground">
                         Try loosening a filter, broadening the search, or reset
                         everything to return to the full catalog.
                       </p>
@@ -1032,13 +1034,13 @@ function CoursesPageContent() {
                     </>
                   ) : (
                     <>
-                      <div className="flex size-16 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
+                      <div className="flex size-16 items-center justify-center bg-primary/10 text-primary">
                         <BookOpen className="size-8" />
                       </div>
-                      <h3 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
+                      <h3 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-foreground">
                         The catalog is still taking shape
                       </h3>
-                      <p className="mt-3 max-w-xl text-sm leading-7 text-[#6e7485]">
+                      <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground">
                         New courses will appear here as they are published.
                         Reach out if you need a custom path or want to know what
                         is coming next.
@@ -1053,7 +1055,7 @@ function CoursesPageContent() {
                         <Button
                           variant="outline"
                           asChild
-                          className="h-11 rounded-none border-[#e9eaf0] bg-white px-5 text-[#1d2026] hover:bg-[#f5f7fa]"
+                          className="h-11 rounded-none border-border bg-card px-5 text-foreground hover:bg-muted"
                         >
                           <Link href="/">Go Home</Link>
                         </Button>
@@ -1113,8 +1115,8 @@ function CoursesPageContent() {
                             className={cn(
                               "h-10 min-w-10 rounded-none border px-3 text-sm font-medium",
                               isActive
-                                ? "border-[#ff6636] bg-[#ff6636] text-white hover:bg-[#ff6636]"
-                                : "border-[#e9eaf0] bg-white text-[#4e5566] hover:bg-[#f5f7fa]",
+                                ? "border-primary bg-primary text-primary-foreground hover:bg-primary"
+                                : "border-border bg-card text-foreground/75 hover:bg-muted",
                             )}
                             onClick={() => setCurrentPage(pageNumber)}
                           >
@@ -1126,7 +1128,7 @@ function CoursesPageContent() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-10 rounded-none border border-[#e9eaf0] bg-white text-[#4e5566] hover:bg-[#f5f7fa] disabled:opacity-40"
+                        className="size-10 rounded-none border border-border bg-card text-foreground/75 hover:bg-muted disabled:opacity-40"
                         onClick={() =>
                           setCurrentPage((prev) =>
                             Math.min(totalPages, prev + 1),
@@ -1154,7 +1156,7 @@ export default function CoursesPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#f5f7fa]">
+        <div className="min-h-screen bg-background">
           <MarketingPublicHeader activePath="/courses" />
           <div className="mx-auto max-w-[1320px] px-4 py-12 sm:px-6 lg:px-8">
             <Skeleton className="h-96 w-full rounded-none" />
