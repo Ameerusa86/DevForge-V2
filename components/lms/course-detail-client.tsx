@@ -368,7 +368,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
               </div>
 
               <div className="overflow-hidden border border-[#1d2026] bg-[#1d2026]">
-                <div className="relative min-h-[320px]">
+                <div className="relative aspect-[4/3] w-full">
                   {heroImage ? (
                     <Image
                       src={heroImage}
@@ -376,7 +376,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       fill
                       priority
                       sizes="(max-width: 1279px) 100vw, 420px"
-                      className="object-cover"
+                      className="object-contain"
                       onError={() => {
                         console.warn("Course image failed to load", {
                           title: course.title,

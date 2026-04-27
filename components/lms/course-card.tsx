@@ -39,21 +39,22 @@ export function CourseCard({
 }: CourseCardProps) {
   const topic = tags[0];
   const instructor = tags[1];
-  const hasReviews = typeof rating === "number" && typeof reviewsCount === "number";
+  const hasReviews =
+    typeof rating === "number" && typeof reviewsCount === "number";
   const hasProgress = typeof progress === "number";
   const levelTone = level ? levelToneMap[level] : "bg-[#f5f7fa] text-[#4e5566]";
 
   return (
     <article className="group flex h-full flex-col overflow-hidden border border-[#e9eaf0] bg-white transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(29,32,38,0.1)]">
       <Link href={href} className="block">
-        <div className="relative aspect-[16/10] overflow-hidden border-b border-[#e9eaf0] bg-[#f5f7fa]">
+        <div className="relative aspect-video overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026]">
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 384px"
-              className="object-cover transition duration-500 group-hover:scale-105"
+              className="object-contain transition duration-500 group-hover:scale-[1.02]"
             />
           ) : (
             <div className="absolute inset-0 bg-[linear-gradient(135deg,#fff2e5_0%,#ffeee8_52%,#ebebff_100%)]" />

@@ -549,14 +549,14 @@ export default function MyCoursesPage() {
                       key={enrollment.id}
                       className="group overflow-hidden border border-[#e9eaf0] bg-white transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(18,24,40,0.08)]"
                     >
-                      <div className="relative h-56 overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026]">
+                      <div className="relative aspect-video w-full overflow-hidden border-b border-[#e9eaf0] bg-[#1d2026]">
                         {imageUrl ? (
                           <Image
                             src={imageUrl}
                             alt={course.title}
                             fill
                             sizes="(max-width: 1279px) 100vw, 33vw"
-                            className="object-cover"
+                            className="object-contain"
                           />
                         ) : (
                           <div className="absolute inset-0 bg-[linear-gradient(135deg,#ff8f6a_0%,#ff6636_45%,#1d2026_100%)]" />
