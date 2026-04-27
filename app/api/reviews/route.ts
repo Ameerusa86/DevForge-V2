@@ -18,6 +18,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { courseId, rating, comment } = body;
 
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+    const isAdmin = currentUser?.role === "ADMIN";
+
     if (!courseId || !rating) {
       return NextResponse.json(
         { error: "Course ID and rating are required" },
@@ -32,28 +38,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user has completed the course
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId: session.user.id,
-          courseId: courseId,
+    if (!isAdmin) {
+      // Learners can only review courses they have completed.
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId: session.user.id,
+            courseId: courseId,
+          },
         },
-      },
-    });
+      });
 
-    if (!enrollment) {
-      return NextResponse.json(
-        { error: "You must be enrolled in this course to review it" },
-        { status: 403 },
-      );
-    }
+      if (!enrollment) {
+        return NextResponse.json(
+          { error: "You must be enrolled in this course to review it" },
+          { status: 403 },
+        );
+      }
 
-    if (enrollment.progress < 100) {
-      return NextResponse.json(
-        { error: "You must complete the course before reviewing it" },
-        { status: 403 },
-      );
+      if (enrollment.progress < 100) {
+        return NextResponse.json(
+          { error: "You must complete the course before reviewing it" },
+          { status: 403 },
+        );
+      }
     }
 
     // Create or update review

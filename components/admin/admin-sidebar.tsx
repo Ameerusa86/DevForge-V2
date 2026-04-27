@@ -21,6 +21,7 @@ import {
   ShieldCheck,
   Layers3,
   Sparkles,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -93,6 +94,11 @@ const sidebarGroups = [
         href: "/admin/pricing",
         icon: DollarSign,
       },
+      {
+        title: "Reviews",
+        href: "/admin/reviews",
+        icon: Star,
+      },
     ],
   },
   {
@@ -162,7 +168,8 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
                   Operations
                 </div>
                 <p className="mt-2 text-sm font-medium text-white">
-                  Manage learning, content, and platform reliability from one workspace.
+                  Manage learning, content, and platform reliability from one
+                  workspace.
                 </p>
               </div>
             </div>

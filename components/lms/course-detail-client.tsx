@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { ReviewForm } from "@/components/review-form";
 import { ReviewList } from "@/components/review-list";
 import {
   MarketingPublicFooter,
@@ -30,6 +31,7 @@ import {
   Tag,
   Users,
 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export interface LessonItem {
   id: string;
@@ -125,7 +127,16 @@ function LessonRow({
 }
 
 export function CourseDetailClient({ course }: { course: CourseDetail }) {
+  const { data: session } = authClient.useSession();
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrollmentProgress, setEnrollmentProgress] = useState<number | null>(
+    null,
+  );
+  const [existingReview, setExistingReview] = useState<{
+    rating: number;
+    comment: string | null;
+  } | null>(null);
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0);
   const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
@@ -137,10 +148,13 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
         if (!res.ok) return;
         const enrollments = await res.json();
         const enrollment = enrollments.find(
-          (item: { course: { id: string }; id: string }) =>
+          (item: { course: { id: string }; id: string; progress: number }) =>
             item.course.id === course.id,
         );
-        if (enrollment) setIsEnrolled(true);
+        if (enrollment) {
+          setIsEnrolled(true);
+          setEnrollmentProgress(enrollment.progress ?? 0);
+        }
       } catch (error) {
         console.error("Failed to check enrollment", error);
       }
@@ -148,6 +162,50 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
     checkEnrollment();
   }, [course.id]);
+
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setExistingReview(null);
+      return;
+    }
+
+    const loadMyReview = async () => {
+      try {
+        const response = await fetch(`/api/reviews?userId=${session.user.id}`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data: {
+          reviews?: Array<{
+            course: { id: string };
+            rating: number;
+            comment: string | null;
+          }>;
+        } = await response.json();
+
+        const currentCourseReview = data.reviews?.find(
+          (review) => review.course.id === course.id,
+        );
+
+        setExistingReview(
+          currentCourseReview
+            ? {
+                rating: currentCourseReview.rating,
+                comment: currentCourseReview.comment,
+              }
+            : null,
+        );
+      } catch (error) {
+        console.error("Failed to load current user review", error);
+      }
+    };
+
+    void loadMyReview();
+  }, [course.id, reviewRefreshTrigger, session?.user?.id]);
 
   const handleEnroll = async () => {
     setEnrolling(true);
@@ -487,7 +545,40 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     What learners are saying
                   </h2>
                 </div>
-                <ReviewList courseId={course.id} />
+
+                {session?.user ? (
+                  isEnrolled ? (
+                    enrollmentProgress === 100 ? (
+                      <ReviewForm
+                        courseId={course.id}
+                        courseTitle={course.title}
+                        existingReview={existingReview || undefined}
+                        onReviewSubmitted={() =>
+                          setReviewRefreshTrigger((value) => value + 1)
+                        }
+                      />
+                    ) : (
+                      <div className="border border-[#e9eaf0] bg-white p-5 text-sm leading-7 text-[#4e5566]">
+                        Finish this course to unlock reviews. Your current
+                        progress is {enrollmentProgress ?? 0}%.
+                      </div>
+                    )
+                  ) : (
+                    <div className="border border-[#e9eaf0] bg-white p-5 text-sm leading-7 text-[#4e5566]">
+                      Enroll in this course to leave a review after completion.
+                    </div>
+                  )
+                ) : (
+                  <div className="border border-[#e9eaf0] bg-white p-5 text-sm leading-7 text-[#4e5566]">
+                    Sign in and enroll to leave your review after completing the
+                    course.
+                  </div>
+                )}
+
+                <ReviewList
+                  courseId={course.id}
+                  refreshTrigger={reviewRefreshTrigger}
+                />
               </section>
             </div>
 
