@@ -875,7 +875,7 @@ html {
 
 @layer utilities {
   /* Compatibility layer for legacy hardcoded marketing/dashboard colors. */
-  .dark [class*="bg-white"] {
+  .dark [class*="bg-white"]:not([class*="bg-white/"]) {
     background-color: var(--card) !important;
   }
 
