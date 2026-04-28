@@ -132,6 +132,10 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
   const [enrollmentProgress, setEnrollmentProgress] = useState<number | null>(
     null,
   );
+  const [lessonProgress, setLessonProgress] = useState<Record<
+    string,
+    boolean
+  > | null>(null);
   const [existingReview, setExistingReview] = useState<{
     rating: number;
     comment: string | null;
@@ -141,6 +145,8 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
   useEffect(() => {
     setIsEnrolled(false);
+    setEnrollmentProgress(null);
+    setLessonProgress(null);
 
     const checkEnrollment = async () => {
       try {
@@ -153,7 +159,32 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
         );
         if (enrollment) {
           setIsEnrolled(true);
-          setEnrollmentProgress(enrollment.progress ?? 0);
+
+          try {
+            const progressRes = await fetch(
+              `/api/enrollments/${enrollment.id}/progress?t=${Date.now()}`,
+              {
+                cache: "no-store",
+              },
+            );
+
+            if (progressRes.ok) {
+              const progressData: {
+                progress?: number;
+                lessonProgress?: Record<string, boolean>;
+              } = await progressRes.json();
+
+              setEnrollmentProgress(
+                progressData.progress ?? enrollment.progress ?? 0,
+              );
+              setLessonProgress(progressData.lessonProgress ?? null);
+            } else {
+              setEnrollmentProgress(enrollment.progress ?? 0);
+            }
+          } catch (progressError) {
+            console.error("Failed to fetch lesson progress", progressError);
+            setEnrollmentProgress(enrollment.progress ?? 0);
+          }
         }
       } catch (error) {
         console.error("Failed to check enrollment", error);
@@ -275,10 +306,48 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
   const courseTags = course.tags ?? [];
   const showNoModuleHeader = course.showUnassignedHeader ?? true;
   const moduleCount = orderedModules.length;
-  const firstLessonHref =
-    sortedLessons.length > 0
-      ? `/courses/${course.slug}/lessons/${sortedLessons[0].id}`
-      : null;
+  const continueLessonHref = useMemo(() => {
+    if (sortedLessons.length === 0) {
+      return null;
+    }
+
+    if (!lessonProgress) {
+      return `/courses/${course.slug}/lessons/${sortedLessons[0].id}`;
+    }
+
+    const completedLessonIds = new Set(
+      Object.entries(lessonProgress)
+        .filter(([, completed]) => completed)
+        .map(([lessonId]) => lessonId),
+    );
+
+    const lastCompletedIndex = sortedLessons.reduce(
+      (lastIndex, lesson, index) => {
+        if (completedLessonIds.has(lesson.id)) {
+          return index;
+        }
+
+        return lastIndex;
+      },
+      -1,
+    );
+
+    const targetIndex =
+      lastCompletedIndex >= 0 && lastCompletedIndex < sortedLessons.length - 1
+        ? lastCompletedIndex + 1
+        : lastCompletedIndex === sortedLessons.length - 1
+          ? lastCompletedIndex
+          : 0;
+
+    return `/courses/${course.slug}/lessons/${sortedLessons[targetIndex].id}`;
+  }, [course.slug, lessonProgress, sortedLessons]);
+
+  const learningCtaLabel =
+    enrollmentProgress === 100
+      ? "Review lessons"
+      : (enrollmentProgress ?? 0) > 0
+        ? "Continue learning"
+        : "Start learning";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -603,12 +672,12 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
                   <div className="mt-6">
                     {isEnrolled ? (
-                      firstLessonHref ? (
+                      continueLessonHref ? (
                         <Link
-                          href={firstLessonHref}
+                          href={continueLessonHref}
                           className="inline-flex h-12 w-full items-center justify-center gap-2 bg-[#ff6636] px-5 text-sm font-semibold text-white transition hover:bg-[#e95a2b]"
                         >
-                          Continue learning
+                          {learningCtaLabel}
                           <ArrowRight className="size-4" />
                         </Link>
                       ) : (

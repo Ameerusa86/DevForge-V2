@@ -121,16 +121,23 @@ async function fetchProgressData(enrollmentsData: Enrollment[]) {
             {
               progress: enrollment.progress,
               totalLessons: enrollment.course.lessons.length,
+              lessonProgress: {},
             },
           ] as const;
         }
 
-        const progress = await response.json();
+        const progress: {
+          progress?: number;
+          totalLessons?: number;
+          lessonProgress?: Record<string, boolean>;
+        } = await response.json();
         return [
           enrollment.id,
           {
-            progress: progress.progress,
-            totalLessons: progress.totalLessons,
+            progress: progress.progress ?? enrollment.progress,
+            totalLessons:
+              progress.totalLessons ?? enrollment.course.lessons.length,
+            lessonProgress: progress.lessonProgress ?? {},
           },
         ] as const;
       } catch (error) {
@@ -144,6 +151,7 @@ async function fetchProgressData(enrollmentsData: Enrollment[]) {
           {
             progress: enrollment.progress,
             totalLessons: enrollment.course.lessons.length,
+            lessonProgress: {},
           },
         ] as const;
       }
@@ -203,7 +211,14 @@ export default function MyCoursesPage() {
     {},
   );
   const [progressMap, setProgressMap] = useState<
-    Record<string, { progress: number; totalLessons: number }>
+    Record<
+      string,
+      {
+        progress: number;
+        totalLessons: number;
+        lessonProgress: Record<string, boolean>;
+      }
+    >
   >({});
 
   const shouldRedirectToLogin = !isPending && !session?.user;
@@ -352,6 +367,7 @@ export default function MyCoursesPage() {
         const totalLessons = progress
           ? progress.totalLessons
           : enrollment.course.lessons.length;
+        const lessonProgress = progress?.lessonProgress ?? {};
         const completedLessons = Math.round(
           (actualProgress / 100) * totalLessons,
         );
@@ -361,6 +377,7 @@ export default function MyCoursesPage() {
           actualProgress,
           totalLessons,
           completedLessons,
+          lessonProgress,
         };
       }),
     [enrollments, progressMap],
@@ -533,6 +550,7 @@ export default function MyCoursesPage() {
                   actualProgress,
                   totalLessons,
                   completedLessons,
+                  lessonProgress,
                 }) => {
                   const course = enrollment.course;
                   const imageUrl = course.imageUrl
@@ -541,7 +559,32 @@ export default function MyCoursesPage() {
                   const sortedLessons = course.lessons
                     .slice()
                     .sort((a, b) => a.order - b.order);
-                  const firstLesson = sortedLessons[0];
+                  const completedLessonIds = new Set(
+                    Object.entries(lessonProgress)
+                      .filter(([, completed]) => completed)
+                      .map(([lessonId]) => lessonId),
+                  );
+                  const lastCompletedIndex = sortedLessons.reduce(
+                    (lastIndex, lesson, index) => {
+                      if (completedLessonIds.has(lesson.id)) {
+                        return index;
+                      }
+
+                      return lastIndex;
+                    },
+                    -1,
+                  );
+                  const nextLessonIndex =
+                    lastCompletedIndex >= 0 &&
+                    lastCompletedIndex < sortedLessons.length - 1
+                      ? lastCompletedIndex + 1
+                      : lastCompletedIndex === sortedLessons.length - 1
+                        ? lastCompletedIndex
+                        : 0;
+                  const nextLesson =
+                    sortedLessons.length > 0
+                      ? sortedLessons[nextLessonIndex]
+                      : null;
                   const hasReview = Boolean(userReviews[course.id]);
 
                   return (
@@ -693,13 +736,15 @@ export default function MyCoursesPage() {
                               {hasReview ? "Update review" : "Write review"}
                             </button>
                           </div>
-                        ) : firstLesson ? (
+                        ) : nextLesson ? (
                           <Link
-                            href={`/courses/${course.slug}/lessons/${firstLesson.id}`}
+                            href={`/courses/${course.slug}/lessons/${nextLesson.id}`}
                             className="inline-flex items-center justify-center bg-[#ff6636] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#e95a2b]"
                           >
                             <Sparkles className="mr-2 size-4" />
-                            Continue learning
+                            {actualProgress > 0
+                              ? "Continue learning"
+                              : "Start learning"}
                           </Link>
                         ) : (
                           <div className="inline-flex items-center justify-center border border-dashed border-[#d7dae0] bg-[#f5f7fa] px-5 py-3 text-sm font-semibold text-[#8c94a3]">
