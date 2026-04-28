@@ -1601,18 +1601,23 @@ export default function CoursesPage() {
           }
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="border border-[#2a3b61] bg-[#16223d] text-white shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm bulk action?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white">
+              Confirm bulk action?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#c7cfdf]">
               {pendingBulkAction
                 ? `Apply ${pendingBulkAction.label} to ${selectedCourseIds.size} selected course(s)?`
                 : "Apply this bulk action to selected courses?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-[#ff6636]/70 bg-transparent text-white hover:bg-[#ff6636]/15 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
+              className="bg-[#ff4d4f] text-white hover:bg-[#ea4042]"
               onClick={confirmBulkAction}
               disabled={isBulkUpdating || isUndoingBulk}
             >
@@ -1631,16 +1636,19 @@ export default function CoursesPage() {
           }
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="border border-[#2a3b61] bg-[#16223d] text-white shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete course?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white">
+              Delete course?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#c7cfdf]">
               This will remove the course and its associated image from storage.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
+              className="border-[#ff6636]/70 bg-transparent text-white hover:bg-[#ff6636]/15 hover:text-white"
               onClick={() => {
                 if (isDeleting) return;
                 setPendingDeleteId(null);
@@ -1649,7 +1657,7 @@ export default function CoursesPage() {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-[#ff4d4f] text-white hover:bg-[#ea4042]"
               onClick={handleDelete}
               disabled={isDeleting}
             >

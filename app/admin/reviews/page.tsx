@@ -12,6 +12,16 @@ import {
 } from "@/components/admin/admin-page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,7 +35,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
-import { confirmWithToast } from "@/lib/confirm-toast";
 import { toast } from "sonner";
 
 type AdminCourseOption = {
@@ -81,6 +90,9 @@ export default function AdminReviewsPage() {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState(0);
   const [editComment, setEditComment] = useState("");
+  const [pendingDeleteReviewId, setPendingDeleteReviewId] = useState<
+    string | null
+  >(null);
 
   const selectedCourse = useMemo(
     () => courses.find((course) => course.id === selectedCourseId),
@@ -248,16 +260,6 @@ export default function AdminReviewsPage() {
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    const confirmed = await confirmWithToast(
-      "Delete this review? This action cannot be undone.",
-      "Delete",
-      "Cancel",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setActionReviewId(reviewId);
 
     try {
@@ -282,6 +284,12 @@ export default function AdminReviewsPage() {
     } finally {
       setActionReviewId(null);
     }
+  };
+
+  const confirmDeleteReview = async () => {
+    if (!pendingDeleteReviewId || actionReviewId) return;
+    await handleDeleteReview(pendingDeleteReviewId);
+    setPendingDeleteReviewId(null);
   };
 
   const handleToggleFlag = async (reviewId: string, flagged: boolean) => {
@@ -664,7 +672,9 @@ export default function AdminReviewsPage() {
                             <Button
                               type="button"
                               variant="destructive"
-                              onClick={() => handleDeleteReview(review.id)}
+                              onClick={() =>
+                                setPendingDeleteReviewId(review.id)
+                              }
                               disabled={isActing}
                             >
                               {isActing ? (
@@ -685,6 +695,38 @@ export default function AdminReviewsPage() {
           )}
         </div>
       </AdminPanel>
+
+      <AlertDialog
+        open={Boolean(pendingDeleteReviewId)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteReviewId(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="border border-[#2a3b61] bg-[#16223d] text-white shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              Delete review?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#c7cfdf]">
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-[#ff6636]/70 bg-transparent text-white hover:bg-[#ff6636]/15 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-[#ff4d4f] text-white hover:bg-[#ea4042]"
+              onClick={confirmDeleteReview}
+              disabled={Boolean(actionReviewId)}
+            >
+              {actionReviewId ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminPage>
   );
 }

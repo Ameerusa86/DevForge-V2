@@ -16,6 +16,16 @@ import {
   AdminPageHeader,
   AdminPanel,
 } from "@/components/admin/admin-page";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +37,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { authClient } from "@/lib/auth-client";
-import { confirmWithToast } from "@/lib/confirm-toast";
 import { toast } from "sonner";
 
 type AdminQuestion = {
@@ -83,6 +92,10 @@ export default function AdminQuestionsPage() {
   const [actionId, setActionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [courseFilter, setCourseFilter] = useState("all");
+  const [pendingDelete, setPendingDelete] = useState<{
+    type: "question" | "answer";
+    id: string;
+  } | null>(null);
 
   const loadQuestions = async () => {
     setLoading(true);
@@ -182,16 +195,6 @@ export default function AdminQuestionsPage() {
   }, [questions]);
 
   const handleDeleteQuestion = async (questionId: string) => {
-    const confirmed = await confirmWithToast(
-      "Delete this question and all its answers? This action cannot be undone.",
-      "Delete",
-      "Cancel",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setActionId(questionId);
     try {
       const response = await fetch(`/api/admin/questions/${questionId}`, {
@@ -215,16 +218,6 @@ export default function AdminQuestionsPage() {
   };
 
   const handleDeleteAnswer = async (answerId: string) => {
-    const confirmed = await confirmWithToast(
-      "Delete this answer? This action cannot be undone.",
-      "Delete",
-      "Cancel",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setActionId(answerId);
     try {
       const response = await fetch(`/api/admin/questions/answers/${answerId}`, {
@@ -248,6 +241,18 @@ export default function AdminQuestionsPage() {
     } finally {
       setActionId(null);
     }
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete || actionId) return;
+
+    if (pendingDelete.type === "question") {
+      await handleDeleteQuestion(pendingDelete.id);
+    } else {
+      await handleDeleteAnswer(pendingDelete.id);
+    }
+
+    setPendingDelete(null);
   };
 
   const handleToggleAccepted = async (
@@ -425,7 +430,9 @@ export default function AdminQuestionsPage() {
                       variant="destructive"
                       size="sm"
                       disabled={actionId === question.id}
-                      onClick={() => void handleDeleteQuestion(question.id)}
+                      onClick={() =>
+                        setPendingDelete({ type: "question", id: question.id })
+                      }
                     >
                       {actionId === question.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -509,7 +516,10 @@ export default function AdminQuestionsPage() {
                                 size="sm"
                                 disabled={actionId === answer.id}
                                 onClick={() =>
-                                  void handleDeleteAnswer(answer.id)
+                                  setPendingDelete({
+                                    type: "answer",
+                                    id: answer.id,
+                                  })
                                 }
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -526,6 +536,42 @@ export default function AdminQuestionsPage() {
           )}
         </div>
       </AdminPanel>
+
+      <AlertDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDelete(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="border border-[#2a3b61] bg-[#16223d] text-white shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              {pendingDelete?.type === "question"
+                ? "Delete question?"
+                : "Delete answer?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#c7cfdf]">
+              {pendingDelete?.type === "question"
+                ? "This will remove the question and all of its answers. This action cannot be undone."
+                : "This action cannot be undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-[#ff6636]/70 bg-transparent text-white hover:bg-[#ff6636]/15 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-[#ff4d4f] text-white hover:bg-[#ea4042]"
+              onClick={confirmDelete}
+              disabled={Boolean(actionId)}
+            >
+              {actionId ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminPage>
   );
 }

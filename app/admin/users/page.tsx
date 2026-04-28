@@ -669,10 +669,12 @@ export default function UsersPage() {
           }
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="border border-[#2a3b61] bg-[#16223d] text-white shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete user?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white">
+              Delete user?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#c7cfdf]">
               {pendingDeleteUser?.email
                 ? `This will permanently remove ${pendingDeleteUser.email} and their related data. This action cannot be undone.`
                 : "This will permanently remove the user and their related data. This action cannot be undone."}
@@ -680,6 +682,7 @@ export default function UsersPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
+              className="border-[#ff6636]/70 bg-transparent text-white hover:bg-[#ff6636]/15 hover:text-white"
               onClick={() => {
                 if (isDeleting) return;
                 setPendingDeleteId(null);
@@ -688,7 +691,7 @@ export default function UsersPage() {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-[#ff4d4f] text-white hover:bg-[#ea4042]"
               onClick={handleDelete}
               disabled={isDeleting}
             >
