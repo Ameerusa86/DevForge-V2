@@ -35,6 +35,16 @@ export async function GET(
     return NextResponse.json(questions, { status: 200 });
   } catch (error) {
     console.error("Failed to fetch questions:", error);
+
+    const message = error instanceof Error ? error.message : "";
+    if (
+      message.includes("lesson_question") ||
+      message.includes("does not exist")
+    ) {
+      // Graceful fallback if DB migration is not yet applied in this environment.
+      return NextResponse.json([], { status: 200 });
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch questions" },
       { status: 500 },

@@ -564,27 +564,13 @@ export default function MyCoursesPage() {
                       .filter(([, completed]) => completed)
                       .map(([lessonId]) => lessonId),
                   );
-                  const lastCompletedIndex = sortedLessons.reduce(
-                    (lastIndex, lesson, index) => {
-                      if (completedLessonIds.has(lesson.id)) {
-                        return index;
-                      }
-
-                      return lastIndex;
-                    },
-                    -1,
-                  );
-                  const nextLessonIndex =
-                    lastCompletedIndex >= 0 &&
-                    lastCompletedIndex < sortedLessons.length - 1
-                      ? lastCompletedIndex + 1
-                      : lastCompletedIndex === sortedLessons.length - 1
-                        ? lastCompletedIndex
-                        : 0;
                   const nextLesson =
-                    sortedLessons.length > 0
-                      ? sortedLessons[nextLessonIndex]
-                      : null;
+                    sortedLessons.find(
+                      (lesson) => !completedLessonIds.has(lesson.id),
+                    ) ??
+                    (sortedLessons.length > 0
+                      ? sortedLessons[sortedLessons.length - 1]
+                      : null);
                   const hasReview = Boolean(userReviews[course.id]);
 
                   return (

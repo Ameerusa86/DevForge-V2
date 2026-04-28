@@ -306,41 +306,35 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
   const courseTags = course.tags ?? [];
   const showNoModuleHeader = course.showUnassignedHeader ?? true;
   const moduleCount = orderedModules.length;
+  const orderedLessons = useMemo(
+    () => [
+      ...unassignedLessons,
+      ...orderedModules.flatMap((moduleItem) =>
+        moduleItem.lessons.slice().sort((a, b) => a.order - b.order),
+      ),
+    ],
+    [orderedModules, unassignedLessons],
+  );
+
   const continueLessonHref = useMemo(() => {
-    if (sortedLessons.length === 0) {
+    if (orderedLessons.length === 0) {
       return null;
     }
 
     if (!lessonProgress) {
-      return `/courses/${course.slug}/lessons/${sortedLessons[0].id}`;
+      return `/courses/${course.slug}/lessons/${orderedLessons[0].id}`;
     }
 
-    const completedLessonIds = new Set(
-      Object.entries(lessonProgress)
-        .filter(([, completed]) => completed)
-        .map(([lessonId]) => lessonId),
+    const nextUncompletedLesson = orderedLessons.find(
+      (lesson) => !lessonProgress[lesson.id],
     );
 
-    const lastCompletedIndex = sortedLessons.reduce(
-      (lastIndex, lesson, index) => {
-        if (completedLessonIds.has(lesson.id)) {
-          return index;
-        }
+    if (nextUncompletedLesson) {
+      return `/courses/${course.slug}/lessons/${nextUncompletedLesson.id}`;
+    }
 
-        return lastIndex;
-      },
-      -1,
-    );
-
-    const targetIndex =
-      lastCompletedIndex >= 0 && lastCompletedIndex < sortedLessons.length - 1
-        ? lastCompletedIndex + 1
-        : lastCompletedIndex === sortedLessons.length - 1
-          ? lastCompletedIndex
-          : 0;
-
-    return `/courses/${course.slug}/lessons/${sortedLessons[targetIndex].id}`;
-  }, [course.slug, lessonProgress, sortedLessons]);
+    return `/courses/${course.slug}/lessons/${orderedLessons[orderedLessons.length - 1].id}`;
+  }, [course.slug, lessonProgress, orderedLessons]);
 
   const learningCtaLabel =
     enrollmentProgress === 100
