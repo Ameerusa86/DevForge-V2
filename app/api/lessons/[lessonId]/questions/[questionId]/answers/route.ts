@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
-import { authClient } from "@/lib/auth-client";
+import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -13,7 +13,7 @@ export async function POST(
 ) {
   try {
     const { questionId } = await params;
-    const session = await authClient.getSession({
+    const session = await auth.api.getSession({
       headers: await headers(),
     });
 
@@ -32,7 +32,7 @@ export async function POST(
     }
 
     // Verify question exists
-    const question = await db.lessonQuestion.findUnique({
+    const question = await prisma.lessonQuestion.findUnique({
       where: { id: questionId },
     });
 
@@ -43,7 +43,7 @@ export async function POST(
       );
     }
 
-    const answer = await db.lessonAnswer.create({
+    const answer = await prisma.lessonAnswer.create({
       data: {
         questionId,
         userId: session.user.id,

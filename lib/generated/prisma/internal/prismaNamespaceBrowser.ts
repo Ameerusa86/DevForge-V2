@@ -71,7 +71,9 @@ export const ModelName = {
   IncidentUpdate: 'IncidentUpdate',
   MaintenanceWindow: 'MaintenanceWindow',
   PricingPlan: 'PricingPlan',
-  PricingFeature: 'PricingFeature'
+  PricingFeature: 'PricingFeature',
+  LessonQuestion: 'LessonQuestion',
+  LessonAnswer: 'LessonAnswer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -400,6 +402,32 @@ export const PricingFeatureScalarFieldEnum = {
 } as const
 
 export type PricingFeatureScalarFieldEnum = (typeof PricingFeatureScalarFieldEnum)[keyof typeof PricingFeatureScalarFieldEnum]
+
+
+export const LessonQuestionScalarFieldEnum = {
+  id: 'id',
+  lessonId: 'lessonId',
+  userId: 'userId',
+  title: 'title',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LessonQuestionScalarFieldEnum = (typeof LessonQuestionScalarFieldEnum)[keyof typeof LessonQuestionScalarFieldEnum]
+
+
+export const LessonAnswerScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  userId: 'userId',
+  body: 'body',
+  isAccepted: 'isAccepted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LessonAnswerScalarFieldEnum = (typeof LessonAnswerScalarFieldEnum)[keyof typeof LessonAnswerScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -144,3 +144,13 @@ export type PricingPlan = Prisma.PricingPlanModel
  * 
  */
 export type PricingFeature = Prisma.PricingFeatureModel
+/**
+ * Model LessonQuestion
+ * 
+ */
+export type LessonQuestion = Prisma.LessonQuestionModel
+/**
+ * Model LessonAnswer
+ * 
+ */
+export type LessonAnswer = Prisma.LessonAnswerModel

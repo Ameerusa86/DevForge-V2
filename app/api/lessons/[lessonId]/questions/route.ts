@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
-import { authClient } from "@/lib/auth-client";
+import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { lessonId } = await params;
 
-    const questions = await db.lessonQuestion.findMany({
+    const questions = await prisma.lessonQuestion.findMany({
       where: { lessonId },
       include: {
         user: {
@@ -52,7 +52,7 @@ export async function POST(
 ) {
   try {
     const { lessonId } = await params;
-    const session = await authClient.getSession({
+    const session = await auth.api.getSession({
       headers: await headers(),
     });
 
@@ -68,7 +68,7 @@ export async function POST(
     }
 
     // Verify lesson exists
-    const lesson = await db.lesson.findUnique({
+    const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
     });
 
@@ -76,7 +76,7 @@ export async function POST(
       return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
     }
 
-    const question = await db.lessonQuestion.create({
+    const question = await prisma.lessonQuestion.create({
       data: {
         lessonId,
         userId: session.user.id,
