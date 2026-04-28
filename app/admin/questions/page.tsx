@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { authClient } from "@/lib/auth-client";
+import { confirmWithToast } from "@/lib/confirm-toast";
 import { toast } from "sonner";
 
 type AdminQuestion = {
@@ -181,8 +182,10 @@ export default function AdminQuestionsPage() {
   }, [questions]);
 
   const handleDeleteQuestion = async (questionId: string) => {
-    const confirmed = window.confirm(
+    const confirmed = await confirmWithToast(
       "Delete this question and all its answers? This action cannot be undone.",
+      "Delete",
+      "Cancel",
     );
 
     if (!confirmed) {
@@ -212,8 +215,10 @@ export default function AdminQuestionsPage() {
   };
 
   const handleDeleteAnswer = async (answerId: string) => {
-    const confirmed = window.confirm(
+    const confirmed = await confirmWithToast(
       "Delete this answer? This action cannot be undone.",
+      "Delete",
+      "Cancel",
     );
 
     if (!confirmed) {

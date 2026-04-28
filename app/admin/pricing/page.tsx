@@ -28,6 +28,7 @@ import {
   Search,
   ExternalLink,
 } from "lucide-react";
+import { confirmWithToast } from "@/lib/confirm-toast";
 
 interface PricingFeature {
   id: string;
@@ -134,7 +135,12 @@ export default function AdminPricingPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this pricing plan?")) return;
+    const confirmed = await confirmWithToast(
+      "Delete this pricing plan?",
+      "Delete",
+      "Cancel",
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/pricing?id=${id}`, {

@@ -34,6 +34,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { Enrollment } from "@/types/course";
+import { confirmWithToast } from "@/lib/confirm-toast";
 
 export default function EnrollmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,7 +66,12 @@ export default function EnrollmentsPage() {
   };
 
   const handleDelete = async (enrollmentId: string) => {
-    if (!confirm("Are you sure you want to remove this enrollment?")) return;
+    const confirmed = await confirmWithToast(
+      "Remove this enrollment?",
+      "Remove",
+      "Cancel",
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/enrollments/${enrollmentId}`, {

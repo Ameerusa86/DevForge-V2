@@ -90,6 +90,12 @@ export default function UsersPage() {
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetTarget, setResetTarget] = useState<{
+    id: string;
+    email: string;
+  } | null>(null);
+  const [resetTempPassword, setResetTempPassword] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -213,24 +219,28 @@ export default function UsersPage() {
     setPendingDeleteId(null);
   };
 
-  const resetPassword = async (userId: string, email: string) => {
-    const tempPassword = prompt(
-      `Enter a new temporary password for ${email} (min 8 chars):`,
-    );
-    if (!tempPassword) return;
-    if (tempPassword.length < 8) {
+  const openResetPasswordDialog = (userId: string, email: string) => {
+    setResetTarget({ id: userId, email });
+    setResetTempPassword("");
+    setResetDialogOpen(true);
+  };
+
+  const resetPassword = async () => {
+    if (!resetTarget) return;
+
+    if (resetTempPassword.length < 8) {
       toast.error("Temporary password must be at least 8 characters");
       return;
     }
 
-    setResettingId(userId);
+    setResettingId(resetTarget.id);
     try {
       const response = await fetch(
-        `/api/admin/users/${userId}/reset-password`,
+        `/api/admin/users/${resetTarget.id}/reset-password`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tempPassword }),
+          body: JSON.stringify({ tempPassword: resetTempPassword }),
         },
       );
 
@@ -240,6 +250,9 @@ export default function UsersPage() {
       }
 
       toast.success("Temporary password set and user must change it");
+      setResetDialogOpen(false);
+      setResetTarget(null);
+      setResetTempPassword("");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Failed to reset password";
@@ -460,7 +473,9 @@ export default function UsersPage() {
                         <DropdownMenuItem
                           className="gap-2"
                           disabled={resettingId === user.id}
-                          onClick={() => resetPassword(user.id, user.email)}
+                          onClick={() =>
+                            openResetPasswordDialog(user.id, user.email)
+                          }
                         >
                           <Shield className="h-4 w-4" />
                           Reset Password
@@ -584,6 +599,64 @@ export default function UsersPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={resetDialogOpen}
+        onOpenChange={(open) => {
+          setResetDialogOpen(open);
+          if (!open) {
+            setResetTarget(null);
+            setResetTempPassword("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              {resetTarget?.email
+                ? `Set a temporary password for ${resetTarget.email}.`
+                : "Set a temporary password for this user."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label htmlFor="resetTempPassword">Temporary Password</Label>
+            <Input
+              id="resetTempPassword"
+              type="password"
+              minLength={8}
+              placeholder="Minimum 8 characters"
+              value={resetTempPassword}
+              onChange={(e) => setResetTempPassword(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              The user will be forced to change this password on next login.
+            </p>
+          </div>
+
+          <DialogFooter className="gap-4 sm:gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setResetDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={resetPassword}
+              disabled={
+                !resetTempPassword ||
+                resetTempPassword.length < 8 ||
+                Boolean(resettingId)
+              }
+            >
+              {resettingId ? "Resetting..." : "Set Temporary Password"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

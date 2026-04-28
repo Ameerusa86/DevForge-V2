@@ -36,6 +36,7 @@ import {
   Wrench,
   XCircle,
 } from "lucide-react";
+import { confirmWithToast } from "@/lib/confirm-toast";
 
 interface SystemStatus {
   id: string;
@@ -219,7 +220,12 @@ export default function AdminStatusPage() {
   };
 
   const deleteService = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this service?")) return;
+    const confirmed = await confirmWithToast(
+      "Delete this service?",
+      "Delete",
+      "Cancel",
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/status/services?id=${id}`, {
@@ -293,7 +299,12 @@ export default function AdminStatusPage() {
   };
 
   const deleteIncident = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this incident?")) return;
+    const confirmed = await confirmWithToast(
+      "Delete this incident?",
+      "Delete",
+      "Cancel",
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/status/incidents?id=${id}`, {
@@ -371,8 +382,12 @@ export default function AdminStatusPage() {
   };
 
   const deleteMaintenance = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this maintenance window?"))
-      return;
+    const confirmed = await confirmWithToast(
+      "Delete this maintenance window?",
+      "Delete",
+      "Cancel",
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/status/maintenance?id=${id}`, {

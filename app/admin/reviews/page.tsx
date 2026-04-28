@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
+import { confirmWithToast } from "@/lib/confirm-toast";
 import { toast } from "sonner";
 
 type AdminCourseOption = {
@@ -60,9 +61,9 @@ export default function AdminReviewsPage() {
   const { data: session, isPending } = authClient.useSession();
 
   const [courses, setCourses] = useState<AdminCourseOption[]>([]);
-  const [moderationReviews, setModerationReviews] = useState<ModerationReview[]>(
-    [],
-  );
+  const [moderationReviews, setModerationReviews] = useState<
+    ModerationReview[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [moderationLoading, setModerationLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -197,7 +198,13 @@ export default function AdminReviewsPage() {
         commentText.toLowerCase().includes(normalizedSearch)
       );
     });
-  }, [moderationReviews, searchQuery, filterCourseId, filterRating, flaggedFilter]);
+  }, [
+    moderationReviews,
+    searchQuery,
+    filterCourseId,
+    filterRating,
+    flaggedFilter,
+  ]);
 
   const handleSubmitOwnReview = async () => {
     if (!selectedCourseId) {
@@ -241,8 +248,10 @@ export default function AdminReviewsPage() {
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    const confirmed = window.confirm(
+    const confirmed = await confirmWithToast(
       "Delete this review? This action cannot be undone.",
+      "Delete",
+      "Cancel",
     );
 
     if (!confirmed) {
@@ -355,7 +364,9 @@ export default function AdminReviewsPage() {
     }
   };
 
-  const flaggedCount = moderationReviews.filter((review) => review.flagged).length;
+  const flaggedCount = moderationReviews.filter(
+    (review) => review.flagged,
+  ).length;
 
   if (loading) {
     return (
@@ -391,7 +402,10 @@ export default function AdminReviewsPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="admin-review-course">Course</Label>
-              <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+              <Select
+                value={selectedCourseId}
+                onValueChange={setSelectedCourseId}
+              >
                 <SelectTrigger id="admin-review-course" className="h-11">
                   <SelectValue placeholder="Select a course" />
                 </SelectTrigger>
@@ -431,7 +445,9 @@ export default function AdminReviewsPage() {
                 rows={5}
                 maxLength={1000}
               />
-              <p className="text-xs text-muted-foreground">{comment.length}/1000</p>
+              <p className="text-xs text-muted-foreground">
+                {comment.length}/1000
+              </p>
             </div>
           </div>
 
@@ -536,7 +552,8 @@ export default function AdminReviewsPage() {
                             {review.user.name} · {review.user.email}
                           </p>
                           <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                            Posted {formatDistanceToNow(new Date(review.createdAt), {
+                            Posted{" "}
+                            {formatDistanceToNow(new Date(review.createdAt), {
                               addSuffix: true,
                             })}
                           </p>
@@ -568,7 +585,9 @@ export default function AdminReviewsPage() {
                             <Label>Edit comment</Label>
                             <Textarea
                               value={editComment}
-                              onChange={(event) => setEditComment(event.target.value)}
+                              onChange={(event) =>
+                                setEditComment(event.target.value)
+                              }
                               rows={4}
                             />
                           </div>
@@ -629,7 +648,9 @@ export default function AdminReviewsPage() {
                             <Button
                               type="button"
                               variant="outline"
-                              onClick={() => handleToggleFlag(review.id, !review.flagged)}
+                              onClick={() =>
+                                handleToggleFlag(review.id, !review.flagged)
+                              }
                               disabled={isActing}
                             >
                               {isActing ? (

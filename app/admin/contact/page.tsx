@@ -31,6 +31,7 @@ import {
   ExternalLink,
   Search,
 } from "lucide-react";
+import { confirmWithToast } from "@/lib/confirm-toast";
 
 interface ContactSettings {
   id: string;
@@ -178,7 +179,12 @@ export default function AdminContactPage() {
   };
 
   const handleDeleteFaq = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this FAQ?")) return;
+    const confirmed = await confirmWithToast(
+      "Delete this FAQ?",
+      "Delete",
+      "Cancel",
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/contact/faq?id=${id}`, {

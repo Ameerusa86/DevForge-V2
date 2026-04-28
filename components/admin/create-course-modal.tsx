@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/card";
 import { Plus, Loader2 } from "lucide-react";
 import { Course, CreateCourseModalProps } from "@/types/course";
+import { toast } from "sonner";
 
 const CATEGORIES = [
   { value: "FRONTEND", label: "Frontend" },
@@ -130,7 +131,7 @@ export function CreateCourseModal({ onCourseCreated }: CreateCourseModalProps) {
       });
     } catch (error) {
       console.error("Failed to create course:", error);
-      alert("Failed to create course. Please try again.");
+      toast.error("Failed to create course. Please try again.");
     } finally {
       setLoading(false);
     }
