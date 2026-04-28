@@ -22,6 +22,7 @@ const titleMap: Array<[RegExp, string]> = [
   [/^\/admin\/content/, "Content"],
   [/^\/admin\/schedule/, "Schedule"],
   [/^\/admin\/messages/, "Messages"],
+  [/^\/admin\/questions/, "Q&A"],
   [/^\/admin\/contact/, "Contact"],
   [/^\/admin\/status/, "Status"],
   [/^\/admin\/pricing/, "Pricing"],

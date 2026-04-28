@@ -22,6 +22,7 @@ import {
   Layers3,
   Sparkles,
   Star,
+  MessageCircleQuestion,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -78,6 +79,11 @@ const sidebarGroups = [
         title: "Messages",
         href: "/admin/messages",
         icon: MessageSquare,
+      },
+      {
+        title: "Q&A",
+        href: "/admin/questions",
+        icon: MessageCircleQuestion,
       },
       {
         title: "Contact Page",
