@@ -19,7 +19,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { RichTextRenderer } from "@/components/editor/RichTextRenderer";
-import { LessonQA } from "@/components/lms/lesson-qa";
 import {
   MarketingPublicFooter,
   MarketingPublicHeader,
@@ -108,11 +107,11 @@ function OutlineLessonLink({
   const isLocked = !lesson.isFree && !hasEnrollment;
   const activeClassName = isActive
     ? "border-[#1d2026] bg-[#1d2026] text-white"
-    : "border-border bg-card text-foreground hover:border-primary hover:bg-primary/5";
-  const mutedClassName = isActive ? "text-white/70" : "text-muted-foreground";
+    : "border-[#e9eaf0] bg-white text-[#1d2026] hover:border-[#ff6636] hover:bg-[#fffaf6]";
+  const mutedClassName = isActive ? "text-white/70" : "text-[#6e7485]";
   const previewClassName = isActive
     ? "bg-white/15 text-white"
-    : "bg-primary/10 text-primary";
+    : "bg-[#fff2e5] text-[#ff6636]";
 
   return (
     <Link
@@ -121,7 +120,9 @@ function OutlineLessonLink({
     >
       <span
         className={`mt-0.5 flex size-8 shrink-0 items-center justify-center border text-xs font-semibold ${
-          isActive ? "border-white/20 bg-white/10" : "border-border bg-muted"
+          isActive
+            ? "border-white/20 bg-white/10"
+            : "border-[#e9eaf0] bg-[#f5f7fa]"
         }`}
       >
         {lessonNumber}
@@ -195,10 +196,10 @@ function CourseOutline({
         <div className="space-y-3">
           {showNoModuleHeader ? (
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                 Quick start
               </p>
-              <h3 className="mt-2 text-lg font-semibold tracking-[-0.02em] text-foreground">
+              <h3 className="mt-2 text-lg font-semibold tracking-[-0.02em] text-[#1d2026]">
                 Lessons outside a module
               </h3>
             </div>
@@ -230,22 +231,22 @@ function CourseOutline({
             <AccordionItem
               key={moduleItem.id}
               value={moduleItem.id}
-              className="border border-border bg-muted"
+              className="border border-[#e9eaf0] bg-[#f5f7fa]"
             >
               <AccordionTrigger className="px-5 py-4 text-left hover:no-underline">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                     Module {moduleItem.order}
                   </p>
-                  <p className="mt-2 text-base font-semibold text-foreground">
+                  <p className="mt-2 text-base font-semibold text-[#1d2026]">
                     {moduleItem.title}
                   </p>
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="border-t border-border px-5 py-5">
+              <AccordionContent className="border-t border-[#e9eaf0] px-5 py-5">
                 {moduleItem.description ? (
-                  <p className="mb-4 text-sm leading-7 text-muted-foreground">
+                  <p className="mb-4 text-sm leading-7 text-[#6e7485]">
                     {moduleItem.description}
                   </p>
                 ) : null}
@@ -407,29 +408,29 @@ export function LessonDetailClient({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#f5f7fa] text-[#1d2026]">
       <MarketingPublicHeader activePath="/courses" />
 
       <main>
-        <section className="border-b border-border bg-card">
+        <section className="border-b border-[#e9eaf0] bg-white">
           <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
             <div className="flex flex-wrap items-start justify-between gap-6">
               <div className="max-w-[760px]">
                 <Link
                   href={`/courses/${course.slug}`}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-[#4e5566] transition hover:text-[#ff6636]"
                 >
                   <ArrowLeft className="size-4" />
                   Back to course
                 </Link>
 
-                <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                   Course lesson
                 </p>
                 <h1 className="mt-3 text-[2.4rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[3.2rem]">
                   {currentLesson.title}
                 </h1>
-                <p className="mt-4 max-w-[680px] text-base leading-8 text-muted-foreground">
+                <p className="mt-4 max-w-[680px] text-base leading-8 text-[#6e7485]">
                   {course.title} and lesson {currentIndex + 1} of{" "}
                   {orderedLessons.length}.
                 </p>
@@ -440,7 +441,7 @@ export function LessonDetailClient({
                   <SheetTrigger asChild>
                     <Button
                       variant="outline"
-                      className="rounded-none border-border px-4 py-3 text-sm font-semibold text-foreground"
+                      className="rounded-none border-[#e9eaf0] px-4 py-3 text-sm font-semibold text-[#1d2026]"
                     >
                       <Layers3 className="mr-2 size-4" />
                       Course outline
@@ -448,19 +449,19 @@ export function LessonDetailClient({
                   </SheetTrigger>
                   <SheetContent
                     side="right"
-                    className="w-[min(28rem,100vw)] rounded-none border-border px-0"
+                    className="w-[min(28rem,100vw)] overflow-y-auto rounded-none border-[#e9eaf0] px-0"
                   >
                     <SheetHeader className="px-6 pb-4">
-                      <SheetTitle className="text-left text-xl font-semibold text-foreground">
+                      <SheetTitle className="text-left text-xl font-semibold text-[#1d2026]">
                         Course outline
                       </SheetTitle>
-                      <SheetDescription className="text-left text-sm leading-7 text-muted-foreground">
+                      <SheetDescription className="text-left text-sm leading-7 text-[#6e7485]">
                         Jump between lessons and keep track of the full learning
                         path.
                       </SheetDescription>
                     </SheetHeader>
 
-                    <div className="border-t border-border px-6 py-6">
+                    <div className="border-t border-[#e9eaf0] px-6 py-6">
                       <CourseOutline
                         courseSlug={course.slug}
                         orderedModules={orderedModules}
@@ -478,20 +479,20 @@ export function LessonDetailClient({
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3">
-              <div className="border border-border bg-muted px-4 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                   Current lesson
                 </p>
-                <p className="mt-2 text-lg font-semibold text-foreground">
+                <p className="mt-2 text-lg font-semibold text-[#1d2026]">
                   {currentIndex + 1} of {orderedLessons.length}
                 </p>
               </div>
 
-              <div className="border border-border bg-muted px-4 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                   Access
                 </p>
-                <p className="mt-2 text-lg font-semibold text-foreground">
+                <p className="mt-2 text-lg font-semibold text-[#1d2026]">
                   {currentLesson.isLocked
                     ? "Enrollment required"
                     : currentLesson.isFree
@@ -500,11 +501,11 @@ export function LessonDetailClient({
                 </p>
               </div>
 
-              <div className="border border-border bg-muted px-4 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                   Tracking
                 </p>
-                <p className="mt-2 text-lg font-semibold text-foreground">
+                <p className="mt-2 text-lg font-semibold text-[#1d2026]">
                   {progressData
                     ? `${progressPercent}% complete`
                     : "Enroll to save progress"}
@@ -517,27 +518,27 @@ export function LessonDetailClient({
         <section className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-6">
-              <div className="border border-border bg-card p-6 sm:p-8">
+              <div className="border border-[#e9eaf0] bg-white p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                  <span className="inline-flex items-center gap-2 bg-[#fff2e5] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff6636]">
                     <ClipboardCheck className="size-3.5" />
                     Lesson {currentLesson.order}
                   </span>
-                  <span className="inline-flex items-center gap-2 border border-border bg-muted px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                  <span className="inline-flex items-center gap-2 border border-[#e9eaf0] bg-[#f5f7fa] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4e5566]">
                     <BookOpen className="size-3.5 text-[#ff6636]" />
                     {course.title}
                   </span>
                 </div>
 
                 {currentLesson.isLocked ? (
-                  <div className="mt-8 border border-border bg-muted px-6 py-10 sm:px-8">
-                    <div className="flex size-14 items-center justify-center bg-foreground text-background">
+                  <div className="mt-8 border border-[#1d2026] bg-[#fffaf6] px-6 py-10 sm:px-8">
+                    <div className="flex size-14 items-center justify-center bg-[#1d2026] text-white">
                       <Lock className="size-6" />
                     </div>
-                    <h2 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-foreground">
+                    <h2 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
                       This lesson is locked
                     </h2>
-                    <p className="mt-4 max-w-[560px] text-sm leading-7 text-muted-foreground">
+                    <p className="mt-4 max-w-[560px] text-sm leading-7 text-[#6e7485]">
                       {currentLesson.message ||
                         "Enroll in the course to access the full lesson and keep your progress in sync."}
                     </p>
@@ -550,7 +551,7 @@ export function LessonDetailClient({
                       </Link>
                       <Link
                         href="/courses"
-                        className="inline-flex items-center justify-center border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                        className="inline-flex items-center justify-center border border-[#e9eaf0] bg-white px-6 py-3 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:text-[#ff6636]"
                       >
                         Browse more courses
                       </Link>
@@ -560,23 +561,23 @@ export function LessonDetailClient({
                   <article
                     className="
                       lesson-content prose prose-neutral mt-8 max-w-none
-                      dark:prose-invert
                       px-0
-                      prose-headings:font-semibold prose-headings:tracking-[-0.03em]
+                      prose-headings:font-semibold prose-headings:tracking-[-0.03em] prose-headings:text-[#1d2026]
                       prose-h1:mb-6 prose-h1:mt-0 prose-h1:text-4xl
-                      prose-h2:mb-4 prose-h2:mt-12 prose-h2:border-b prose-h2:border-border prose-h2:pb-3 prose-h2:text-3xl
+                      prose-h2:mb-4 prose-h2:mt-12 prose-h2:border-b prose-h2:border-[#e9eaf0] prose-h2:pb-3 prose-h2:text-3xl
                       prose-h3:mb-3 prose-h3:mt-8 prose-h3:text-2xl
                       prose-h4:mb-2 prose-h4:mt-6 prose-h4:text-xl
-                      prose-p:my-4 prose-p:text-base prose-p:leading-8
+                      prose-p:my-4 prose-p:text-base prose-p:leading-8 prose-p:text-[#4e5566]
                       prose-ul:my-5 prose-ul:space-y-2
                       prose-ol:my-5 prose-ol:space-y-2
-                      prose-li:leading-8
-                      prose-code:rounded-none prose-code:bg-muted prose-code:px-1.5 prose-code:py-1 prose-code:before:content-[''] prose-code:after:content-['']
-                      prose-pre:rounded-none prose-pre:border prose-pre:border-border prose-pre:bg-[#1d2026]
-                      prose-blockquote:rounded-none prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:px-5 prose-blockquote:py-3 prose-blockquote:not-italic
-                      prose-a:text-primary
-                      prose-img:rounded-none prose-img:border prose-img:border-border
-                      prose-hr:my-10 prose-hr:border-border
+                      prose-li:text-[#4e5566] prose-li:leading-8
+                      prose-strong:text-[#1d2026]
+                      prose-code:rounded-none prose-code:bg-[#f5f7fa] prose-code:px-1.5 prose-code:py-1 prose-code:text-[#1d2026] prose-code:before:content-[''] prose-code:after:content-['']
+                      prose-pre:rounded-none prose-pre:border prose-pre:border-[#e9eaf0] prose-pre:bg-[#1d2026]
+                      prose-blockquote:rounded-none prose-blockquote:border-l-4 prose-blockquote:border-[#ff6636] prose-blockquote:bg-[#fffaf6] prose-blockquote:px-5 prose-blockquote:py-3 prose-blockquote:not-italic
+                      prose-a:text-[#ff6636]
+                      prose-img:rounded-none prose-img:border prose-img:border-[#e9eaf0]
+                      prose-hr:my-10 prose-hr:border-[#e9eaf0]
                     "
                   >
                     {(() => {
@@ -597,7 +598,7 @@ export function LessonDetailClient({
                       } catch (error) {
                         console.error("Failed to parse lesson content", error);
                         return (
-                          <div className="border border-dashed border-border bg-muted px-6 py-8 text-sm leading-7 text-muted-foreground">
+                          <div className="border border-dashed border-[#d7dae0] bg-[#f5f7fa] px-6 py-8 text-sm leading-7 text-[#6e7485]">
                             Lesson content could not be displayed. Refresh the
                             page and try again.
                           </div>
@@ -606,22 +607,15 @@ export function LessonDetailClient({
                     })()}
                   </article>
                 )}
-
-                {/* Q&A Section */}
-                <LessonQA
-                  lessonId={currentLesson.id}
-                  isEnrolled={Boolean(initialEnrollmentId)}
-                  enrollmentId={initialEnrollmentId || undefined}
-                />
               </div>
 
-              <div className="border border-border bg-card p-5 sm:p-6">
+              <div className="border border-[#e9eaf0] bg-white p-5 sm:p-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                       Progress controls
                     </p>
-                    <p className="mt-2 text-base font-semibold text-foreground">
+                    <p className="mt-2 text-base font-semibold text-[#1d2026]">
                       {initialEnrollmentId
                         ? "Save your place and move through the course in order."
                         : "Enroll in the course to unlock tracked progress and completion history."}
@@ -654,7 +648,7 @@ export function LessonDetailClient({
                     <Button
                       variant="outline"
                       onClick={scrollToTop}
-                      className="rounded-none border-border px-6 py-3 text-sm font-semibold text-foreground hover:border-primary hover:bg-primary/5 hover:text-primary"
+                      className="rounded-none border-[#e9eaf0] px-6 py-3 text-sm font-semibold text-[#1d2026] hover:border-[#ff6636] hover:bg-[#fffaf6] hover:text-[#ff6636]"
                     >
                       <ArrowUp className="mr-2 size-4" />
                       Back to top
@@ -667,7 +661,7 @@ export function LessonDetailClient({
                 {previousLesson ? (
                   <Link
                     href={`/courses/${course.slug}/lessons/${previousLesson.id}`}
-                    className="inline-flex items-center justify-center border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                    className="inline-flex items-center justify-center border border-[#e9eaf0] bg-white px-6 py-3 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:text-[#ff6636]"
                   >
                     <ChevronLeft className="mr-2 size-4" />
                     Previous lesson
@@ -675,7 +669,7 @@ export function LessonDetailClient({
                 ) : (
                   <Link
                     href={`/courses/${course.slug}`}
-                    className="inline-flex items-center justify-center border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                    className="inline-flex items-center justify-center border border-[#e9eaf0] bg-white px-6 py-3 text-sm font-semibold text-[#1d2026] transition hover:border-[#ff6636] hover:text-[#ff6636]"
                   >
                     <ArrowLeft className="mr-2 size-4" />
                     Back to course
@@ -732,13 +726,13 @@ export function LessonDetailClient({
                   </p>
                 </div>
 
-                <div className="border border-border bg-card p-6">
+                <div className="flex max-h-[calc(100vh-12rem)] flex-col border border-[#e9eaf0] bg-white p-6">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                         Course outline
                       </p>
-                      <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-foreground">
+                      <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
                         Navigate the path
                       </h2>
                     </div>
@@ -747,7 +741,7 @@ export function LessonDetailClient({
                     </div>
                   </div>
 
-                  <div className="mt-6">
+                  <div className="mt-6 min-h-0 flex-1 overflow-y-auto pr-2">
                     <CourseOutline
                       courseSlug={course.slug}
                       orderedModules={orderedModules}
@@ -761,14 +755,14 @@ export function LessonDetailClient({
                   </div>
                 </div>
 
-                <div className="border border-border bg-primary/5 p-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <div className="border border-[#e9eaf0] bg-[#fffaf6] p-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
                     Study mode
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-foreground">
+                  <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#1d2026]">
                     Keep momentum
                   </h2>
-                  <div className="mt-5 space-y-3 text-sm leading-7 text-foreground/80">
+                  <div className="mt-5 space-y-3 text-sm leading-7 text-[#4e5566]">
                     <div className="flex gap-3">
                       <Sparkles className="mt-1 size-4 shrink-0 text-[#ff6636]" />
                       Read the lesson once, then revisit the outline for
