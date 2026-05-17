@@ -228,7 +228,7 @@ const RegisterPage = () => {
     >
       <form onSubmit={handleRegister} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm font-medium text-[#1d2026]">
+          <Label htmlFor="name" className="text-sm font-medium text-[#dfe3eb]">
             Full Name
           </Label>
           <Input
@@ -238,13 +238,13 @@ const RegisterPage = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={isLoading}
-            className="h-12 rounded-none border-[#e9eaf0]"
+            className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium text-[#1d2026]">
+          <Label htmlFor="email" className="text-sm font-medium text-[#dfe3eb]">
             Email
           </Label>
           <Input
@@ -254,14 +254,17 @@ const RegisterPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="h-12 rounded-none border-[#e9eaf0]"
+            className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
             required
           />
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-[#1d2026]">
+            <Label
+              htmlFor="password"
+              className="text-sm font-medium text-[#dfe3eb]"
+            >
               Password
             </Label>
             <Input
@@ -271,7 +274,7 @@ const RegisterPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="h-12 rounded-none border-[#e9eaf0]"
+              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
               required
             />
           </div>
@@ -279,7 +282,7 @@ const RegisterPage = () => {
           <div className="space-y-2">
             <Label
               htmlFor="confirmPassword"
-              className="text-sm font-medium text-[#1d2026]"
+              className="text-sm font-medium text-[#dfe3eb]"
             >
               Confirm Password
             </Label>
@@ -290,7 +293,7 @@ const RegisterPage = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isLoading}
-              className="h-12 rounded-none border-[#e9eaf0]"
+              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
               required
             />
           </div>
@@ -306,11 +309,11 @@ const RegisterPage = () => {
       </form>
 
       <div className="my-6 flex items-center">
-        <div className="flex-1 border-t border-[#e9eaf0]" />
+        <div className="flex-1 border-t border-white/15" />
         <span className="px-3 text-xs font-medium uppercase tracking-[0.12em] text-[#8c94a3]">
           Or continue with
         </span>
-        <div className="flex-1 border-t border-[#e9eaf0]" />
+        <div className="flex-1 border-t border-white/15" />
       </div>
 
       <div className="space-y-3">
@@ -319,7 +322,7 @@ const RegisterPage = () => {
           variant="outline"
           disabled={isLoading}
           onClick={handleGoogleSignUp}
-          className="h-12 w-full rounded-none border-[#e9eaf0] text-sm font-medium"
+          className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
         >
           <Chrome className="mr-2 h-4 w-4" />
           Continue with Google
@@ -329,14 +332,14 @@ const RegisterPage = () => {
           variant="outline"
           disabled={isLoading}
           onClick={handleGithubSignUp}
-          className="h-12 w-full rounded-none border-[#e9eaf0] text-sm font-medium"
+          className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
         >
           <Github className="mr-2 h-4 w-4" />
           Continue with GitHub
         </Button>
       </div>
 
-      <p className="mt-8 text-center text-sm text-[#6e7485]">
+      <p className="mt-8 text-center text-sm text-[#b7bac7]">
         Already have an account?{" "}
         <Link href="/login" className="font-semibold text-[#ff6636]">
           Sign in

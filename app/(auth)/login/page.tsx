@@ -272,7 +272,10 @@ const LoginPage = () => {
       >
         <form onSubmit={handleLogin} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-[#1d2026]">
+            <Label
+              htmlFor="email"
+              className="text-sm font-medium text-[#dfe3eb]"
+            >
               Email
             </Label>
             <Input
@@ -282,14 +285,18 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              className="h-12 rounded-none border-[#e9eaf0]"
+              autoComplete="email"
+              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
               required
             />
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-sm font-medium text-[#1d2026]">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-[#dfe3eb]"
+              >
                 Password
               </Label>
               <span className="text-xs font-medium text-[#ff6636]">
@@ -303,7 +310,8 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="h-12 rounded-none border-[#e9eaf0]"
+              autoComplete="current-password"
+              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
               required
             />
           </div>
@@ -311,18 +319,18 @@ const LoginPage = () => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="h-12 w-full rounded-none bg-[#ff6636] text-sm font-semibold text-white hover:bg-[#e95a2b]"
+            className="h-12 w-full bg-[#ff6636] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(255,102,54,0.28)] hover:bg-[#e95a2b]"
           >
             {isLoading ? "Logging in..." : "Sign In"}
           </Button>
         </form>
 
         <div className="my-6 flex items-center">
-          <div className="flex-1 border-t border-[#e9eaf0]" />
+          <div className="flex-1 border-t border-white/15" />
           <span className="px-3 text-xs font-medium uppercase tracking-[0.12em] text-[#8c94a3]">
             Or continue with
           </span>
-          <div className="flex-1 border-t border-[#e9eaf0]" />
+          <div className="flex-1 border-t border-white/15" />
         </div>
 
         <div className="space-y-3">
@@ -331,7 +339,7 @@ const LoginPage = () => {
             variant="outline"
             disabled={isLoading}
             onClick={handleGoogleLogin}
-            className="h-12 w-full rounded-none border-[#e9eaf0] text-sm font-medium"
+            className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
           >
             <Chrome className="mr-2 h-4 w-4" />
             Continue with Google
@@ -341,14 +349,14 @@ const LoginPage = () => {
             variant="outline"
             disabled={isLoading}
             onClick={handleGithubLogin}
-            className="h-12 w-full rounded-none border-[#e9eaf0] text-sm font-medium"
+            className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
           >
             <Github className="mr-2 h-4 w-4" />
             Continue with GitHub
           </Button>
         </div>
 
-        <p className="mt-8 text-center text-sm text-[#6e7485]">
+        <p className="mt-8 text-center text-sm text-[#b7bac7]">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="font-semibold text-[#ff6636]">
             Sign up for free
