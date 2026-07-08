@@ -428,62 +428,64 @@ export function MarketingPublicHeader({
 
 export function MarketingPublicFooter() {
   return (
-    <footer className="border-t border-border/70 bg-background text-foreground">
-      <div className="border-b border-border/70 bg-muted/20">
-        <div className="mx-auto grid max-w-[1320px] gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:px-8 lg:py-16">
-          <div className="space-y-6">
-            <h2 className="max-w-[560px] text-[32px] font-semibold leading-[1.2] tracking-[-0.03em] sm:text-[40px]">
-              Start learning with 67.1k students around the world.
+    <footer className="bg-background text-foreground">
+      {/* ── Top CTA band ─────────────────────────────────────────── */}
+      <div className="border-t border-border/60 bg-[#ff6636]">
+        <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="text-white text-left">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/70 mb-1">Ready to level up?</p>
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Start learning with 67k+ students worldwide.
             </h2>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/register" className={primaryButtonClassName}>
-                Join the Family
-              </Link>
-              <Link
-                href="/courses"
-                className="inline-flex items-center justify-center rounded-none border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-muted"
-              >
-                Browse all courses
-              </Link>
-            </div>
           </div>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-bold text-[#ff6636] hover:bg-white/90 transition-colors duration-200"
+            >
+              Join for Free
+            </Link>
+            <Link
+              href="/courses"
+              className="inline-flex items-center justify-center rounded-xl border border-white/30 bg-transparent px-6 py-3 text-sm font-bold text-white hover:bg-white/10 transition-colors duration-200"
+            >
+              Browse Courses
+            </Link>
+          </div>
+        </div>
+      </div>
 
-          <div className="grid gap-6 sm:grid-cols-3">
+      {/* ── Stats row ─────────────────────────────────────────────── */}
+      <div className="border-b border-border/60 bg-muted/20">
+        <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-3 gap-6 divide-x divide-border/60">
             {footerStats.map((stat) => (
-              <div key={stat.label} className="min-w-[140px]">
-                <div className="text-[40px] font-semibold tracking-[-0.04em]">
-                  {stat.value}
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  {stat.label}
-                </div>
+              <div key={stat.label} className="text-center px-4">
+                <p className="text-3xl font-extrabold tracking-tight text-foreground">{stat.value}</p>
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(3,1fr)_220px]">
-          <div>
-            <MarketingBrand dark size="footer" />
+      {/* ── Main link grid ────────────────────────────────────────── */}
+      <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)_200px]">
 
-            <p className="mt-5 max-w-[360px] text-sm leading-7 text-muted-foreground">
-              Structured learning for builders who want momentum,
-              accountability, and course design that feels deliberate from the
-              first click.
+          {/* Brand column */}
+          <div className="space-y-5">
+            <MarketingBrand dark size="footer" />
+            <p className="text-sm leading-7 text-muted-foreground max-w-[320px]">
+              Structured learning for builders who want momentum, accountability,
+              and course design that feels deliberate from the first click.
             </p>
 
-            <div className="mt-6 flex items-center gap-3">
+            {/* Social icons */}
+            <div className="flex items-center gap-2.5 pt-1">
               {socialLinks.map((social) => {
-                const Icon =
-                  socialIconMap[social.label as keyof typeof socialIconMap];
+                const Icon = socialIconMap[social.label as keyof typeof socialIconMap];
                 const isExternal = social.href.startsWith("http");
-                const activeClassName =
-                  social.label === "LinkedIn"
-                    ? "bg-primary text-primary-foreground shadow-[0_6px_20px_rgba(204,82,43,0.45)]"
-                    : "bg-muted text-foreground hover:bg-muted/80";
-
                 return (
                   <Link
                     key={social.label}
@@ -491,7 +493,7 @@ export function MarketingPublicFooter() {
                     aria-label={social.label}
                     target={isExternal ? "_blank" : undefined}
                     rel={isExternal ? "noreferrer noopener" : undefined}
-                    className={`inline-flex size-11 items-center justify-center transition ${activeClassName}`}
+                    className="inline-flex size-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] hover:bg-[#ff6636]/5 transition-all duration-200"
                   >
                     <Icon className="size-4" />
                   </Link>
@@ -500,15 +502,19 @@ export function MarketingPublicFooter() {
             </div>
           </div>
 
+          {/* Link columns */}
           {footerColumns.map((column) => (
             <div key={column.title}>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.14em]">
+              <h3 className="text-xs font-extrabold uppercase tracking-[0.18em] text-foreground mb-5">
                 {column.title}
               </h3>
-              <ul className="mt-5 space-y-3 text-sm text-muted-foreground">
+              <ul className="space-y-3">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href} className="hover:text-foreground">
+                    <Link
+                      href={link.href}
+                      className="text-sm font-semibold text-muted-foreground hover:text-[#ff6636] transition-colors duration-200"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -517,39 +523,44 @@ export function MarketingPublicFooter() {
             </div>
           ))}
 
+          {/* App download column */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.14em]">
-              Download our app
+            <h3 className="text-xs font-extrabold uppercase tracking-[0.18em] text-foreground mb-5">
+              Get the App
             </h3>
-            <div className="mt-5 grid gap-3">
+            <div className="space-y-3">
               <Link
                 href="/courses"
-                className="border border-border bg-card px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground hover:border-[#ff6636]/40 hover:text-foreground hover:bg-muted/40 transition-all duration-200"
               >
-                App Store
+                <span className="text-base">🍎</span>
+                <div>
+                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Download on</p>
+                  <p className="font-bold text-foreground text-xs">App Store</p>
+                </div>
               </Link>
               <Link
                 href="/courses"
-                className="border border-border bg-card px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground hover:border-[#ff6636]/40 hover:text-foreground hover:bg-muted/40 transition-all duration-200"
               >
-                Google Play
+                <span className="text-base">🤖</span>
+                <div>
+                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Get it on</p>
+                  <p className="font-bold text-foreground text-xs">Google Play</p>
+                </div>
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-border/80 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        {/* ── Bottom copyright bar ──────────────────────────────────── */}
+        <div className="mt-12 flex flex-col gap-3 border-t border-border/60 pt-6 text-xs font-semibold text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} DevForge. All rights reserved.</p>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/contact" className="hover:text-foreground">
-              Help Center
-            </Link>
-            <Link href="/about" className="hover:text-foreground">
-              About DevForge
-            </Link>
-            <Link href="/pricing" className="hover:text-foreground">
-              Pricing
-            </Link>
+          <div className="flex flex-wrap items-center gap-5">
+            <Link href="/contact" className="hover:text-[#ff6636] transition-colors">Help Center</Link>
+            <Link href="/about"   className="hover:text-[#ff6636] transition-colors">About</Link>
+            <Link href="/pricing" className="hover:text-[#ff6636] transition-colors">Pricing</Link>
+            <Link href="/status"  className="hover:text-[#ff6636] transition-colors">Status</Link>
           </div>
         </div>
       </div>
