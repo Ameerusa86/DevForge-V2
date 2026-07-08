@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  ArrowRight,
   BookOpen,
   ChevronDown,
   Heart,
@@ -39,6 +40,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserDropdown } from "@/components/user-dropdown";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const socialIconMap = {
   Facebook: FaFacebookF,
@@ -50,11 +62,11 @@ const socialIconMap = {
 };
 
 const primaryButtonClassName =
-  "inline-flex items-center justify-center gap-2 rounded-none bg-[#ff6636] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#e95a2b] hover:shadow-[0_12px_30px_rgba(255,102,54,0.28)]";
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6636] px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#e95a2b] hover:shadow-md hover:shadow-[#ff6636]/15 hover:scale-[1.01] active:scale-[0.99]";
 const softButtonClassName =
-  "inline-flex items-center justify-center gap-2 rounded-none bg-primary/10 px-6 py-3 text-sm font-semibold text-primary transition hover:bg-primary/15";
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6636]/10 px-5 py-2.5 text-sm font-bold text-[#ff6636] transition-all duration-200 hover:bg-[#ff6636]/15 hover:scale-[1.01] active:scale-[0.99]";
 const themeToggleClassName =
-  "size-10 rounded-none border border-border bg-background text-foreground hover:border-primary hover:bg-muted hover:text-primary";
+  "size-10 rounded-xl border border-border bg-background text-foreground hover:border-[#ff6636]/40 hover:bg-muted hover:text-[#ff6636] transition-all duration-200 flex items-center justify-center";
 const browseMenuItems = [
   {
     label: "All Courses",
@@ -108,10 +120,10 @@ function MarketingBrand({
   const imageClassName =
     size === "footer"
       ? "h-20 w-20 object-contain sm:h-24 sm:w-24"
-      : "h-14 w-14 object-contain sm:h-16 sm:w-16";
+      : "h-14 w-14 object-contain sm:h-16 sm:w-16 transition-transform duration-300 ease-out group-hover:scale-105";
 
   return (
-    <Link href="/" className="inline-flex items-center gap-3">
+    <Link href="/" className="inline-flex items-center gap-3 group">
       <Image
         src="/images/DevForge.png"
         alt="DevForge logo"
@@ -121,9 +133,7 @@ function MarketingBrand({
         className={imageClassName}
       />
       <span
-        className={`text-[28px] font-semibold tracking-[-0.03em] ${
-          dark ? "text-card-foreground" : "text-foreground"
-        }`}
+        className={`text-[26px] font-extrabold tracking-tight bg-gradient-to-r from-[#ff6636] to-[#ff8f6a] bg-clip-text text-transparent`}
       >
         DevForge
       </span>
@@ -150,8 +160,6 @@ export function MarketingPublicHeader({
   const isActive = (href: string) =>
     href === "/" ? activePath === "/" : activePath.startsWith(href);
   const isSignedIn = Boolean(session?.user);
-  // During SSR and the first client render (before mount), always show guest
-  // actions so the component tree matches and Radix IDs stay stable.
   const showGuestActions = !mounted || (!isPending && !isSignedIn);
   const showSignedInActions = mounted && !isPending && isSignedIn;
   const canRenderInteractiveMenus = mounted;
@@ -164,19 +172,101 @@ export function MarketingPublicHeader({
       }
     : null;
 
-  if (compact) {
-    return (
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md transition-all duration-200">
+      <div className="mx-auto flex h-[4.5rem] max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        
+        {/* Left Side: Brand Logo */}
+        <div className="flex items-center gap-6">
           <MarketingBrand />
+        </div>
 
-          <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground lg:flex">
-            {topNavLinks.map((link) => (
+        {/* Center: Search & Browse */}
+        <div className="hidden flex-1 items-center justify-center gap-4 lg:flex">
+          <div className="flex w-full max-w-[620px] items-center gap-3">
+            {/* Browse Catalog Dropdown Button */}
+            {canRenderInteractiveMenus ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex h-10 items-center justify-between gap-1.5 rounded-xl border border-border bg-card px-4 text-xs font-bold uppercase tracking-wider text-foreground hover:bg-muted/50 hover:border-border/80 transition duration-200"
+                  >
+                    Browse
+                    <ChevronDown className="size-3.5 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="w-[280px] rounded-xl border-border bg-popover p-2 shadow-lg"
+                >
+                  <DropdownMenuLabel className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Browse Catalog
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-border" />
+                  {browseMenuItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.label}
+                      asChild
+                      className="rounded-lg p-0 focus:bg-transparent"
+                    >
+                      <Link
+                        href={item.href}
+                        className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left transition hover:bg-accent/20 focus:bg-accent/20"
+                      >
+                        <span className="text-xs font-bold text-foreground">
+                          {item.label}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {item.description}
+                        </span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                href="/courses"
+                className="inline-flex h-10 items-center justify-between gap-1.5 rounded-xl border border-border bg-card px-4 text-xs font-bold uppercase tracking-wider text-foreground hover:bg-muted/50 transition duration-200"
+              >
+                Browse
+                <ChevronDown className="size-3.5 text-muted-foreground" />
+              </Link>
+            )}
+
+            {/* Dynamic Command-palette style Search Input */}
+            <form
+              action="/courses"
+              className="flex h-10 flex-1 items-center gap-2.5 rounded-xl border border-border bg-muted/40 px-3.5 focus-within:bg-background focus-within:border-[#ff6636]/60 focus-within:ring-1 focus-within:ring-[#ff6636]/20 transition-all duration-200 group"
+            >
+              <button type="submit" aria-label="Search courses" className="text-muted-foreground group-focus-within:text-[#ff6636]">
+                <Search className="size-4" />
+              </button>
+              <input
+                name="search"
+                type="text"
+                placeholder="Search courses..."
+                className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
+              />
+              <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-0.5 rounded border border-border bg-card px-1.5 font-mono text-[9px] font-bold text-muted-foreground">
+                ⌘K
+              </kbd>
+            </form>
+          </div>
+        </div>
+
+        {/* Right Side: Navigation Links, Auth, and Toggles */}
+        <div className="flex items-center gap-3">
+          
+          {/* Display navigation links on the right side */}
+          <div className="hidden items-center gap-5 xl:flex mr-2">
+            {topNavLinks.slice(0, 4).map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`transition hover:text-[#ff6636] ${
-                  isActive(link.href) ? "text-primary" : ""
+                className={`text-xs font-bold uppercase tracking-wider transition-colors duration-200 hover:text-[#ff6636] ${
+                  isActive(link.href) ? "text-[#ff6636]" : "text-muted-foreground"
                 }`}
               >
                 {link.label}
@@ -184,224 +274,153 @@ export function MarketingPublicHeader({
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <ThemeToggle className={themeToggleClassName} />
-            {showSignedInActions && signedInUser ? (
-              <>
+          {/* Signed In User Actions */}
+          {showSignedInActions && signedInUser ? (
+            <div className="flex items-center gap-2">
+              <ThemeToggle className={themeToggleClassName} />
+              
+              <Link
+                href="/my-courses"
+                className={cn(
+                  "hidden items-center justify-center gap-2 rounded-xl border border-border bg-background px-4.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground transition-all duration-200 hover:border-[#ff6636] hover:text-[#ff6636] sm:inline-flex",
+                  isActive("/my-courses") && "border-[#ff6636] text-[#ff6636] bg-[#ff6636]/5"
+                )}
+              >
+                <BookOpen className="size-4 text-[#ff6636]" />
+                My Learning
+              </Link>
+              
+              <Link 
+                href="/dashboard" 
+                className={cn(
+                  "hidden items-center justify-center gap-2 rounded-xl border border-border bg-background px-4.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground transition-all duration-200 hover:border-[#ff6636] hover:text-[#ff6636] sm:inline-flex",
+                  isActive("/dashboard") && "border-[#ff6636] text-[#ff6636] bg-[#ff6636]/5"
+                )}
+              >
+                <LayoutDashboard className="size-4 text-[#ff6636]" />
+                Dashboard
+              </Link>
+              
+              <NotificationBell />
+              <UserDropdown user={signedInUser} />
+            </div>
+          ) : null}
+
+          {/* Guest User Actions */}
+          {showGuestActions ? (
+            <>
+              <div className="hidden items-center gap-3 lg:flex">
+                <ThemeToggle className={themeToggleClassName} />
                 <Link
-                  href="/dashboard"
-                  className="hidden items-center justify-center rounded-none border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary sm:inline-flex"
+                  href="/community"
+                  className="flex size-9.5 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-all duration-200 hover:border-[#ff6636]/40 hover:bg-muted hover:text-[#ff6636]"
                 >
-                  Dashboard
+                  <Heart className="size-4.5" />
                 </Link>
-                <NotificationBell />
-                <UserDropdown user={signedInUser} />
-              </>
-            ) : null}
-            {showGuestActions ? (
-              <>
+                <Link
+                  href="/pricing"
+                  className="flex size-9.5 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-all duration-200 hover:border-[#ff6636]/40 hover:bg-muted hover:text-[#ff6636]"
+                >
+                  <ShoppingCart className="size-4.5" />
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <Link href="/register" className={softButtonClassName}>
-                  Create Account
+                  Register
                 </Link>
                 <Link href="/login" className={primaryButtonClassName}>
-                  Sign In
+                  Login
                 </Link>
-              </>
-            ) : null}
-            <button
-              type="button"
-              aria-label="Open navigation"
-              className="inline-flex size-11 items-center justify-center border border-border text-foreground lg:hidden"
+              </div>
+            </>
+          ) : null}
+
+          {showGuestActions ? (
+            <ThemeToggle className={`${themeToggleClassName} lg:hidden`} />
+          ) : null}
+
+          {/* Mobile Drawer Trigger */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9.5 w-9.5 rounded-xl lg:hidden border-border hover:bg-muted"
+              >
+                <Menu className="h-4.5 w-4.5" />
+                <span className="sr-only">Open navigation</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="w-[min(24rem,100vw)] border-l border-border/40 bg-background/95"
             >
-              <Menu className="size-5" />
-            </button>
-          </div>
-        </div>
-      </header>
-    );
-  }
+              <SheetHeader className="pr-12 text-left">
+                <SheetTitle className="text-xl font-bold">Navigate DevForge</SheetTitle>
+                <SheetDescription className="text-sm leading-relaxed text-muted-foreground">
+                  Jump between courses, learning progress, and account actions.
+                </SheetDescription>
+              </SheetHeader>
 
-  return (
-    <header className="border-b border-border">
-      <div className="bg-background">
-        <div className="mx-auto flex max-w-[1320px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-4 lg:gap-10">
-              <MarketingBrand />
+              <div className="flex flex-1 flex-col gap-6 px-4 pb-6 mt-6">
+                {session?.user ? (
+                  <div className="rounded-xl border border-border bg-muted/30 p-4">
+                    <p className="text-sm font-bold text-foreground">
+                      {session.user.name}
+                    </p>
+                    <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
+                      {session.user.email}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-border bg-muted/30 flex flex-col gap-3.5 p-4">
+                    <p className="text-xs leading-relaxed text-muted-foreground font-semibold">
+                      Sign in to track progress, save courses, and manage your
+                      learning from one place.
+                    </p>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <SheetClose asChild>
+                        <Button asChild variant="outline" className="flex-1 rounded-lg font-bold">
+                          <Link href="/login">Sign In</Link>
+                        </Button>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Button asChild className="flex-1 rounded-lg bg-[#ff6636] text-white hover:bg-[#e95a2b] font-bold">
+                          <Link href="/register">Create account</Link>
+                        </Button>
+                      </SheetClose>
+                    </div>
+                  </div>
+                )}
 
-              {showSearch ? (
-                <div className="hidden flex-1 items-center gap-4 lg:flex">
-                  {canRenderInteractiveMenus ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="inline-flex h-12 min-w-[190px] items-center justify-between border border-border bg-background px-4 text-sm font-medium text-foreground transition hover:border-primary data-[state=open]:border-primary"
+                <div className="flex flex-col gap-2">
+                  {topNavLinks.map((item) => {
+                    return (
+                      <SheetClose asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex items-center justify-between rounded-xl border border-border/40 bg-card/50 px-4 py-3 text-sm font-semibold transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5",
+                            isActive(item.href) &&
+                              "border-[#ff6636]/30 bg-[#ff6636]/10 text-foreground",
+                          )}
                         >
-                          Browse
-                          <ChevronDown className="size-4 text-muted-foreground" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="start"
-                        className="w-[320px] rounded-none border-border bg-popover p-2"
-                      >
-                        <DropdownMenuLabel className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                          Browse Catalog
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-border" />
-                        {browseMenuItems.map((item) => (
-                          <DropdownMenuItem
-                            key={item.label}
-                            asChild
-                            className="rounded-none p-0 focus:bg-transparent"
-                          >
-                            <Link
-                              href={item.href}
-                              className="flex w-full flex-col items-start gap-1 rounded-none px-3 py-3 text-left transition hover:bg-accent/20 focus:bg-accent/20"
-                            >
-                              <span className="text-sm font-semibold text-foreground">
-                                {item.label}
-                              </span>
-                              <span className="text-xs leading-5 text-muted-foreground">
-                                {item.description}
-                              </span>
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : (
-                    <Link
-                      href="/courses"
-                      className="inline-flex h-12 min-w-[190px] items-center justify-between border border-border bg-background px-4 text-sm font-medium text-foreground transition hover:border-primary"
-                    >
-                      Browse
-                      <ChevronDown className="size-4 text-muted-foreground" />
-                    </Link>
-                  )}
-                  <form
-                    action="/courses"
-                    className="flex h-12 flex-1 items-center gap-3 border border-border bg-background px-4 focus-within:border-primary"
-                  >
-                    <button type="submit" aria-label="Search courses">
-                      <Search className="size-4 text-muted-foreground" />
-                    </button>
-                    <input
-                      name="search"
-                      type="text"
-                      placeholder="What do you want to learn..."
-                      className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground"
-                    />
-                  </form>
-
-                  <div className="hidden items-center gap-4 xl:flex">
-                    {topNavLinks.slice(0, 4).map((link) => (
-                      <Link
-                        key={link.label}
-                        href={link.href}
-                        className={`text-sm font-medium transition hover:text-primary ${
-                          isActive(link.href)
-                            ? "text-primary"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
+                          <span className="flex items-center gap-3">
+                            <BookOpen className="h-4.5 w-4.5 text-[#ff6636]" />
+                            {item.label}
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        </Link>
+                      </SheetClose>
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground lg:flex">
-                  {topNavLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className={`transition hover:text-[#ff6636] ${
-                        isActive(link.href) ? "text-primary" : ""
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {showSignedInActions && signedInUser ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <ThemeToggle className={themeToggleClassName} />
-                  <Link
-                    href="/my-courses"
-                    className="hidden items-center justify-center gap-2 rounded-none border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary xl:inline-flex"
-                  >
-                    <BookOpen className="size-4" />
-                    My Learning
-                  </Link>
-                  <Link href="/dashboard" className={primaryButtonClassName}>
-                    <LayoutDashboard className="size-4" />
-                    Dashboard
-                  </Link>
-                  <NotificationBell />
-                  <UserDropdown user={signedInUser} />
-                </div>
-              ) : null}
-
-              {showGuestActions ? (
-                <>
-                  <div className="hidden items-center gap-4 lg:flex">
-                    <ThemeToggle className={themeToggleClassName} />
-                    <Link
-                      href="/community"
-                      className="text-foreground hover:text-[#ff6636]"
-                    >
-                      <Heart className="size-5" />
-                    </Link>
-                    <Link
-                      href="/pricing"
-                      className="text-foreground hover:text-[#ff6636]"
-                    >
-                      <ShoppingCart className="size-5" />
-                    </Link>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link href="/register" className={softButtonClassName}>
-                      Create Account
-                    </Link>
-                    <Link href="/login" className={primaryButtonClassName}>
-                      Sign In
-                    </Link>
-                  </div>
-                </>
-              ) : null}
-
-              {showGuestActions ? (
-                <ThemeToggle className={`${themeToggleClassName} lg:hidden`} />
-              ) : null}
-              <button
-                type="button"
-                aria-label="Open navigation"
-                className="inline-flex size-10 items-center justify-center border border-border text-foreground lg:hidden"
-              >
-                <Menu className="size-5" />
-              </button>
-            </div>
-          </div>
-
-          <nav className="flex flex-wrap gap-4 border-t border-border pt-4 text-sm font-medium text-muted-foreground lg:hidden">
-            {topNavLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={isActive(link.href) ? "text-primary" : ""}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
+
       </div>
     </header>
   );

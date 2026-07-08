@@ -49,40 +49,42 @@ export function Navbar() {
     pathname === href || (href !== "/" && pathname.startsWith(href));
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
+    <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md shadow-xs">
       <div className="page-shell-full flex h-[4.5rem] items-center gap-3">
-        {/* Logo */}
-        <Link href="/" className="flex min-w-0 items-center gap-3">
-          <Image
-            src="/images/DevForge.png"
-            alt="DevForge Logo"
-            width={80}
-            height={80}
-            className="h-14 w-14 object-contain sm:h-16 sm:w-16"
-            priority
-          />
+        {/* Brand Logo */}
+        <Link href="/" className="flex min-w-0 items-center gap-3 group">
+          <div className="relative">
+            <Image
+              src="/images/DevForge.png"
+              alt="DevForge Logo"
+              width={80}
+              height={80}
+              className="h-14 w-14 object-contain sm:h-16 sm:w-16 transition-transform duration-300 ease-out group-hover:scale-105"
+              priority
+            />
+          </div>
           <div className="min-w-0 leading-tight">
-            <span className="block truncate text-base font-semibold tracking-tight sm:text-lg">
+            <span className="block truncate text-base font-extrabold tracking-tight sm:text-lg bg-gradient-to-r from-[#ff6636] to-[#ff8f6a] bg-clip-text text-transparent">
               DevForge
             </span>
-            <p className="hidden text-xs text-muted-foreground sm:block">
+            <p className="hidden text-[9px] font-bold text-muted-foreground uppercase tracking-[0.1em] sm:block">
               Learn faster. Build better.
             </p>
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation Capsule */}
         <div className="hidden flex-1 justify-center lg:flex">
-          <div className="flex items-center gap-1 rounded-full border border-border/70 bg-card/70 p-1 shadow-sm backdrop-blur-sm">
+          <div className="flex items-center gap-1 rounded-full border border-border/30 bg-muted/40 p-1 backdrop-blur-sm shadow-xs">
             {links.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-full px-3 py-2 text-sm font-medium transition-colors",
+                  "rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-200",
                   isActive(item.href)
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-background/80 hover:text-foreground",
+                    ? "bg-[#ff6636] text-white shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 {item.label}
@@ -91,7 +93,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Right Side */}
+        {/* Right Action Items */}
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
           {session?.user && <NotificationBell />}
@@ -109,67 +111,68 @@ export function Navbar() {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-10 rounded-full px-4"
+                className="h-9 rounded-xl px-4 font-bold border-border bg-card text-foreground hover:bg-muted transition-all duration-200"
                 onClick={() => router.push("/login")}
               >
                 Sign In
               </Button>
               <Button
                 size="sm"
-                className="h-10 rounded-full bg-linear-to-r from-primary to-primary/80 px-4 hover:opacity-95"
+                className="h-9 rounded-xl bg-[#ff6636] text-white px-4 font-bold hover:bg-[#e95a2b] shadow-sm shadow-[#ff6636]/10 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                 onClick={() => router.push("/register")}
               >
-                Get started
+                Get Started
               </Button>
             </div>
           )}
 
+          {/* Mobile Navigation Drawer */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
-                className="h-10 w-10 rounded-full lg:hidden"
+                className="h-9 w-9 rounded-xl lg:hidden border-border hover:bg-muted"
               >
-                <Menu className="h-4 w-4" />
+                <Menu className="h-4.5 w-4.5" />
                 <span className="sr-only">Open navigation</span>
               </Button>
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-[min(24rem,100vw)] border-l border-border/70 bg-background/95"
+              className="w-[min(24rem,100vw)] border-l border-border/40 bg-background/95"
             >
-              <SheetHeader className="pr-12">
-                <SheetTitle>Navigate DevForge</SheetTitle>
-                <SheetDescription>
+              <SheetHeader className="pr-12 text-left">
+                <SheetTitle className="text-xl font-bold">Navigate DevForge</SheetTitle>
+                <SheetDescription className="text-sm leading-relaxed text-muted-foreground">
                   Jump between courses, learning progress, and account actions.
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="flex flex-1 flex-col gap-6 px-4 pb-6">
+              <div className="flex flex-1 flex-col gap-6 px-4 pb-6 mt-6">
                 {session?.user ? (
-                  <div className="surface-panel-muted p-4">
-                    <p className="text-sm font-semibold text-foreground">
+                  <div className="rounded-xl border border-border bg-muted/30 p-4">
+                    <p className="text-sm font-bold text-foreground">
                       {session.user.name}
                     </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
                       {session.user.email}
                     </p>
                   </div>
                 ) : (
-                  <div className="surface-panel-muted flex flex-col gap-3 p-4">
-                    <p className="text-sm text-muted-foreground">
+                  <div className="rounded-xl border border-border bg-muted/30 flex flex-col gap-3.5 p-4">
+                    <p className="text-xs leading-relaxed text-muted-foreground font-semibold">
                       Sign in to track progress, save courses, and manage your
                       learning from one place.
                     </p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <SheetClose asChild>
-                        <Button asChild variant="outline" className="flex-1">
+                        <Button asChild variant="outline" className="flex-1 rounded-lg font-bold">
                           <Link href="/login">Sign In</Link>
                         </Button>
                       </SheetClose>
                       <SheetClose asChild>
-                        <Button asChild className="flex-1">
+                        <Button asChild className="flex-1 rounded-lg bg-[#ff6636] text-white hover:bg-[#e95a2b] font-bold">
                           <Link href="/register">Create account</Link>
                         </Button>
                       </SheetClose>
@@ -186,13 +189,13 @@ export function Navbar() {
                         <Link
                           href={item.href}
                           className={cn(
-                            "surface-panel-muted flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors",
+                            "flex items-center justify-between rounded-xl border border-border/40 bg-card/50 px-4 py-3 text-sm font-semibold transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5",
                             isActive(item.href) &&
-                              "border-primary/30 bg-primary/10 text-foreground",
+                              "border-[#ff6636]/30 bg-[#ff6636]/10 text-foreground",
                           )}
                         >
                           <span className="flex items-center gap-3">
-                            <Icon className="h-4 w-4" />
+                            <Icon className="h-4.5 w-4.5 text-[#ff6636]" />
                             {item.label}
                           </span>
                           <ArrowRight className="h-4 w-4 text-muted-foreground" />
