@@ -36,6 +36,7 @@ const CATEGORIES = [
   { value: "BACKEND", label: "Backend" },
   { value: "FULL_STACK", label: "Full Stack" },
   { value: "PYTHON", label: "Python" },
+  { value: "POWERSHELL", label: "PowerShell" },
   { value: "JAVASCRIPT", label: "JavaScript" },
   { value: "TYPESCRIPT", label: "TypeScript" },
   { value: "CSHARP", label: "C#" },

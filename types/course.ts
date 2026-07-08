@@ -8,7 +8,7 @@ export interface Course {
     | "BACKEND"
     | "FULL_STACK"
     | "PYTHON"
-    | "PowerShell"
+    | "POWERSHELL"
     | "JAVASCRIPT"
     | "TYPESCRIPT"
     | "CSHARP"

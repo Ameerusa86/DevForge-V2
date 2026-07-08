@@ -318,7 +318,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         <SelectItem value="BACKEND">Backend</SelectItem>
                         <SelectItem value="FULL_STACK">Full Stack</SelectItem>
                         <SelectItem value="PYTHON">Python</SelectItem>
-                        <SelectItem value="powerShell">PowerShell</SelectItem>
+                        <SelectItem value="POWERSHELL">PowerShell</SelectItem>
                         <SelectItem value="JAVASCRIPT">JavaScript</SelectItem>
                         <SelectItem value="TYPESCRIPT">TypeScript</SelectItem>
                         <SelectItem value="CSHARP">C#</SelectItem>

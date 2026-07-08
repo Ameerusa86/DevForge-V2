@@ -141,7 +141,7 @@ type BulkUpdatePayload = {
     | "BACKEND"
     | "FULL_STACK"
     | "PYTHON"
-    | "PowerShell"
+    | "POWERSHELL"
     | "JAVASCRIPT"
     | "TYPESCRIPT"
     | "CSHARP"
@@ -157,7 +157,7 @@ type BulkActionSnapshot = {
     | "BACKEND"
     | "FULL_STACK"
     | "PYTHON"
-    | "PowerShell"
+    | "POWERSHELL"
     | "JAVASCRIPT"
     | "TYPESCRIPT"
     | "CSHARP"
@@ -992,7 +992,7 @@ export default function CoursesPage() {
                         "BACKEND",
                         "FULL_STACK",
                         "PYTHON",
-                        "PowerShell",
+                        "POWERSHELL",
                         "JAVASCRIPT",
                         "TYPESCRIPT",
                         "CSHARP",

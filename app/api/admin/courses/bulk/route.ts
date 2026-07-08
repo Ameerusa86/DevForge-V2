@@ -12,6 +12,7 @@ const ALLOWED_CATEGORIES = new Set([
   "BACKEND",
   "FULL_STACK",
   "PYTHON",
+  "POWERSHELL",
   "JAVASCRIPT",
   "TYPESCRIPT",
   "CSHARP",
@@ -57,6 +58,7 @@ export async function PATCH(request: NextRequest) {
         | "BACKEND"
         | "FULL_STACK"
         | "PYTHON"
+        | "POWERSHELL"
         | "JAVASCRIPT"
         | "TYPESCRIPT"
         | "CSHARP"
@@ -76,6 +78,7 @@ export async function PATCH(request: NextRequest) {
         | "BACKEND"
         | "FULL_STACK"
         | "PYTHON"
+        | "POWERSHELL"
         | "JAVASCRIPT"
         | "TYPESCRIPT"
         | "CSHARP"

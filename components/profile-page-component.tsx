@@ -205,23 +205,21 @@ export function ProfilePageComponent() {
 
     setIsUploadingAvatar(true);
     try {
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("isImage", "true");
+
       const uploadResponse = await fetch("/api/S3/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: file.name,
-          contentType: file.type,
-        }),
+        body: uploadFormData,
       });
-      if (!uploadResponse.ok) throw new Error("Failed to get upload URL");
 
-      const { preSignedUrl, publicUrl } = await uploadResponse.json();
-      const s3Response = await fetch(preSignedUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-      if (!s3Response.ok) throw new Error("Failed to upload image");
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.details || "Failed to upload image");
+      }
+
+      const { publicUrl } = await uploadResponse.json();
 
       setFormData((previous) => ({ ...previous, image: publicUrl }));
       await fetch("/api/profile", {

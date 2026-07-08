@@ -15,6 +15,7 @@ export const CourseCategorySchema = z.enum([
   "BACKEND",
   "FULL_STACK",
   "PYTHON",
+  "POWERSHELL",
   "JAVASCRIPT",
   "TYPESCRIPT",
   "CSHARP",

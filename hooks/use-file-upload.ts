@@ -141,11 +141,34 @@ export function useFileUpload() {
     isImage: boolean = false
   ): Promise<S3UploadResponse> => {
     try {
-      const { url, key, publicUrl } = await getS3PresignedUrl(file, isImage);
-      await uploadFileToS3(file, url);
-      return { url, key, publicUrl };
+      setIsUploading(true);
+      setUploadError(null);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("isImage", String(isImage));
+
+      const response = await fetch("/api/S3/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || errorData.details || "Failed to upload file"
+        );
+      }
+
+      const data: S3UploadResponse = await response.json();
+      return data;
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      setUploadError(errorMessage);
       throw error;
+    } finally {
+      setIsUploading(false);
     }
   };
 
