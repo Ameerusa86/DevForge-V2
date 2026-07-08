@@ -153,59 +153,74 @@ function CourseCard({ course }: { course: HomeCourse }) {
     categoryAppearance[course.category] || categoryAppearance.FULL_STACK;
 
   return (
-    <article className="group overflow-hidden border border-border bg-card transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(18,24,40,0.1)]">
-      <Link href={`/courses/${course.slug}`} className="block">
-        <div className="relative aspect-[244/180] overflow-hidden border-b border-border bg-[#1d2026]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+      <Link href={`/courses/${course.slug}`} className="block relative">
+        <div className="relative aspect-video w-full overflow-hidden bg-[#16181d]">
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={course.title}
               fill
               unoptimized
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
-              className="object-cover transition duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 30vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
             <div className="absolute inset-0 bg-[linear-gradient(135deg,#ff8f6a_0%,#ff6636_45%,#1d2026_100%)]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1d2026]/70 to-transparent" />
-          <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
+          
+          {/* Subtle vignette gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
+          
+          {/* Floating Pill Badges with glassmorphism */}
+          <div className="absolute inset-x-3.5 top-3.5 flex items-center justify-between gap-3">
             <span
-              className={`inline-flex px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${appearance.cardClassName} text-foreground`}
+              className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] backdrop-blur-md bg-[#16181d]/75 border border-white/10 ${appearance.cardClassName} text-foreground`}
             >
               {appearance.label}
             </span>
-            <div className="bg-card px-2 py-1 text-xs font-semibold text-card-foreground">
+            <div className="rounded-full bg-[#16181d]/85 border border-white/10 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
               {formatPrice(course.price)}
             </div>
           </div>
         </div>
       </Link>
 
-      <div className="space-y-4 p-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-            {course.instructor}
-          </p>
-          <Link href={`/courses/${course.slug}`}>
-            <h3 className="mt-2 text-sm font-semibold leading-6 text-foreground transition hover:text-[#ff6636]">
-              {course.title}
-            </h3>
-          </Link>
-        </div>
+      <div className="flex flex-1 flex-col p-5">
+        {/* Instructor */}
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#ff6636]">
+          {course.instructor || "DevForge Course"}
+        </span>
 
-        <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <Star className="size-3.5 fill-[#fd8e1f] text-[#fd8e1f]" />
-            {course.totalReviews > 0 ? course.rating.toFixed(1) : "New"}
+        {/* Title */}
+        <Link href={`/courses/${course.slug}`} className="mt-2.5 block flex-grow">
+          <h3 className="text-lg font-bold leading-tight tracking-tight text-foreground transition-colors duration-200 group-hover:text-[#ff6636]">
+            {course.title}
+          </h3>
+        </Link>
+
+        {/* Footer Details */}
+        <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs font-semibold text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 transition-colors duration-200 group-hover:text-foreground">
+            <Star className="size-4 fill-[#fd8e1f] text-[#fd8e1f]" />
+            {course.totalReviews > 0 ? (
+              <span className="flex items-center gap-1">
+                <span className="text-foreground">{course.rating.toFixed(1)}</span>
+                <span className="text-muted-foreground font-normal">({course.totalReviews})</span>
+              </span>
+            ) : (
+              <span className="rounded bg-yellow-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#fd8e1f]">New</span>
+            )}
           </span>
-          <span className="inline-flex items-center gap-1">
-            <Users className="size-3.5 text-muted-foreground" />
-            {formatCompactNumber(course.enrollments)}
+
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="size-4 text-muted-foreground/80" />
+            <span>{formatCompactNumber(course.enrollments)} learners</span>
           </span>
-          <span className="inline-flex items-center gap-1">
-            <BookOpen className="size-3.5 text-muted-foreground" />
-            {course.lessons}
+
+          <span className="inline-flex items-center gap-1.5">
+            <BookOpen className="size-4 text-muted-foreground/80" />
+            <span>{course.lessons} lessons</span>
           </span>
         </div>
       </div>
@@ -500,60 +515,62 @@ export function MarketingHomePage() {
                         {featuredCourses.map((course) => (
                           <article
                             key={course.id}
-                            className="grid overflow-hidden border border-border bg-card sm:grid-cols-[220px_minmax(0,1fr)]"
+                            className="group grid overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_35px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_16px_35px_rgba(0,0,0,0.3)] sm:grid-cols-[220px_minmax(0,1fr)]"
                           >
-                            <div className="relative min-h-[180px] overflow-hidden border-b border-border bg-[#1d2026] sm:border-b-0 sm:border-r">
+                            <div className="relative min-h-[180px] overflow-hidden bg-[#16181d] sm:rounded-l-2xl sm:border-r border-border">
                               {course.imageUrl ? (
                                 <Image
                                   src={getProxiedImageUrl(course.imageUrl)}
                                   alt={course.title}
                                   fill
+                                  unoptimized
                                   sizes="(max-width: 640px) 100vw, 220px"
-                                  className="object-cover"
+                                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                                 />
                               ) : (
                                 <div className="absolute inset-0 bg-[linear-gradient(135deg,#ff8f6a_0%,#ff6636_45%,#1d2026_100%)]" />
                               )}
                             </div>
-                            <div className="space-y-4 p-5">
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                                <span className="bg-primary/10 px-2 py-1 font-semibold uppercase tracking-[0.08em] text-primary">
-                                  {
-                                    (
-                                      categoryAppearance[course.category] ||
-                                      categoryAppearance.FULL_STACK
-                                    ).label
-                                  }
-                                </span>
-                                <span>{course.instructor}</span>
+                            <div className="flex flex-col justify-between p-5">
+                              <div>
+                                <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-muted-foreground">
+                                  <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-[0.08em] ${categoryAppearance[course.category]?.cardClassName || 'bg-primary/10 text-primary'}`}>
+                                    {
+                                      (
+                                        categoryAppearance[course.category] ||
+                                        categoryAppearance.FULL_STACK
+                                      ).label
+                                    }
+                                  </span>
+                                  <span className="text-[#ff6636] font-bold uppercase tracking-[0.1em]">{course.instructor}</span>
+                                </div>
+                                <h3 className="mt-2.5 text-lg font-bold leading-snug text-foreground transition-colors duration-200 group-hover:text-[#ff6636]">
+                                  {course.title}
+                                </h3>
+                                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <BookOpen className="size-4 text-muted-foreground/80" />
+                                    {course.lessons} lessons
+                                  </span>
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Users className="size-4 text-muted-foreground/80" />
+                                    {formatCompactNumber(course.enrollments)} learners
+                                  </span>
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Star className="size-4 fill-[#fd8e1f] text-[#fd8e1f]" />
+                                    {course.totalReviews > 0
+                                      ? course.rating.toFixed(1)
+                                      : "New"}
+                                  </span>
+                                </div>
                               </div>
-                              <h3 className="text-lg font-semibold leading-7 text-foreground">
-                                {course.title}
-                              </h3>
-                              <div className="flex flex-wrap gap-5 text-sm text-muted-foreground">
-                                <span className="inline-flex items-center gap-2">
-                                  <BookOpen className="size-4 text-muted-foreground" />
-                                  {course.lessons} lessons
-                                </span>
-                                <span className="inline-flex items-center gap-2">
-                                  <Users className="size-4 text-muted-foreground" />
-                                  {formatCompactNumber(course.enrollments)}{" "}
-                                  learners
-                                </span>
-                                <span className="inline-flex items-center gap-2">
-                                  <Star className="size-4 fill-[#fd8e1f] text-[#fd8e1f]" />
-                                  {course.totalReviews > 0
-                                    ? course.rating.toFixed(1)
-                                    : "New"}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-                                <div className="text-sm font-semibold text-foreground">
+                              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                                <div className="text-base font-bold text-foreground">
                                   {formatPrice(course.price)}
                                 </div>
                                 <Link
                                   href={`/courses/${course.slug}`}
-                                  className="inline-flex items-center justify-center bg-[#ffeee8] px-4 py-2 text-sm font-semibold text-[#ff6636] transition hover:bg-[#ffe2d6]"
+                                  className="inline-flex items-center justify-center rounded-lg bg-[#ffeee8] px-4 py-2 text-sm font-bold text-[#ff6636] transition-colors duration-200 hover:bg-[#ffe2d6] dark:bg-[#ffeee8]/10 dark:text-[#ff6636] dark:hover:bg-[#ffeee8]/20"
                                 >
                                   View course
                                 </Link>

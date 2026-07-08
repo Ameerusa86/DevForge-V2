@@ -50,9 +50,9 @@ export function CourseCard({
     : "bg-muted text-muted-foreground";
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden border border-border bg-card transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
-      <Link href={href} className="block">
-        <div className="relative aspect-video overflow-hidden border-b border-border bg-[#1d2026]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+      <Link href={href} className="block relative">
+        <div className="relative aspect-video overflow-hidden bg-[#16181d]">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -60,29 +60,32 @@ export function CourseCard({
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 384px"
-              className="object-contain transition duration-500 group-hover:scale-[1.02]"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
             <div className="absolute inset-0 bg-[linear-gradient(135deg,#fff2e5_0%,#ffeee8_52%,#ebebff_100%)]" />
           )}
 
-          <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
+
+          {/* Floating pill badges with glassmorphism */}
+          <div className="absolute inset-x-3.5 top-3.5 flex items-center justify-between gap-3">
             <div className="flex max-w-[70%] flex-wrap gap-2">
               {topic ? (
-                <span className="inline-flex bg-card px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-foreground/75">
+                <span className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] backdrop-blur-md bg-[#16181d]/75 border border-white/10 text-foreground">
                   {topic}
                 </span>
               ) : null}
               {level ? (
                 <span
-                  className={`inline-flex px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${levelTone}`}
+                  className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] backdrop-blur-md border border-white/10 ${levelTone}`}
                 >
                   {level}
                 </span>
               ) : null}
             </div>
 
-            <div className="bg-card px-2 py-1 text-xs font-semibold text-foreground">
+            <div className="rounded-full bg-[#16181d]/85 border border-white/10 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
               {hasProgress ? `${progress}% complete` : priceLabel || "Free"}
             </div>
           </div>
@@ -90,44 +93,44 @@ export function CourseCard({
       </Link>
 
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          {instructor ? `By ${instructor}` : "DevForge course"}
+        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#ff6636]">
+          {instructor ? `By ${instructor}` : "DevForge Course"}
         </p>
 
-        <Link href={href} className="mt-3 block">
-          <h3 className="text-[1.35rem] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground transition group-hover:text-primary">
+        <Link href={href} className="mt-2.5 block flex-grow">
+          <h3 className="text-lg font-bold leading-tight tracking-tight text-foreground transition-colors duration-200 group-hover:text-[#ff6636]">
             {title}
           </h3>
         </Link>
 
         {description ? (
-          <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">
+          <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         ) : null}
 
-        <div className="mt-5 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center gap-2 border border-border bg-muted px-3 py-1.5 font-medium text-foreground/75">
-            <BookOpen className="size-3.5 text-[#ff6636]" />
+        <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 border border-border bg-muted px-3 py-1.5 rounded-lg">
+            <BookOpen className="size-4 text-[#ff6636]" />
             {lessonsCount ? `${lessonsCount} lessons` : "Structured course"}
           </span>
           {hasReviews ? (
-            <span className="inline-flex items-center gap-2 border border-border bg-muted px-3 py-1.5 font-medium text-foreground/75">
-              <Star className="size-3.5 fill-[#fd8e1f] text-[#fd8e1f]" />
+            <span className="inline-flex items-center gap-1.5 border border-border bg-muted px-3 py-1.5 rounded-lg">
+              <Star className="size-4 fill-[#fd8e1f] text-[#fd8e1f]" />
               {rating.toFixed(1)} · {reviewsCount} reviews
             </span>
           ) : null}
         </div>
 
         {hasProgress ? (
-          <div className="mt-5 border border-border bg-muted px-4 py-3">
-            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+          <div className="mt-4 border border-border bg-muted px-4 py-3 rounded-lg">
+            <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
               <span>Progress</span>
               <span className="text-foreground">{progress}% complete</span>
             </div>
-            <div className="mt-3 h-2 w-full bg-border">
+            <div className="mt-3.5 h-2 w-full bg-border rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#ff6636]"
+                className="h-full bg-[#ff6636] rounded-full transition-all duration-300"
                 style={{ width: `${Math.max(0, Math.min(progress, 100))}%` }}
               />
             </div>
@@ -135,9 +138,9 @@ export function CourseCard({
         ) : null}
 
         <div className="mt-auto pt-5">
-          <div className="flex items-end justify-between gap-4 border border-border bg-muted p-4">
+          <div className="flex items-center justify-between gap-4 border border-border bg-muted p-3.5 rounded-xl">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                 {hasProgress
                   ? "Progress"
                   : hasReviews
@@ -146,29 +149,21 @@ export function CourseCard({
               </p>
               <div className="mt-1 flex flex-wrap items-end gap-2">
                 {hasProgress ? (
-                  <span className="text-2xl font-semibold tracking-[-0.03em] text-foreground">
+                  <span className="text-xl font-bold tracking-tight text-foreground">
                     {progress}%
                   </span>
                 ) : hasReviews ? (
                   <>
-                    <span className="inline-flex items-center gap-2 text-2xl font-semibold tracking-[-0.03em] text-foreground">
-                      <Star className="size-5 fill-[#fd8e1f] text-[#fd8e1f]" />
+                    <span className="inline-flex items-center gap-1 text-xl font-bold tracking-tight text-foreground">
+                      <Star className="size-4.5 fill-[#fd8e1f] text-[#fd8e1f]" />
                       {rating.toFixed(1)}
-                    </span>
-                    <span className="pb-1 text-xs font-medium text-muted-foreground">
-                      from {reviewsCount} reviews
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="text-2xl font-semibold tracking-[-0.03em] text-foreground">
+                    <span className="text-xl font-bold tracking-tight text-foreground">
                       {priceLabel || "Free"}
                     </span>
-                    {level ? (
-                      <span className="pb-1 text-xs font-medium text-muted-foreground">
-                        {level}
-                      </span>
-                    ) : null}
                   </>
                 )}
               </div>
@@ -176,7 +171,7 @@ export function CourseCard({
 
             <Link
               href={href}
-              className="inline-flex items-center gap-2 bg-[#ff6636] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#e95a2b]"
+              className="inline-flex items-center gap-1.5 bg-[#ff6636] px-4.5 py-2.5 rounded-lg text-sm font-bold text-white transition-colors duration-200 hover:bg-[#e95a2b]"
             >
               {hasProgress ? "Continue" : cta}
               <ArrowRight className="size-4" />
