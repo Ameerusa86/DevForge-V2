@@ -14,15 +14,20 @@ const resolveAuthBaseUrl = () => {
   const vercelDeploymentUrl = process.env.VERCEL_URL?.trim();
 
   if (process.env.VERCEL === "1") {
+    // If we're on Vercel, check if the configured auth URLs point to localhost.
+    // If they do, they are local development settings and should be ignored on Vercel.
+    const isServerLocal = explicitServerUrl?.includes("localhost");
+    const isClientLocal = explicitClientUrl?.includes("localhost");
+
     if (process.env.VERCEL_ENV === "production" && vercelProductionUrl) {
       return normalizeUrl(`https://${vercelProductionUrl}`);
     }
 
-    if (explicitServerUrl) {
+    if (explicitServerUrl && !isServerLocal) {
       return normalizeUrl(explicitServerUrl);
     }
 
-    if (explicitClientUrl) {
+    if (explicitClientUrl && !isClientLocal) {
       return normalizeUrl(explicitClientUrl);
     }
 
