@@ -269,6 +269,7 @@ export default function CreateCoursePage() {
                       <SelectItem value="BACKEND">Backend</SelectItem>
                       <SelectItem value="FULL_STACK">Full Stack</SelectItem>
                       <SelectItem value="PYTHON">Python</SelectItem>
+                      <SelectItem value="PowerShell">PowerShell</SelectItem>
                       <SelectItem value="JAVASCRIPT">JavaScript</SelectItem>
                       <SelectItem value="TYPESCRIPT">TypeScript</SelectItem>
                       <SelectItem value="CSHARP">C#</SelectItem>
