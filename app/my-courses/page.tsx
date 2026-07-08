@@ -584,6 +584,7 @@ export default function MyCoursesPage() {
                             src={imageUrl}
                             alt={course.title}
                             fill
+                            unoptimized
                             sizes="(max-width: 1279px) 100vw, 33vw"
                             className="object-contain"
                           />

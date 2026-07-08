@@ -161,6 +161,7 @@ function CourseCard({ course }: { course: HomeCourse }) {
               src={imageUrl}
               alt={course.title}
               fill
+              unoptimized
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
               className="object-cover transition duration-500 group-hover:scale-105"
             />

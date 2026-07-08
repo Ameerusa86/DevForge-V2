@@ -545,6 +545,7 @@ export default function DashboardPage() {
                                   src={imageUrl}
                                   alt={course.title}
                                   fill
+                                  unoptimized
                                   sizes="160px"
                                   className="object-cover"
                                 />
@@ -869,6 +870,7 @@ export default function DashboardPage() {
                                   src={imageUrl}
                                   alt={course.title}
                                   fill
+                                  unoptimized
                                   sizes="96px"
                                   className="object-cover"
                                 />

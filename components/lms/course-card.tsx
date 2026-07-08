@@ -58,6 +58,7 @@ export function CourseCard({
               src={imageUrl}
               alt={title}
               fill
+              unoptimized
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 384px"
               className="object-contain transition duration-500 group-hover:scale-[1.02]"
             />

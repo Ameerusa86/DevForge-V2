@@ -549,7 +549,7 @@ function CoursesPageContent() {
   );
 
   const topCategories = categoryCounts.slice(0, 4);
-  const courseGridClassName = "grid gap-6 md:grid-cols-2 2xl:grid-cols-3";
+  const courseGridClassName = "grid gap-6 sm:grid-cols-2 xl:grid-cols-3";
   const currentSortLabel = SORT_LABELS[sortBy];
 
   const FiltersContent = () => (

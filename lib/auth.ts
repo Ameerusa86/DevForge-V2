@@ -19,8 +19,12 @@ const resolveAuthBaseUrl = () => {
     const isServerLocal = explicitServerUrl?.includes("localhost");
     const isClientLocal = explicitClientUrl?.includes("localhost");
 
-    if (process.env.VERCEL_ENV === "production" && vercelProductionUrl) {
-      return normalizeUrl(`https://${vercelProductionUrl}`);
+    if (process.env.VERCEL_ENV === "production") {
+      if (vercelProductionUrl) {
+        return normalizeUrl(`https://${vercelProductionUrl}`);
+      }
+      // Fallback to the known production domain for DevForge
+      return "https://devforgev2.vercel.app";
     }
 
     if (explicitServerUrl && !isServerLocal) {

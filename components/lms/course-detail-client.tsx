@@ -437,6 +437,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       src={heroImage}
                       alt={course.title}
                       fill
+                      unoptimized
                       priority
                       sizes="(max-width: 1279px) 100vw, 420px"
                       className="object-contain"
