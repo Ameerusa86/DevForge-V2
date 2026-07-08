@@ -138,7 +138,8 @@ function HomeSkeleton() {
         <div className="h-32 bg-muted" />
         <div className="h-32 bg-muted" />
       </div>
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="h-[360px] bg-muted" />
         <div className="h-[360px] bg-muted" />
         <div className="h-[360px] bg-muted" />
         <div className="h-[360px] bg-muted" />
@@ -483,7 +484,7 @@ export function MarketingHomePage() {
                         Top picks learners enroll in first.
                       </p>
                     </div>
-                    <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                       {popularCourses.map((course) => (
                         <CourseCard key={course.id} course={course} />
                       ))}

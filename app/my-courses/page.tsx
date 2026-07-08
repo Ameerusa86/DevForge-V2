@@ -543,7 +543,7 @@ export default function MyCoursesPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {enrollmentsWithProgress.map(
                 ({
                   enrollment,
