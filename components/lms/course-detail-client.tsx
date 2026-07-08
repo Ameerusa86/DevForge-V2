@@ -91,6 +91,50 @@ function pluralize(count: number, singular: string) {
   return count === 1 ? singular : `${singular}s`;
 }
 
+function getTagBadgeStyle(tag: string) {
+  const normalized = tag.toLowerCase().trim();
+
+  if (normalized.includes("python")) {
+    return "bg-emerald-600 border-emerald-500/20 text-white";
+  }
+  if (
+    normalized.includes("asp") ||
+    normalized.includes("dot_net") ||
+    normalized.includes(".net") ||
+    normalized.includes("csharp") ||
+    normalized.includes("c#")
+  ) {
+    return "bg-purple-600 border-purple-500/20 text-white";
+  }
+  if (normalized.includes("javascript") || normalized.includes("js")) {
+    return "bg-amber-600 border-amber-500/20 text-white";
+  }
+  if (normalized.includes("typescript") || normalized.includes("ts")) {
+    return "bg-blue-600 border-blue-500/20 text-white";
+  }
+  if (normalized.includes("powershell") || normalized.includes("pwsh")) {
+    return "bg-sky-700 border-sky-600/20 text-white";
+  }
+  if (normalized.includes("frontend") || normalized.includes("front-end")) {
+    return "bg-pink-600 border-pink-500/20 text-white";
+  }
+  if (normalized.includes("backend") || normalized.includes("back-end")) {
+    return "bg-indigo-600 border-indigo-500/20 text-white";
+  }
+  if (normalized.includes("full") && normalized.includes("stack")) {
+    return "bg-teal-600 border-teal-500/20 text-white";
+  }
+  if (
+    normalized.includes("sql") ||
+    normalized.includes("db") ||
+    normalized.includes("database") ||
+    normalized.includes("postgres")
+  ) {
+    return "bg-cyan-600 border-cyan-500/20 text-white";
+  }
+  return "bg-[#ff6636] border-[#ff6636]/20 text-white";
+}
+
 function LessonRow({
   courseSlug,
   lesson,
@@ -101,27 +145,27 @@ function LessonRow({
   return (
     <Link
       href={`/courses/${courseSlug}/lessons/${lesson.id}`}
-      className="group flex items-start gap-4 border border-border bg-card px-4 py-4 transition hover:border-primary hover:bg-primary/5"
+      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5 hover:shadow-sm"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center bg-primary/10 text-sm font-semibold text-primary">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground transition-colors duration-200 group-hover:bg-[#ff6636]/10 group-hover:text-[#ff6636]">
         {lesson.order}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-base font-semibold text-foreground">
+          <p className="text-base font-semibold text-foreground transition-colors duration-200 group-hover:text-[#ff6636]">
             {lesson.title}
           </p>
           {lesson.isFree ? (
-            <span className="bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <span className="rounded-full bg-[#ff6636]/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ff6636]">
               Preview
             </span>
           ) : null}
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
           Lesson {lesson.order} in this learning path.
         </p>
       </div>
-      <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
+      <ArrowRight className="mt-1.5 size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#ff6636]" />
     </Link>
   );
 }
@@ -303,7 +347,12 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
   const heroImage = course.imageUrl
     ? getProxiedImageUrl(course.imageUrl)
     : null;
-  const courseTags = course.tags ?? [];
+  const courseTags = useMemo(() => {
+    const rawTags = course.tags ?? [];
+    return rawTags
+      .flatMap((tag) => tag.split(",").map((t) => t.trim()))
+      .filter(Boolean);
+  }, [course.tags]);
   const showNoModuleHeader = course.showUnassignedHeader ?? true;
   const moduleCount = orderedModules.length;
   const orderedLessons = useMemo(
@@ -348,80 +397,86 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
       <MarketingPublicHeader activePath="/courses" />
 
       <main>
-        <section className="border-b border-border bg-card">
-          <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+        {/* Deep, Premium Dark Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#121418] via-[#16181d] to-[#1e222b] text-white border-b border-border py-12 lg:py-16">
+          {/* Subtle Ambient Background Light */}
+          <div className="absolute -left-20 -top-20 size-[350px] rounded-full bg-[#ff6636]/10 blur-[120px] pointer-events-none" />
+          <div className="absolute right-10 bottom-0 size-[400px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
+
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
             <Link
               href="/courses"
-              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#8c94a3] transition-colors duration-200 hover:text-white"
             >
               <ArrowLeft className="size-4" />
               Back to courses
             </Link>
 
-            <div className="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px]">
-              <div className="max-w-[760px]">
+            <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_880px] items-center">
+              <div className="max-w-190 space-y-6">
                 <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                    <Tag className="size-3.5" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-white/10 border border-white/10 text-white">
+                    <Tag className="size-3.5 text-[#ff6636]" />
                     {course.category}
                   </span>
-                  <span className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
-                    <GraduationCap className="size-3.5 text-primary" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-white/10 border border-white/10 text-white">
+                    <GraduationCap className="size-3.5 text-[#ff6636]" />
                     {course.level}
                   </span>
-                  <span className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
-                    <Users className="size-3.5 text-primary" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-white/10 border border-white/10 text-white">
+                    <Users className="size-3.5 text-[#ff6636]" />
                     {formatCompactNumber(course.enrollments)} enrolled
                   </span>
                   {course.price <= 0 ? (
-                    <span className="inline-flex items-center gap-2 bg-[#1d2026] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ff6636] border border-transparent px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                       <Sparkles className="size-3.5" />
-                      Free access
+                      Free Access
                     </span>
                   ) : null}
                 </div>
 
-                <h1 className="mt-6 text-[2.4rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[3.3rem]">
+                <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl leading-[1.1]">
                   {course.title}
                 </h1>
-                <p className="mt-5 max-w-[680px] text-base leading-8 text-muted-foreground">
+
+                <p className="text-base sm:text-lg leading-relaxed text-gray-300">
                   {course.description}
                 </p>
 
-                <div className="mt-8 grid gap-4 md:grid-cols-3">
-                  <div className="border border-border bg-muted px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {/* Hero Stats */}
+                <div className="grid gap-3 grid-cols-3 pt-2">
+                  <div className="rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c94a3]">
                       Lessons
                     </p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {sortedLessons.length}{" "}
-                      {pluralize(sortedLessons.length, "lesson")}
+                    <p className="mt-1 text-lg font-bold text-white">
+                      {sortedLessons.length}
                     </p>
                   </div>
-                  <div className="border border-border bg-muted px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  <div className="rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c94a3]">
                       Duration
                     </p>
-                    <p className="mt-2 text-lg font-semibold">
+                    <p className="mt-1 text-lg font-bold text-white">
                       {formatDuration(course.durationMinutes)}
                     </p>
                   </div>
-                  <div className="border border-border bg-muted px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  <div className="rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c94a3]">
                       Modules
                     </p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {moduleCount} {pluralize(moduleCount, "module")}
+                    <p className="mt-1 text-lg font-bold text-white">
+                      {moduleCount}
                     </p>
                   </div>
                 </div>
 
                 {courseTags.length > 0 ? (
-                  <div className="mt-8 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 pt-2">
                     {courseTags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center border border-border bg-muted px-3 py-2 text-sm font-medium text-foreground/75"
+                        className={`inline-flex items-center rounded-full border px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm ${getTagBadgeStyle(tag)}`}
                       >
                         {tag}
                       </span>
@@ -430,71 +485,79 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                 ) : null}
               </div>
 
-              <div className="overflow-hidden border border-[#1d2026] bg-[#1d2026]">
-                <div className="relative aspect-[4/3] w-full">
-                  {heroImage ? (
-                    <Image
-                      src={heroImage}
-                      alt={course.title}
-                      fill
-                      unoptimized
-                      priority
-                      sizes="(max-width: 1279px) 100vw, 420px"
-                      className="object-contain"
-                      onError={() => {
-                        console.warn("Course image failed to load", {
-                          title: course.title,
-                          storedImageUrl: course.imageUrl,
-                        });
-                      }}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,#ff8f6a_0%,#ff6636_40%,#1d2026_100%)]" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1d2026] via-[#1d2026]/35 to-transparent" />
-                  <div className="absolute left-0 right-0 top-0 flex items-start justify-between gap-3 p-5">
-                    <span className="bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1d2026]">
-                      {formatPrice(course.price)}
-                    </span>
-                    <span className="border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
-                      By {course.instructor}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d0d3dd]">
-                      Featured learning path
-                    </p>
-                    <p className="mt-3 text-xl font-semibold leading-tight">
-                      Structured curriculum, guided pace, and content you can
-                      return to whenever needed.
-                    </p>
-                  </div>
+              {/* Course Detail Hero Image Frame */}
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-[#121418] shadow-2xl shadow-black/60 group">
+                {heroImage ? (
+                  <Image
+                    src={heroImage}
+                    alt={course.title}
+                    fill
+                    unoptimized
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 580px"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-102"
+                    onError={() => {
+                      console.warn("Course image failed to load", {
+                        title: course.title,
+                        storedImageUrl: course.imageUrl,
+                      });
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[linear-gradient(135deg,#ff8f6a_0%,#ff6636_40%,#1d2026_100%)]" />
+                )}
+
+                {/* Visual Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+
+                {/* Top Overlay Badges */}
+                <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#121418] shadow-md">
+                    {formatPrice(course.price)}
+                  </span>
+                  <span className="rounded-full border border-white/15 bg-black/40 backdrop-blur px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md">
+                    By {course.instructor}
+                  </span>
+                </div>
+
+                {/* Bottom Overlay Label */}
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#ff6636]">
+                    Curated Syllabus
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-gray-200 leading-snug">
+                    Get lifetime access to study files and structured
+                    progression maps.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+        {/* Content & Sidebar Section */}
+        <section className="mx-auto max-w-[1320px] px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+            {/* Left Column: Learning Objectives & Course Curriculum */}
             <div className="space-y-8">
-              <section className="border border-border bg-card p-6 sm:p-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {/* Outcomes Box */}
+              <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                   What you will learn
                 </p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
+                <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                   Course overview and outcomes
                 </h2>
-                <div className="mt-8 grid gap-4 md:grid-cols-2">
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {learningPoints.map((point) => (
                     <div
                       key={point}
-                      className="flex items-start gap-3 border border-border bg-muted p-4"
+                      className="flex items-start gap-3 rounded-xl border border-border/50 bg-muted/40 p-4 transition-colors duration-200 hover:bg-muted/65"
                     >
-                      <span className="mt-0.5 flex size-8 items-center justify-center bg-primary/10 text-primary">
-                        <CheckCircle2 className="size-4" />
+                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                        <CheckCircle2 className="size-4.5" />
                       </span>
-                      <p className="text-sm leading-7 text-foreground/80">
+                      <p className="text-sm leading-relaxed text-foreground/80 font-medium">
                         {point}
                       </p>
                     </div>
@@ -502,36 +565,37 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                 </div>
               </section>
 
+              {/* Curriculum Breakdown */}
               {sortedLessons.length > 0 ? (
-                <section className="border border-border bg-card p-6 sm:p-8">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                         Curriculum
                       </p>
-                      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
+                      <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                         Lesson breakdown
                       </h2>
                     </div>
-                    <div className="flex flex-wrap gap-3 text-sm font-medium text-foreground/75">
-                      <span className="border border-border bg-muted px-4 py-2">
+                    <div className="flex flex-wrap gap-2 text-xs font-bold text-muted-foreground">
+                      <span className="rounded-full border border-border bg-muted px-3.5 py-1.5 uppercase tracking-wider">
                         {sortedLessons.length}{" "}
                         {pluralize(sortedLessons.length, "lesson")}
                       </span>
-                      <span className="border border-border bg-muted px-4 py-2">
+                      <span className="rounded-full border border-border bg-muted px-3.5 py-1.5 uppercase tracking-wider">
                         {moduleCount} {pluralize(moduleCount, "module")}
                       </span>
                     </div>
                   </div>
 
                   {unassignedLessons.length > 0 ? (
-                    <div className="mt-8 space-y-4">
+                    <div className="mt-6 space-y-4">
                       {showNoModuleHeader ? (
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ff6636] pl-1">
                           Standalone lessons
                         </p>
                       ) : null}
-                      <div className="space-y-3">
+                      <div className="grid gap-3">
                         {unassignedLessons.map((lesson) => (
                           <LessonRow
                             key={lesson.id}
@@ -544,32 +608,32 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                   ) : null}
 
                   {orderedModules.length > 0 ? (
-                    <div className="mt-8">
-                      <Accordion type="multiple" className="w-full space-y-4">
+                    <div className="mt-8 space-y-4">
+                      <Accordion type="multiple" className="w-full space-y-3.5">
                         {orderedModules.map((moduleItem) => (
                           <AccordionItem
                             key={moduleItem.id}
                             value={moduleItem.id}
-                            className="border border-border px-0"
+                            className="border border-border rounded-xl overflow-hidden bg-muted/15 transition-all duration-300 hover:border-border/80"
                           >
-                            <AccordionTrigger className="px-5 py-4 text-left hover:no-underline">
-                              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                            <AccordionTrigger className="px-5 py-4.5 text-left hover:no-underline hover:bg-muted/40 transition-colors [&[data-state=open]]:bg-muted/30">
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between w-full pr-4">
                                 <div className="flex items-start gap-3">
-                                  <span className="flex size-10 items-center justify-center bg-primary/10 text-primary">
-                                    <Layers3 className="size-4" />
+                                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                                    <Layers3 className="size-4.5" />
                                   </span>
                                   <div>
-                                    <p className="text-lg font-semibold text-foreground">
+                                    <p className="text-base font-bold text-foreground leading-tight">
                                       {moduleItem.title}
                                     </p>
                                     {moduleItem.description ? (
-                                      <p className="mt-1 text-sm leading-7 text-muted-foreground">
+                                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal">
                                         {moduleItem.description}
                                       </p>
                                     ) : null}
                                   </div>
                                 </div>
-                                <span className="border border-border bg-muted px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                                <span className="self-start sm:self-auto rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground shadow-sm">
                                   {moduleItem.lessons.length}{" "}
                                   {pluralize(
                                     moduleItem.lessons.length,
@@ -578,8 +642,8 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                                 </span>
                               </div>
                             </AccordionTrigger>
-                            <AccordionContent className="px-5 pb-5">
-                              <div className="space-y-3">
+                            <AccordionContent className="px-5 pt-3 pb-5 border-t border-border/40 bg-card">
+                              <div className="grid gap-3 mt-1">
                                 {moduleItem.lessons
                                   .slice()
                                   .sort((a, b) => a.order - b.order)
@@ -600,12 +664,13 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                 </section>
               ) : null}
 
-              <section className="space-y-4">
+              {/* Reviews Section */}
+              <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-6">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Reviews
                   </p>
-                  <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-foreground">
+                  <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                     What learners are saying
                   </h2>
                 </div>
@@ -622,18 +687,18 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                         }
                       />
                     ) : (
-                      <div className="border border-border bg-card p-5 text-sm leading-7 text-foreground/75">
+                      <div className="rounded-xl border border-border bg-muted/40 p-5 text-sm leading-relaxed text-foreground/75 font-medium">
                         Finish this course to unlock reviews. Your current
                         progress is {enrollmentProgress ?? 0}%.
                       </div>
                     )
                   ) : (
-                    <div className="border border-border bg-card p-5 text-sm leading-7 text-foreground/75">
+                    <div className="rounded-xl border border-border bg-muted/40 p-5 text-sm leading-relaxed text-foreground/75 font-medium">
                       Enroll in this course to leave a review after completion.
                     </div>
                   )
                 ) : (
-                  <div className="border border-border bg-card p-5 text-sm leading-7 text-foreground/75">
+                  <div className="rounded-xl border border-border bg-muted/40 p-5 text-sm leading-relaxed text-foreground/75 font-medium">
                     Sign in and enroll to leave your review after completing the
                     course.
                   </div>
@@ -646,21 +711,25 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
               </section>
             </div>
 
+            {/* Right Column: Enrollment Card and "Why This Course" */}
             <aside className="space-y-6">
               <div className="sticky top-24 space-y-6">
-                <div className="border border-border bg-card p-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {/* Main Action card */}
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-md transition-shadow duration-300 hover:shadow-lg">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Enrollment
                   </p>
-                  <div className="mt-3 flex items-end justify-between gap-4">
-                    <h2 className="text-4xl font-semibold tracking-[-0.04em] text-foreground">
+
+                  <div className="mt-4 flex items-center justify-between gap-4">
+                    <h2 className="text-4xl font-extrabold tracking-tight text-foreground">
                       {formatPrice(course.price)}
                     </h2>
-                    <span className="bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                    <span className="rounded-full bg-primary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary">
                       {course.level}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+
+                  <p className="mt-4 text-xs leading-relaxed text-muted-foreground font-medium">
                     By {course.instructor}. Enroll to track progress, return to
                     lessons anytime, and keep the course in your dashboard.
                   </p>
@@ -670,14 +739,14 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       continueLessonHref ? (
                         <Link
                           href={continueLessonHref}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 bg-[#ff6636] px-5 text-sm font-semibold text-white transition hover:bg-[#e95a2b]"
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#ff6636] px-5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#e95a2b] shadow-md shadow-[#ff6636]/15 hover:scale-[1.01] active:scale-[0.99]"
                         >
                           {learningCtaLabel}
                           <ArrowRight className="size-4" />
                         </Link>
                       ) : (
                         <Button
-                          className="h-12 w-full rounded-none bg-[#1d2026] text-white hover:bg-[#101318]"
+                          className="h-12 w-full rounded-xl bg-[#1d2026] text-white hover:bg-[#101318]"
                           disabled
                         >
                           No lessons available
@@ -685,7 +754,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       )
                     ) : (
                       <Button
-                        className="h-12 w-full rounded-none bg-[#ff6636] text-white hover:bg-[#e95a2b]"
+                        className="h-12 w-full rounded-xl bg-[#ff6636] text-white transition-all duration-200 hover:bg-[#e95a2b] font-bold shadow-md shadow-[#ff6636]/15 hover:scale-[1.01] active:scale-[0.99]"
                         onClick={handleEnroll}
                         disabled={enrolling}
                       >
@@ -694,63 +763,66 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     )}
                   </div>
 
-                  <div className="mt-6 space-y-3 border-t border-border pt-6">
-                    <div className="flex items-center justify-between text-sm text-foreground/75">
+                  <div className="mt-6 space-y-4 border-t border-border pt-6 font-semibold">
+                    <div className="flex items-center justify-between text-xs text-foreground/80">
                       <span className="inline-flex items-center gap-2">
-                        <BookOpen className="size-4 text-primary" />
+                        <BookOpen className="size-4 text-[#ff6636]" />
                         Lessons
                       </span>
-                      <span className="font-semibold text-foreground">
+                      <span className="text-foreground">
                         {sortedLessons.length}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-foreground/75">
+                    <div className="flex items-center justify-between text-xs text-foreground/80">
                       <span className="inline-flex items-center gap-2">
-                        <Clock3 className="size-4 text-primary" />
+                        <Clock3 className="size-4 text-[#ff6636]" />
                         Duration
                       </span>
-                      <span className="font-semibold text-foreground">
+                      <span className="text-foreground">
                         {formatDuration(course.durationMinutes)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-foreground/75">
+                    <div className="flex items-center justify-between text-xs text-foreground/80">
                       <span className="inline-flex items-center gap-2">
-                        <Users className="size-4 text-primary" />
+                        <Users className="size-4 text-[#ff6636]" />
                         Learners
                       </span>
-                      <span className="font-semibold text-foreground">
+                      <span className="text-foreground">
                         {formatCompactNumber(course.enrollments)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="border border-[#1d2026] bg-[#1d2026] p-6 text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c94a3]">
+                {/* Secondary Feature Card */}
+                <div className="rounded-2xl border border-border bg-muted/40 p-6 space-y-5 shadow-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ff6636]">
                     Why this course
                   </p>
-                  <div className="mt-5 space-y-4 text-sm leading-7 text-[#d0d3dd]">
+                  <div className="space-y-4 text-xs leading-relaxed text-muted-foreground font-semibold">
                     <div className="flex items-start gap-3">
-                      <span className="mt-1 flex size-8 items-center justify-center bg-white/10">
-                        <PlayCircle className="size-4" />
+                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                        <PlayCircle className="size-4.5" />
                       </span>
-                      <p>
+                      <p className="mt-1">
                         Structured lesson ordering keeps the next step obvious.
                       </p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="mt-1 flex size-8 items-center justify-center bg-white/10">
-                        <Layers3 className="size-4" />
+                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                        <Layers3 className="size-4.5" />
                       </span>
-                      <p>
+                      <p className="mt-1">
                         Module breakdown makes it easier to review and revisit.
                       </p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="mt-1 flex size-8 items-center justify-center bg-white/10">
-                        <Sparkles className="size-4" />
+                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                        <Sparkles className="size-4.5" />
                       </span>
-                      <p>Built for learners who want clarity over clutter.</p>
+                      <p className="mt-1">
+                        Built for learners who want clarity over clutter.
+                      </p>
                     </div>
                   </div>
                 </div>
