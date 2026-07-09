@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Chrome, Github } from "lucide-react";
+import { Chrome, Github, Loader2 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -77,7 +77,6 @@ const RegisterPage = () => {
             const errorMsg = ctx.error.message?.toLowerCase() || "";
             const errorCode = ctx.error.code?.toLowerCase() || "";
 
-            // Check by error code first
             if (
               errorCode.includes("email_already_exists") ||
               errorCode.includes("email-already-exists") ||
@@ -115,7 +114,6 @@ const RegisterPage = () => {
         const errorMsg = error.message?.toLowerCase() || "";
         const errorCode = error.code?.toLowerCase() || "";
 
-        // Check by error code first
         if (
           errorCode.includes("email_already_exists") ||
           errorCode.includes("email-already-exists") ||
@@ -200,10 +198,10 @@ const RegisterPage = () => {
 
   if (isChecking) {
     return (
-      <div className="w-full h-screen flex items-center justify-center">
+      <div className="w-full h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
+          <Loader2 className="animate-spin rounded-full h-10 w-10 text-[#ff6636] mx-auto mb-4" />
+          <p className="text-xs font-semibold text-muted-foreground">Checking authentication…</p>
         </div>
       </div>
     );
@@ -226,122 +224,120 @@ const RegisterPage = () => {
         "Certificates and community support built in",
       ]}
     >
-      <form onSubmit={handleRegister} className="space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm font-medium text-[#dfe3eb]">
+      <form onSubmit={handleRegister} className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
             Full Name
           </Label>
-          <Input
+          <input
             id="name"
             type="text"
             placeholder="John Doe"
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={isLoading}
-            className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
+            className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-[#ff6636]/60 focus:outline-none focus:ring-2 focus:ring-[#ff6636]/10 transition-all"
             required
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium text-[#dfe3eb]">
-            Email
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Email Address
           </Label>
-          <Input
+          <input
             id="email"
             type="email"
             placeholder="your.email@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
+            className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-[#ff6636]/60 focus:outline-none focus:ring-2 focus:ring-[#ff6636]/10 transition-all"
             required
           />
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="space-y-2">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
             <Label
               htmlFor="password"
-              className="text-sm font-medium text-[#dfe3eb]"
+              className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
             >
               Password
             </Label>
-            <Input
+            <input
               id="password"
               type="password"
-              placeholder="At least 8 characters"
+              placeholder="At least 8 chars"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
+              className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-[#ff6636]/60 focus:outline-none focus:ring-2 focus:ring-[#ff6636]/10 transition-all"
               required
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label
               htmlFor="confirmPassword"
-              className="text-sm font-medium text-[#dfe3eb]"
+              className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
             >
               Confirm Password
             </Label>
-            <Input
+            <input
               id="confirmPassword"
               type="password"
-              placeholder="Confirm your password"
+              placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isLoading}
-              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
+              className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-[#ff6636]/60 focus:outline-none focus:ring-2 focus:ring-[#ff6636]/10 transition-all"
               required
             />
           </div>
         </div>
 
-        <Button
+        <button
           type="submit"
           disabled={isLoading}
-          className="h-12 w-full rounded-none bg-[#ff6636] text-sm font-semibold text-white hover:bg-[#e95a2b]"
+          className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-xs font-black uppercase tracking-widest text-white shadow-md hover:shadow-lg shadow-[#ff6636]/10 transition-all duration-200"
         >
-          {isLoading ? "Creating Account..." : "Create Account"}
-        </Button>
+          {isLoading ? <><Loader2 className="size-3.5 animate-spin" /> Creating Account…</> : "Create Account"}
+        </button>
       </form>
 
       <div className="my-6 flex items-center">
-        <div className="flex-1 border-t border-white/15" />
-        <span className="px-3 text-xs font-medium uppercase tracking-[0.12em] text-[#8c94a3]">
+        <div className="flex-1 border-t border-border/80" />
+        <span className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/75">
           Or continue with
         </span>
-        <div className="flex-1 border-t border-white/15" />
+        <div className="flex-1 border-t border-border/80" />
       </div>
 
-      <div className="space-y-3">
-        <Button
+      <div className="space-y-2.5">
+        <button
           type="button"
-          variant="outline"
           disabled={isLoading}
           onClick={handleGoogleSignUp}
-          className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:bg-[#ff6636]/5 transition-all"
         >
-          <Chrome className="mr-2 h-4 w-4" />
+          <Chrome className="h-4 w-4" />
           Continue with Google
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          variant="outline"
           disabled={isLoading}
           onClick={handleGithubSignUp}
-          className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:bg-[#ff6636]/5 transition-all"
         >
-          <Github className="mr-2 h-4 w-4" />
+          <Github className="h-4 w-4" />
           Continue with GitHub
-        </Button>
+        </button>
       </div>
 
-      <p className="mt-8 text-center text-sm text-[#b7bac7]">
+      <p className="mt-8 text-center text-xs font-semibold text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-[#ff6636]">
+        <Link href="/login" className="font-bold text-[#ff6636] hover:text-[#e95a2b] transition-colors">
           Sign in
         </Link>
       </p>

@@ -6,19 +6,30 @@ import { Button } from "@/components/ui/button";
 import {
   AlertCircle,
   Info,
-  CheckCircle,
+  CheckCircle2,
   AlertTriangle,
   Trash2,
   CheckCheck,
   Filter,
   X,
+  Bell,
+  RefreshCw,
+  Clock,
+  Sparkles,
+  ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import {
+  MarketingPublicFooter,
+  MarketingPublicHeader,
+} from "@/components/marketing/public-chrome";
 
 interface Notification {
   id: string;
@@ -54,33 +65,50 @@ export default function NotificationsPage() {
       case "USER_REGISTERED":
       case "COURSE_ENROLLED":
       case "COURSE_COMPLETED":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return (
+          <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+            <CheckCircle2 className="size-5" />
+          </div>
+        );
       case "SYSTEM_ALERT":
       case "ADMIN_ALERT":
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+        return (
+          <div className="flex size-10 items-center justify-center rounded-xl bg-red-500/10 text-red-600">
+            <AlertTriangle className="size-5" />
+          </div>
+        );
       case "COURSE_PUBLISHED":
       case "COURSE_UPDATED":
-        return <Info className="h-5 w-5 text-blue-500" />;
+        return (
+          <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
+            <Info className="size-5" />
+          </div>
+        );
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-500" />;
+        return (
+          <div className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+            <AlertCircle className="size-5" />
+          </div>
+        );
     }
   };
 
   const getNotificationBadge = (type: string) => {
+    const formatted = type.replace("_", " ");
     switch (type) {
       case "SYSTEM_ALERT":
       case "ADMIN_ALERT":
-        return <Badge variant="destructive">{type.replace("_", " ")}</Badge>;
+        return <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-600">{formatted}</span>;
       case "COURSE_PUBLISHED":
       case "COURSE_UPDATED":
-        return <Badge variant="default">{type.replace("_", " ")}</Badge>;
+        return <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-600">{formatted}</span>;
       case "USER_REGISTERED":
       case "COURSE_ENROLLED":
-        return <Badge variant="secondary">{type.replace("_", " ")}</Badge>;
+        return <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-violet-600">{formatted}</span>;
       case "COURSE_COMPLETED":
-        return <Badge className="bg-green-600">{type.replace("_", " ")}</Badge>;
+        return <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-600">{formatted}</span>;
       default:
-        return <Badge variant="outline">{type.replace("_", " ")}</Badge>;
+        return <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{formatted}</span>;
     }
   };
 
@@ -105,21 +133,21 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <div className="flex-1 container mx-auto py-8">
+      <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
+        <MarketingPublicHeader activePath="/notifications" showSearch={false} />
+        <div className="flex-1 mx-auto max-w-[1320px] px-4 py-16 sm:px-6 lg:px-8 w-full">
           <LoadingState />
         </div>
-        <Footer />
+        <MarketingPublicFooter />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <div className="flex-1 container mx-auto py-8">
+      <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
+        <MarketingPublicHeader activePath="/notifications" showSearch={false} />
+        <div className="flex-1 mx-auto max-w-md px-4 py-16 sm:px-6 lg:px-8 flex items-center justify-center">
           <ErrorState
             type="generic"
             title="Failed to Load Notifications"
@@ -127,241 +155,148 @@ export default function NotificationsPage() {
             onRetry={refreshNotifications}
           />
         </div>
-        <Footer />
+        <MarketingPublicFooter />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <div className="flex-1 container mx-auto py-8 px-4">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Notifications</h1>
-              <p className="text-muted-foreground mt-1">
-                {unreadCount > 0
-                  ? `${unreadCount} unread notification${
-                      unreadCount === 1 ? "" : "s"
-                    }`
-                  : "All caught up!"}
-              </p>
-            </div>
+    <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
+      <MarketingPublicHeader activePath="/notifications" showSearch={false} />
 
-            <div className="flex flex-wrap gap-2">
-              {unreadCount > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={markAllAsRead}
-                  className="gap-2"
-                >
-                  <CheckCheck className="h-4 w-4" />
-                  Mark All Read
-                </Button>
-              )}
-              {notifications.length > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    clearOldNotifications();
-                  }}
-                  className="gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Clear Old
-                </Button>
-              )}
+      <main className="flex-1">
+        {/* ── Hero section ─────────────────────────────────────────── */}
+        <section className="relative overflow-hidden border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-10 lg:py-14">
+          <div className="pointer-events-none absolute -top-40 right-0 size-[500px] rounded-full bg-[#ff6636]/5 blur-3xl" />
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              
+              <div className="space-y-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#ff6636]">
+                  <Bell className="size-3.5" /> Updates Center
+                </span>
+                <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl">
+                  Your Notifications
+                </h1>
+                <p className="text-sm font-semibold text-muted-foreground leading-relaxed max-w-md">
+                  {unreadCount > 0
+                    ? `You have ${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}. Stay updated with your learning paths.`
+                    : "You are all caught up! No unread notifications."}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2.5 shrink-0">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-card border border-border px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] hover:bg-[#ff6636]/5 transition-all duration-200"
+                  >
+                    <CheckCheck className="size-4 text-[#ff6636]" />
+                    Mark All Read
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    onClick={clearOldNotifications}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-card border border-border px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground hover:border-red-400/60 hover:text-red-500 hover:bg-red-500/5 transition-all duration-200"
+                  >
+                    <Trash2 className="size-4 text-red-500" />
+                    Clear Old
+                  </button>
+                )}
+              </div>
+
             </div>
           </div>
+        </section>
 
-          {/* Tabs for filtering */}
-          <Tabs
-            defaultValue="all"
-            onValueChange={(value) => setFilterTab(value as "all" | "unread")}
-          >
-            <TabsList className="grid w-full max-w-xs grid-cols-2">
-              <TabsTrigger value="all" className="gap-2">
-                <Filter className="h-4 w-4" />
-                All ({notifications.length})
-              </TabsTrigger>
-              <TabsTrigger value="unread" className="gap-2">
-                <AlertCircle className="h-4 w-4" />
-                Unread ({unreadCount})
-              </TabsTrigger>
-            </TabsList>
+        {/* ── Main content ─────────────────────────────────────────── */}
+        <section className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
+          <div className="space-y-6">
+            
+            {/* Filter Tabs */}
+            <div className="flex flex-wrap gap-1 bg-muted/30 p-1.5 rounded-2xl border border-border/40 w-fit">
+              <button
+                type="button"
+                onClick={() => setFilterTab("all")}
+                className={cn(
+                  "px-4.5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2",
+                  filterTab === "all"
+                    ? "bg-[#ff6636] text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <Filter className="size-3.5" /> All ({notifications.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterTab("unread")}
+                className={cn(
+                  "px-4.5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2",
+                  filterTab === "unread"
+                    ? "bg-[#ff6636] text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <AlertCircle className="size-3.5" /> Unread ({unreadCount})
+              </button>
+            </div>
 
-            <TabsContent value={filterTab} className="space-y-4">
-              {/* Notifications List */}
-              {filteredNotifications.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                    {filterTab === "unread" ? (
-                      <>
-                        <CheckCircle className="h-12 w-12 mb-4 opacity-50 text-green-500" />
-                        <p className="text-lg font-medium">All caught up!</p>
-                        <p className="text-sm">No unread notifications</p>
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="h-12 w-12 mb-4 opacity-50" />
-                        <p className="text-lg font-medium">No notifications</p>
-                        <p className="text-sm">
-                          You&apos;ll see updates here as they happen
-                        </p>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-3">
-                  {filteredNotifications.map((notification) => (
-                    <NotificationCard
-                      key={notification.id}
-                      notification={notification}
-                      onRead={markAsRead}
-                      onNavigate={(url) => {
-                        if (!notification.read) {
-                          markAsRead(notification.id);
-                        }
-                        if (url) {
-                          router.push(url);
-                        }
-                      }}
-                      getIcon={getNotificationIcon}
-                      getBadge={getNotificationBadge}
-                      formatDate={formatDate}
-                    />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-      <Footer />
+            {/* List */}
+            {filteredNotifications.length === 0 ? (
+              <div className="flex min-h-[22rem] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-8 py-16 text-center">
+                {filterTab === "unread" ? (
+                  <>
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-5">
+                      <CheckCircle2 className="size-8" />
+                    </div>
+                    <h3 className="text-lg font-extrabold text-foreground">All caught up!</h3>
+                    <p className="mt-2 max-w-sm text-sm text-muted-foreground font-semibold leading-relaxed">
+                      You have read all current notifications.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-[#ff6636]/10 text-[#ff6636] mb-5">
+                      <Bell className="size-8" />
+                    </div>
+                    <h3 className="text-lg font-extrabold text-foreground">No notifications yet</h3>
+                    <p className="mt-2 max-w-sm text-sm text-muted-foreground font-semibold leading-relaxed">
+                      You will receive activity updates, alerts, and course notices here as they happen.
+                    </p>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredNotifications.map((notification) => (
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                    onRead={markAsRead}
+                    onNavigate={(url) => {
+                      if (!notification.read) {
+                        markAsRead(notification.id);
+                      }
+                      if (url) {
+                        router.push(url);
+                      }
+                    }}
+                    getIcon={getNotificationIcon}
+                    getBadge={getNotificationBadge}
+                    formatDate={formatDate}
+                  />
+                ))}
+              </div>
+            )}
+
+          </div>
+        </section>
+      </main>
+
+      <MarketingPublicFooter />
     </div>
-  );
-}
-
-function Navbar() {
-  const router = useRouter();
-  return (
-    <nav className="border-b bg-background sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="gap-2"
-          >
-            <X className="h-4 w-4" />
-            Back
-          </Button>
-          <h2 className="text-lg font-semibold">Notifications</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => router.push("/")}>
-            Home
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push("/admin")}
-          >
-            Admin
-          </Button>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-function Footer() {
-  const router = useRouter();
-  return (
-    <footer className="border-t bg-muted/50 mt-12">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
-          <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              <li>
-                <Button
-                  variant="link"
-                  className="h-auto p-0 text-sm"
-                  onClick={() => router.push("/")}
-                >
-                  Home
-                </Button>
-              </li>
-              <li>
-                <Button
-                  variant="link"
-                  className="h-auto p-0 text-sm"
-                  onClick={() => router.push("/admin")}
-                >
-                  Admin Dashboard
-                </Button>
-              </li>
-              <li>
-                <Button
-                  variant="link"
-                  className="h-auto p-0 text-sm"
-                  onClick={() => router.push("/courses")}
-                >
-                  View Courses
-                </Button>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">My Account</h4>
-            <ul className="space-y-2">
-              <li>
-                <Button
-                  variant="link"
-                  className="h-auto p-0 text-sm"
-                  onClick={() => router.push("/profile")}
-                >
-                  Profile
-                </Button>
-              </li>
-              <li>
-                <Button
-                  variant="link"
-                  className="h-auto p-0 text-sm"
-                  onClick={() => router.push("/messages")}
-                >
-                  Messages
-                </Button>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">Notifications</h4>
-            <p className="text-xs text-muted-foreground">
-              Stay updated with your course enrollments, publications, and
-              system alerts.
-            </p>
-          </div>
-        </div>
-        <div className="border-t pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            © 2026 LMS Platform. All rights reserved.
-          </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            Back to Top ↑
-          </Button>
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -384,70 +319,70 @@ function NotificationCard({
 }: NotificationCardProps) {
   return (
     <Card
-      className={`transition-all hover:shadow-md ${
+      className={cn(
+        "rounded-2xl border transition-all duration-300",
         !notification.read
-          ? "border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900"
-          : "hover:bg-accent"
-      }`}
+          ? "border-[#ff6636]/40 bg-[#ff6636]/5 dark:bg-[#ff6636]/5 shadow-sm shadow-[#ff6636]/5"
+          : "border-border bg-card hover:border-border/80"
+      )}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-5">
         <div className="flex items-start gap-4">
-          <div className="mt-1 flex-shrink-0">{getIcon(notification.type)}</div>
+          <div className="mt-0.5 shrink-0">{getIcon(notification.type)}</div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-base">
-                    {notification.title}
-                  </h3>
-                  {!notification.read && (
-                    <span className="h-2.5 w-2.5 rounded-full bg-blue-500 flex-shrink-0" />
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground break-words">
-                  {notification.message}
-                </p>
+          <div className="flex-1 min-w-0 space-y-1.5">
+            
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <h3 className="font-bold text-sm text-foreground truncate leading-snug">
+                  {notification.title}
+                </h3>
+                {!notification.read && (
+                  <span className="size-2 rounded-full bg-[#ff6636] shrink-0" />
+                )}
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50 gap-2">
-              <div className="flex gap-2 items-center flex-wrap">
+            <p className="text-xs font-semibold text-muted-foreground leading-relaxed break-words">
+              {notification.message}
+            </p>
+
+            <div className="flex items-center justify-between pt-3 border-t border-border/50 gap-4 flex-wrap">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 {getBadge(notification.type)}
-                <span className="text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+                  <Clock className="size-3 text-[#ff6636]" />
                   {formatDate(notification.createdAt)}
                 </span>
               </div>
 
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex gap-2 shrink-0">
                 {!notification.read && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onRead(notification.id);
                     }}
-                    className="h-8"
+                    className="flex items-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all"
                   >
-                    <CheckCheck className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-1">Mark Read</span>
-                  </Button>
+                    <CheckCheck className="size-3.5 text-[#ff6636]" />
+                    <span className="hidden sm:inline">Mark Read</span>
+                  </button>
                 )}
                 {notification.actionUrl && (
-                  <Button
-                    size="sm"
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onNavigate(notification.actionUrl);
                     }}
-                    className="h-8"
+                    className="flex items-center gap-1 rounded-lg bg-[#ff6636] hover:bg-[#e95a2b] text-white px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-colors shadow-sm"
                   >
-                    Open →
-                  </Button>
+                    Open <ChevronRight className="size-3.5" />
+                  </button>
                 )}
               </div>
             </div>
+
           </div>
         </div>
       </CardContent>

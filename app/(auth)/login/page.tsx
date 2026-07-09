@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Chrome, Github, Shield, AlertTriangle } from "lucide-react";
+import { Chrome, Github, Shield, AlertTriangle, Loader2 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -55,16 +55,14 @@ const LoginPage = () => {
       });
 
       if (error) {
-        console.log("Login error object:", error); // Debug log
-        console.log("Error message:", error.message); // Debug log
-        console.log("Error code:", error.code); // Debug log
+        console.log("Login error object:", error);
+        console.log("Error message:", error.message);
+        console.log("Error code:", error.code);
 
-        // Provide descriptive error messages based on the error
         let errorMessage = "";
         const errorMsg = error.message?.toLowerCase() || "";
         const errorCode = error.code?.toLowerCase() || "";
 
-        // Check by error code first
         if (
           errorCode.includes("user_not_found") ||
           errorCode.includes("user-not-found") ||
@@ -76,9 +74,7 @@ const LoginPage = () => {
           errorCode.includes("invalid-password")
         ) {
           errorMessage = "Incorrect password. Please try again";
-        }
-        // Check by message content
-        else if (
+        } else if (
           errorMsg.includes("user") ||
           errorMsg.includes("not found") ||
           errorMsg.includes("does not exist") ||
@@ -110,7 +106,6 @@ const LoginPage = () => {
           }, 1500);
           return;
         } else if (errorMsg.includes("failed to login")) {
-          // Check if email is empty or password is empty
           if (!email.trim()) {
             errorMessage = "Please enter your email address";
           } else if (!password.trim()) {
@@ -146,9 +141,8 @@ const LoginPage = () => {
         router.push("/");
       }
     } catch (error: unknown) {
-      console.log("Catch error:", error); // Debug log
+      console.log("Catch error:", error);
 
-      // Handle catch errors
       let errorMessage = "An unexpected error occurred";
       const errorMsg =
         (error as unknown as { message?: string })?.message?.toLowerCase() ||
@@ -243,10 +237,10 @@ const LoginPage = () => {
 
   if (isChecking) {
     return (
-      <div className="w-full h-screen flex items-center justify-center">
+      <div className="w-full h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
+          <Loader2 className="animate-spin rounded-full h-10 w-10 text-[#ff6636] mx-auto mb-4" />
+          <p className="text-xs font-semibold text-muted-foreground">Checking authentication…</p>
         </div>
       </div>
     );
@@ -270,15 +264,15 @@ const LoginPage = () => {
           "Stay connected to your learning community",
         ]}
       >
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div className="space-y-2">
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div className="space-y-1.5">
             <Label
               htmlFor="email"
-              className="text-sm font-medium text-[#dfe3eb]"
+              className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
             >
-              Email
+              Email Address
             </Label>
-            <Input
+            <input
               id="email"
               type="email"
               placeholder="your.email@example.com"
@@ -286,24 +280,24 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
               autoComplete="email"
-              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
+              className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-[#ff6636]/60 focus:outline-none focus:ring-2 focus:ring-[#ff6636]/10 transition-all"
               required
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label
                 htmlFor="password"
-                className="text-sm font-medium text-[#dfe3eb]"
+                className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
               >
                 Password
               </Label>
-              <span className="text-xs font-medium text-[#ff6636]">
+              <span className="text-[10px] font-bold text-[#ff6636] hover:text-[#e95a2b] transition-colors cursor-pointer">
                 Forgot password?
               </span>
             </div>
-            <Input
+            <input
               id="password"
               type="password"
               placeholder="Enter your password"
@@ -311,110 +305,108 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
               autoComplete="current-password"
-              className="h-12 border-white/15 bg-[#2b3143] text-white placeholder:text-[#8c94a3] focus-visible:border-[#ff6636] focus-visible:ring-[#ff6636]/20"
+              className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-[#ff6636]/60 focus:outline-none focus:ring-2 focus:ring-[#ff6636]/10 transition-all"
               required
             />
           </div>
 
-          <Button
+          <button
             type="submit"
             disabled={isLoading}
-            className="h-12 w-full bg-[#ff6636] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(255,102,54,0.28)] hover:bg-[#e95a2b]"
+            className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-xs font-black uppercase tracking-widest text-white shadow-md hover:shadow-lg shadow-[#ff6636]/10 transition-all duration-200"
           >
-            {isLoading ? "Logging in..." : "Sign In"}
-          </Button>
+            {isLoading ? <><Loader2 className="size-3.5 animate-spin" /> Logging in…</> : "Sign In"}
+          </button>
         </form>
 
         <div className="my-6 flex items-center">
-          <div className="flex-1 border-t border-white/15" />
-          <span className="px-3 text-xs font-medium uppercase tracking-[0.12em] text-[#8c94a3]">
+          <div className="flex-1 border-t border-border/80" />
+          <span className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/75">
             Or continue with
           </span>
-          <div className="flex-1 border-t border-white/15" />
+          <div className="flex-1 border-t border-border/80" />
         </div>
 
-        <div className="space-y-3">
-          <Button
+        <div className="space-y-2.5">
+          <button
             type="button"
-            variant="outline"
             disabled={isLoading}
             onClick={handleGoogleLogin}
-            className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:bg-[#ff6636]/5 transition-all"
           >
-            <Chrome className="mr-2 h-4 w-4" />
+            <Chrome className="h-4 w-4" />
             Continue with Google
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            variant="outline"
             disabled={isLoading}
             onClick={handleGithubLogin}
-            className="h-12 w-full border-white/15 bg-[#2b3143] text-sm font-medium text-white hover:border-[#ff6636] hover:bg-[#31384c]"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:bg-[#ff6636]/5 transition-all"
           >
-            <Github className="mr-2 h-4 w-4" />
+            <Github className="h-4 w-4" />
             Continue with GitHub
-          </Button>
+          </button>
         </div>
 
-        <p className="mt-8 text-center text-sm text-[#b7bac7]">
+        <p className="mt-8 text-center text-xs font-semibold text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-semibold text-[#ff6636]">
+          <Link href="/register" className="font-bold text-[#ff6636] hover:text-[#e95a2b] transition-colors">
             Sign up for free
           </Link>
         </p>
       </MarketingAuthShell>
 
       <Dialog open={showSuspendedModal} onOpenChange={setShowSuspendedModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="rounded-2xl sm:max-w-md">
           <DialogHeader>
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-destructive/10 mx-auto mb-4">
-              <AlertTriangle className="h-6 w-6 text-destructive" />
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-destructive/10 mx-auto mb-4 text-destructive">
+              <AlertTriangle className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-center text-xl">
+            <DialogTitle className="text-center text-lg font-extrabold">
               Account Suspended
             </DialogTitle>
-            <DialogDescription className="text-center pt-2">
+            <DialogDescription className="text-center text-xs font-semibold text-muted-foreground pt-2">
               Your account has been suspended and you cannot access the platform
               at this time.
             </DialogDescription>
           </DialogHeader>
-          <div className="bg-muted/50 rounded-lg p-4 my-4">
-            <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-              <Shield className="h-4 w-4" />
+          <div className="bg-muted/40 rounded-xl p-4 my-4">
+            <h4 className="font-bold text-xs mb-2 flex items-center gap-2 text-foreground">
+              <Shield className="h-4 w-4 text-[#ff6636]" />
               What does this mean?
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
               Your account has been temporarily restricted due to a policy
               violation or administrative action. You will not be able to log in
               or access any course materials until this restriction is lifted.
             </p>
           </div>
-          <div className="bg-card border rounded-lg p-4 space-y-2">
-            <h4 className="font-semibold text-sm">Need help?</h4>
-            <p className="text-sm text-muted-foreground">
+          <div className="bg-card border border-border rounded-xl p-4 space-y-2">
+            <h4 className="font-bold text-xs text-foreground">Need help?</h4>
+            <p className="text-xs font-semibold text-muted-foreground">
               If you believe this is a mistake or would like to appeal this
               decision, please contact our support team:
             </p>
-            <div className="flex flex-col gap-1 text-sm">
+            <div className="flex flex-col gap-1 text-xs">
               <a
                 href="mailto:support@devforge.com"
-                className="text-primary hover:underline"
+                className="text-[#ff6636] font-bold hover:underline"
               >
                 📧 support@devforge.com
               </a>
-              <p className="text-muted-foreground">
+              <p className="text-[10px] text-muted-foreground/85 font-semibold">
                 Include your account email for faster resolution.
               </p>
             </div>
           </div>
-          <DialogFooter className="sm:justify-center">
+          <DialogFooter className="sm:justify-center pt-2">
             <Button
               onClick={() => {
                 setShowSuspendedModal(false);
                 setEmail("");
                 setPassword("");
               }}
-              className="w-full sm:w-auto"
+              className="rounded-xl font-bold w-full sm:w-auto"
             >
               Close
             </Button>
