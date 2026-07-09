@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Sparkles, X } from "lucide-react";
+import { Check, Sparkles, X, HelpCircle, ShieldCheck, Mail, ArrowRight } from "lucide-react";
 
 import {
   MarketingPublicFooter,
   MarketingPublicHeader,
 } from "@/components/marketing/public-chrome";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface PricingFeature {
   id: string;
@@ -70,90 +72,119 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#1d2026]">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <MarketingPublicHeader activePath="/pricing" />
 
       <main>
-        <section className="border-b border-[#e9eaf0] bg-[#f5f7fa]">
-          <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-            <p className="text-sm text-[#8c94a3]">Home / Pricing</p>
-            <div className="mt-5 max-w-[820px]">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ff6636]">
-                Pricing
-              </p>
-              <h1 className="mt-3 text-[40px] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[56px] lg:text-[72px]">
-                Simple, transparent pricing
+        {/* ── Hero section ─────────────────────────────────────────── */}
+        <section className="relative overflow-hidden border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-16 lg:py-20">
+          <div className="pointer-events-none absolute -top-40 right-0 size-[500px] rounded-full bg-[#ff6636]/5 blur-3xl" />
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
+            <div className="max-w-3xl space-y-5 text-left">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#ff6636]">
+                <ShieldCheck className="size-3.5" /> Pricing Options
+              </span>
+              <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                Simple, transparent<br />
+                <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
+                  pricing for everyone.
+                </span>
               </h1>
-              <p className="mt-5 max-w-[720px] text-lg leading-8 text-[#6e7485]">
-                Choose the plan that fits your learning pace and team size. No
-                hidden fees, no surprise add-ons, and a clear path to support.
+              <p className="max-w-xl text-base text-muted-foreground font-semibold leading-relaxed">
+                Choose the plan that fits your learning pace and team size. No hidden fees, no surprise add-ons, and a clear path to career growth.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
+        {/* ── Main Plans section ────────────────────────────────────── */}
+        <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20 bg-background">
           <div className="mx-auto max-w-[1320px]">
             {loading ? (
-              <div className="border border-[#e9eaf0] bg-white px-6 py-12 text-center text-[#6e7485]">
-                Loading pricing plans...
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-border bg-card p-6 space-y-6">
+                    <div className="space-y-3">
+                      <Skeleton className="h-4 w-24 rounded-full" />
+                      <Skeleton className="h-10 w-32 rounded-lg" />
+                      <Skeleton className="h-4 w-40 rounded-full" />
+                    </div>
+                    <hr className="border-border/60" />
+                    <div className="space-y-4">
+                      {[...Array(5)].map((_, j) => (
+                        <div key={j} className="flex items-center gap-3">
+                          <Skeleton className="size-5 rounded-full" />
+                          <Skeleton className="h-4 flex-1 rounded-full" />
+                        </div>
+                      ))}
+                    </div>
+                    <Skeleton className="h-12 w-full rounded-xl" />
+                  </div>
+                ))}
               </div>
             ) : plans.length === 0 ? (
-              <div className="border border-[#e9eaf0] bg-white px-6 py-12 text-center text-[#6e7485]">
-                No pricing plans are available at the moment.
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card py-20 text-center">
+                <HelpCircle className="size-12 text-muted-foreground/40 mb-4" />
+                <h3 className="text-lg font-bold text-foreground">No plans found</h3>
+                <p className="text-sm font-semibold text-muted-foreground mt-1">
+                  Pricing plans are currently being updated. Please check back later.
+                </p>
               </div>
             ) : (
-              <div className="grid gap-6 lg:grid-cols-3">
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
                 {plans.map((plan) => (
                   <article
                     key={plan.id}
-                    className={`relative flex h-full flex-col border p-6 ${
+                    className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
                       plan.isPopular
-                        ? "border-[#ff6636] bg-[#fff2e5] shadow-[0_22px_50px_rgba(255,102,54,0.14)]"
-                        : "border-[#e9eaf0] bg-white"
+                        ? "border-[#ff6636] bg-[#ff6636]/5 dark:bg-[#ff6636]/5 shadow-[0_20px_45px_rgba(255,102,54,0.12)]"
+                        : "border-border bg-card hover:border-border/80"
                     }`}
                   >
-                    {plan.isPopular ? (
-                      <div className="mb-5 inline-flex w-fit items-center gap-2 bg-[#ff6636] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white">
-                        <Sparkles className="size-3.5" />
+                    {plan.isPopular && (
+                      <div className="absolute -top-3 right-6 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#ff6636] to-[#ff8f6a] px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-md">
+                        <Sparkles className="size-3" />
                         Most Popular
                       </div>
-                    ) : null}
+                    )}
 
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8c94a3]">
+                    <div className="mb-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
                         {plan.name}
                       </p>
-                      <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.03em] text-[#1d2026]">
-                        {formatPrice(plan.price, plan.currency)}
-                      </h2>
-                      <p className="mt-1 text-sm text-[#8c94a3]">
-                        {formatBillingPeriod(plan.billingPeriod)}
-                      </p>
-                      {plan.description ? (
-                        <p className="mt-4 text-sm leading-7 text-[#6e7485]">
+                      <div className="mt-3 flex items-baseline gap-1.5">
+                        <span className="text-4xl font-extrabold tracking-tight text-foreground">
+                          {formatPrice(plan.price, plan.currency)}
+                        </span>
+                        <span className="text-sm font-bold text-muted-foreground">
+                          {formatBillingPeriod(plan.billingPeriod)}
+                        </span>
+                      </div>
+                      {plan.description && (
+                        <p className="mt-4 text-xs font-semibold text-muted-foreground leading-relaxed">
                           {plan.description}
                         </p>
-                      ) : null}
+                      )}
                     </div>
 
-                    <div className="mt-6 flex-1 border-t border-[#e9eaf0] pt-6">
+                    <div className="flex-1 border-t border-border/50 pt-6">
                       <ul className="space-y-4">
                         {plan.features.map((feature) => (
                           <li key={feature.id} className="flex items-start gap-3 text-sm">
                             {feature.included ? (
-                              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-[#e1f7e3] text-[#15711f]">
-                                <Check className="size-3.5" />
+                              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-500">
+                                <Check className="size-3" />
                               </span>
                             ) : (
-                              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-[#f5f7fa] text-[#8c94a3]">
-                                <X className="size-3.5" />
+                              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground/60">
+                                <X className="size-3" />
                               </span>
                             )}
                             <span
-                              className={
-                                feature.included ? "text-[#4e5566]" : "text-[#8c94a3]"
-                              }
+                              className={cn(
+                                "text-xs font-semibold leading-relaxed",
+                                feature.included ? "text-foreground" : "text-muted-foreground/50 line-through decoration-muted-foreground/20"
+                              )}
                             >
                               {feature.text}
                             </span>
@@ -162,14 +193,14 @@ export default function PricingPage() {
                       </ul>
                     </div>
 
-                    <div className="mt-8">
+                    <div className="mt-8 pt-4">
                       {plan.buttonLink ? (
                         <Link
                           href={plan.buttonLink}
-                          className={`inline-flex w-full items-center justify-center rounded-none px-6 py-3 text-sm font-semibold transition ${
+                          className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-xs font-extrabold uppercase tracking-widest transition-all duration-200 ${
                             plan.isPopular
-                              ? "bg-[#ff6636] text-white hover:bg-[#e95a2b]"
-                              : "border border-[#e9eaf0] bg-white text-[#1d2026] hover:border-[#ff6636] hover:text-[#ff6636]"
+                              ? "bg-[#ff6636] text-white hover:bg-[#e95a2b] shadow-md hover:shadow-lg shadow-[#ff6636]/10"
+                              : "border border-border bg-card text-foreground hover:border-[#ff6636]/50 hover:bg-[#ff6636]/5 hover:text-[#ff6636]"
                           }`}
                         >
                           {plan.buttonText}
@@ -177,10 +208,10 @@ export default function PricingPage() {
                       ) : (
                         <button
                           type="button"
-                          className={`inline-flex w-full items-center justify-center rounded-none px-6 py-3 text-sm font-semibold transition ${
+                          className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-xs font-extrabold uppercase tracking-widest transition-all duration-200 ${
                             plan.isPopular
-                              ? "bg-[#ff6636] text-white hover:bg-[#e95a2b]"
-                              : "border border-[#e9eaf0] bg-white text-[#1d2026] hover:border-[#ff6636] hover:text-[#ff6636]"
+                              ? "bg-[#ff6636] text-white hover:bg-[#e95a2b] shadow-md hover:shadow-lg shadow-[#ff6636]/10"
+                              : "border border-border bg-card text-foreground hover:border-[#ff6636]/50 hover:bg-[#ff6636]/5 hover:text-[#ff6636]"
                           }`}
                         >
                           {plan.buttonText}
@@ -194,28 +225,35 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="bg-[#f5f7fa] px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-          <div className="mx-auto grid max-w-[1320px] gap-8 border border-[#e9eaf0] bg-white px-6 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:px-12 lg:py-12">
-            <div className="max-w-[720px]">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ff6636]">
-                Enterprise & teams
-              </p>
-              <h2 className="mt-3 text-[32px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[40px]">
-                Need a custom solution?
-              </h2>
-              <p className="mt-4 text-base leading-8 text-[#6e7485]">
-                Contact us if you need enterprise pricing, team-wide onboarding,
-                or a structure that matches internal training and growth.
-              </p>
-            </div>
+        {/* ── Enterprise Banner section ────────────────────────────── */}
+        <section className="bg-muted/30 border-t border-border/40 px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[1320px]">
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-card to-muted p-8 sm:p-12 lg:p-14">
+              <div className="pointer-events-none absolute -bottom-48 -left-48 size-96 rounded-full bg-[#ff6636]/5 blur-3xl" />
+              <div className="pointer-events-none absolute -top-48 -right-48 size-96 rounded-full bg-violet-500/5 blur-3xl" />
 
-            <div className="flex items-center">
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-none bg-[#ff6636] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#e95a2b]"
-              >
-                Contact Sales
-              </Link>
+              <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+                <div className="max-w-[720px] space-y-4">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-violet-500">
+                    <Mail className="size-3.5" /> Enterprise & Teams
+                  </span>
+                  <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl lg:text-4xl leading-tight">
+                    Need a custom solution for your team?
+                  </h2>
+                  <p className="text-sm font-semibold text-muted-foreground leading-relaxed">
+                    Contact us for enterprise bulk pricing, team-wide analytics dashboards, dedicated onboarding sessions, and custom curricula mapping to your internal training goals.
+                  </p>
+                </div>
+
+                <div className="shrink-0 w-full lg:w-auto">
+                  <Link
+                    href="/contact"
+                    className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-6 py-3.5 text-xs font-extrabold uppercase tracking-widest text-white shadow-md hover:shadow-lg shadow-[#ff6636]/10 transition-all duration-200"
+                  >
+                    Contact Sales <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </section>
