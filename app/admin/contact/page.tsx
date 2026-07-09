@@ -30,8 +30,14 @@ import {
   MessageSquare,
   ExternalLink,
   Search,
+  CheckCircle,
+  XCircle,
+  HelpCircle,
+  ArrowRightLeft,
+  Loader2,
 } from "lucide-react";
 import { confirmWithToast } from "@/lib/confirm-toast";
+import { cn } from "@/lib/utils";
 
 interface ContactSettings {
   id: string;
@@ -216,20 +222,17 @@ export default function AdminContactPage() {
 
     if (targetIndex < 0 || targetIndex >= newFaqs.length) return;
 
-    // Swap positions
     [newFaqs[index], newFaqs[targetIndex]] = [
       newFaqs[targetIndex],
       newFaqs[index],
     ];
 
-    // Update order values
     newFaqs.forEach((faq, idx) => {
       faq.order = idx;
     });
 
     setFaqs(newFaqs);
 
-    // Update both FAQs in the database
     await handleUpdateFaq(newFaqs[index]);
     await handleUpdateFaq(newFaqs[targetIndex]);
   };
@@ -274,16 +277,15 @@ export default function AdminContactPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Loading contact settings...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center h-96">
+        <Loader2 className="size-8 text-[#ff6636] animate-spin mb-3" />
+        <p className="text-xs font-bold text-muted-foreground/80">Loading support portal settings...</p>
       </div>
     );
   }
 
   return (
-    <AdminPage className="mx-auto max-w-5xl p-6">
+    <AdminPage className="w-full p-6 space-y-6">
       <AdminPageHeader
         eyebrow="Public support surface"
         title="Contact Page Settings"
@@ -291,14 +293,14 @@ export default function AdminContactPage() {
         actions={
           <div className="flex items-center gap-2">
             <Link href="/contact" target="_blank" rel="noreferrer">
-              <Button variant="outline" className="gap-2">
-                <ExternalLink className="h-4 w-4" />
+              <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-9">
+                <ExternalLink className="size-3.5" />
                 Open Public Contact
-              </Button>
+              </button>
             </Link>
             {settingsDirty ? (
-              <Button
-                variant="outline"
+              <button
+                className="flex items-center justify-center rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all h-9"
                 onClick={() => {
                   if (initialSettings) {
                     setSettings(initialSettings);
@@ -308,405 +310,470 @@ export default function AdminContactPage() {
                 }}
               >
                 Discard Changes
-              </Button>
+              </button>
             ) : null}
           </div>
         }
       />
 
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total FAQs</p>
-            <p className="mt-1 text-3xl font-bold">{faqs.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Active FAQs</p>
-            <p className="mt-1 text-3xl font-bold">
-              {faqs.filter((faq) => faq.isActive).length}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Inactive FAQs</p>
-            <p className="mt-1 text-3xl font-bold">
-              {faqs.filter((faq) => !faq.isActive).length}
-            </p>
-          </CardContent>
-        </Card>
+      {/* Modern Metric Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-between shadow-sm">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total FAQs</p>
+            <p className="text-2xl font-black text-foreground">{faqs.length}</p>
+          </div>
+          <div className="size-10 rounded-xl bg-muted/30 border border-border/40 flex items-center justify-center text-muted-foreground">
+            <HelpCircle className="size-5" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-between shadow-sm">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Active FAQs</p>
+            <p className="text-2xl font-black text-foreground">{faqs.filter((faq) => faq.isActive).length}</p>
+          </div>
+          <div className="size-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500">
+            <CheckCircle className="size-5" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-between shadow-sm">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Inactive FAQs</p>
+            <p className="text-2xl font-black text-foreground">{faqs.filter((faq) => !faq.isActive).length}</p>
+          </div>
+          <div className="size-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+            <XCircle className="size-5" />
+          </div>
+        </div>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="general">Contact Information</TabsTrigger>
-          <TabsTrigger value="faqs">FAQs</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 rounded-2xl bg-muted/20 border border-border/50 p-1 mb-6">
+          <TabsTrigger value="general" className="rounded-xl py-2.5 text-xs font-bold transition-all data-[state=active]:bg-[#ff6636] data-[state=active]:text-white">
+            Contact Information
+          </TabsTrigger>
+          <TabsTrigger value="faqs" className="rounded-xl py-2.5 text-xs font-bold transition-all data-[state=active]:bg-[#ff6636] data-[state=active]:text-white">
+            FAQ content
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
-          {/* Hero Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Hero Section
-              </CardTitle>
-              <CardDescription>
-                Main title and subtitle displayed at the top of the contact page
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="heroTitle">Hero Title</Label>
-                <Input
-                  id="heroTitle"
-                  value={settings.heroTitle}
-                  onChange={(e) =>
-                    handleSettingsChange("heroTitle", e.target.value)
-                  }
-                  placeholder="Contact Us"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="heroSubtitle">Hero Subtitle</Label>
-                <Textarea
-                  id="heroSubtitle"
-                  value={settings.heroSubtitle}
-                  onChange={(e) =>
-                    handleSettingsChange("heroSubtitle", e.target.value)
-                  }
-                  placeholder="Have questions? We'd love to hear from you..."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-12 gap-6">
+            
+            {/* Hero Section */}
+            <div className="col-span-12 lg:col-span-8 space-y-6">
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <MessageSquare className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Hero Header Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="heroTitle" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Hero Title
+                    </Label>
+                    <Input
+                      id="heroTitle"
+                      value={settings.heroTitle}
+                      onChange={(e) =>
+                        handleSettingsChange("heroTitle", e.target.value)
+                      }
+                      placeholder="e.g., Help Center & FAQs"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="heroSubtitle" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Hero Subtitle
+                    </Label>
+                    <Textarea
+                      id="heroSubtitle"
+                      value={settings.heroSubtitle}
+                      onChange={(e) =>
+                        handleSettingsChange("heroSubtitle", e.target.value)
+                      }
+                      placeholder="Browse common questions or ask our team a question directly..."
+                      rows={3}
+                      className="rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Contact Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Email Contact
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={settings.email}
-                onChange={(e) => handleSettingsChange("email", e.target.value)}
-                placeholder="support@devforge.com"
-              />
-            </CardContent>
-          </Card>
+              {/* Physical Address */}
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <MapPin className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Office Location Details</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="addressLine1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Address Line 1
+                    </Label>
+                    <Input
+                      id="addressLine1"
+                      value={settings.addressLine1}
+                      onChange={(e) =>
+                        handleSettingsChange("addressLine1", e.target.value)
+                      }
+                      placeholder="123 Learning Street"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="addressLine2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Address Line 2
+                      </Label>
+                      <Input
+                        id="addressLine2"
+                        value={settings.addressLine2}
+                        onChange={(e) =>
+                          handleSettingsChange("addressLine2", e.target.value)
+                        }
+                        placeholder="Tech City, TC 12345"
+                        className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="addressLine3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Address Line 3
+                      </Label>
+                      <Input
+                        id="addressLine3"
+                        value={settings.addressLine3}
+                        onChange={(e) =>
+                          handleSettingsChange("addressLine3", e.target.value)
+                        }
+                        placeholder="United States"
+                        className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Phone className="h-5 w-5" />
-                Phone Contact
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                value={settings.phone}
-                onChange={(e) => handleSettingsChange("phone", e.target.value)}
-                placeholder="+1 (234) 567-890"
-              />
-            </CardContent>
-          </Card>
+              {/* Response Time Info */}
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <ArrowRightLeft className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Response Expectations</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="responseTime" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Response Expectation Text
+                    </Label>
+                    <Textarea
+                      id="responseTime"
+                      value={settings.responseTime}
+                      onChange={(e) =>
+                        handleSettingsChange("responseTime", e.target.value)
+                      }
+                      placeholder="We typically respond within 24 hours during business days..."
+                      rows={3}
+                      className="rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Physical Address
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="addressLine1">Address Line 1</Label>
-                <Input
-                  id="addressLine1"
-                  value={settings.addressLine1}
-                  onChange={(e) =>
-                    handleSettingsChange("addressLine1", e.target.value)
-                  }
-                  placeholder="123 Learning Street"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="addressLine2">Address Line 2</Label>
-                <Input
-                  id="addressLine2"
-                  value={settings.addressLine2}
-                  onChange={(e) =>
-                    handleSettingsChange("addressLine2", e.target.value)
-                  }
-                  placeholder="Tech City, TC 12345"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="addressLine3">Address Line 3</Label>
-                <Input
-                  id="addressLine3"
-                  value={settings.addressLine3}
-                  onChange={(e) =>
-                    handleSettingsChange("addressLine3", e.target.value)
-                  }
-                  placeholder="United States"
-                />
-              </div>
-            </CardContent>
-          </Card>
+            {/* General Settings side cards */}
+            <div className="col-span-12 lg:col-span-4 space-y-6">
+              
+              {/* Email Card */}
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <Mail className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Email Contact</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-2.5">
+                  <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Support Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={settings.email}
+                    onChange={(e) => handleSettingsChange("email", e.target.value)}
+                    placeholder="support@devforge.com"
+                    className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                  />
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Business Hours
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="businessHoursLine1">
-                  Business Hours Line 1
-                </Label>
-                <Input
-                  id="businessHoursLine1"
-                  value={settings.businessHoursLine1}
-                  onChange={(e) =>
-                    handleSettingsChange("businessHoursLine1", e.target.value)
-                  }
-                  placeholder="Monday - Friday"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="businessHoursLine2">
-                  Business Hours Line 2
-                </Label>
-                <Input
-                  id="businessHoursLine2"
-                  value={settings.businessHoursLine2}
-                  onChange={(e) =>
-                    handleSettingsChange("businessHoursLine2", e.target.value)
-                  }
-                  placeholder="9:00 AM - 6:00 PM EST"
-                />
-              </div>
-            </CardContent>
-          </Card>
+              {/* Phone Card */}
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <Phone className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Phone Contact</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-2.5">
+                  <Label htmlFor="phone" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Support Phone Number
+                  </Label>
+                  <Input
+                    id="phone"
+                    value={settings.phone}
+                    onChange={(e) => handleSettingsChange("phone", e.target.value)}
+                    placeholder="+1 (234) 567-890"
+                    className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                  />
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Response Time Information</CardTitle>
-              <CardDescription>
-                Message shown to users about expected response time
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Label htmlFor="responseTime">Response Time Text</Label>
-              <Textarea
-                id="responseTime"
-                value={settings.responseTime}
-                onChange={(e) =>
-                  handleSettingsChange("responseTime", e.target.value)
-                }
-                placeholder="We typically respond within 24 hours..."
-                rows={3}
-              />
-            </CardContent>
-          </Card>
+              {/* Business Hours */}
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <Clock className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Business Hours</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="businessHoursLine1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Business Days
+                    </Label>
+                    <Input
+                      id="businessHoursLine1"
+                      value={settings.businessHoursLine1}
+                      onChange={(e) =>
+                        handleSettingsChange("businessHoursLine1", e.target.value)
+                      }
+                      placeholder="e.g., Monday - Friday"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="businessHoursLine2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Service Hours
+                    </Label>
+                    <Input
+                      id="businessHoursLine2"
+                      value={settings.businessHoursLine2}
+                      onChange={(e) =>
+                        handleSettingsChange("businessHoursLine2", e.target.value)
+                      }
+                      placeholder="e.g., 9:00 AM - 6:00 PM EST"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
-          <div className="flex justify-end">
-            <Button
+          {/* Sticky footer action triggers */}
+          <div className="flex justify-end pt-4">
+            <button
               onClick={handleSaveSettings}
               disabled={saving || !settingsDirty}
-              size="lg"
-              className="gap-2"
+              className={cn(
+                "h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2",
+                settingsDirty
+                  ? "bg-[#ff6636] hover:bg-[#e95a2b] text-white shadow-[#ff6636]/15"
+                  : "bg-muted text-muted-foreground border border-border/40 cursor-not-allowed shadow-none"
+              )}
             >
-              <Save className="h-4 w-4" />
-              {saving
-                ? "Saving..."
-                : settingsDirty
-                  ? "Save All Changes"
-                  : "No Changes"}
-            </Button>
+              {saving ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Saving Settings...
+                </>
+              ) : (
+                <>
+                  <Save className="size-4" />
+                  {settingsDirty ? "Save Portal Settings" : "Settings Up to Date"}
+                </>
+              )}
+            </button>
           </div>
         </TabsContent>
 
         <TabsContent value="faqs" className="space-y-6">
-          {/* Add New FAQ */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Add New FAQ
-              </CardTitle>
-              <CardDescription>
-                Create a new frequently asked question
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="newQuestion">Question</Label>
-                <Input
-                  id="newQuestion"
-                  value={newFaq.question}
-                  onChange={(e) =>
-                    setNewFaq({ ...newFaq, question: e.target.value })
-                  }
-                  placeholder="How long does it take to get a response?"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newAnswer">Answer</Label>
-                <Textarea
-                  id="newAnswer"
-                  value={newFaq.answer}
-                  onChange={(e) =>
-                    setNewFaq({ ...newFaq, answer: e.target.value })
-                  }
-                  placeholder="We typically respond to all inquiries within 24 hours..."
-                  rows={3}
-                />
-              </div>
-              <Button onClick={handleAddFaq} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add FAQ
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Existing FAQs */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Manage FAQs</CardTitle>
-              <CardDescription>
-                Edit, reorder, or delete existing FAQs. Inactive FAQs won&apos;t
-                be shown on the public page.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search FAQs by question or answer..."
-                  value={faqSearchQuery}
-                  onChange={(e) => setFaqSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {faqs.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  No FAQs yet. Add your first FAQ above.
-                </p>
-              ) : filteredFaqs.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  No FAQs match your search.
-                </p>
-              ) : (
-                filteredFaqs.map((faq, index) => (
-                  <Card
-                    key={faq.id}
-                    className={!faq.isActive ? "opacity-60" : ""}
+          <div className="grid grid-cols-12 gap-6">
+            
+            {/* Add New FAQ Column */}
+            <div className="col-span-12 lg:col-span-4">
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden sticky top-6">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2 space-y-0">
+                  <Plus className="size-4.5 text-[#ff6636]" />
+                  <CardTitle className="text-sm font-extrabold text-foreground">Add New FAQ</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="newQuestion" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Question Text
+                    </Label>
+                    <Input
+                      id="newQuestion"
+                      value={newFaq.question}
+                      onChange={(e) =>
+                        setNewFaq({ ...newFaq, question: e.target.value })
+                      }
+                      placeholder="e.g., How do I reset my password?"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="newAnswer" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Answer Text
+                    </Label>
+                    <Textarea
+                      id="newAnswer"
+                      value={newFaq.answer}
+                      onChange={(e) =>
+                        setNewFaq({ ...newFaq, answer: e.target.value })
+                      }
+                      placeholder="Provide a clear, detailed answer..."
+                      rows={4}
+                      className="rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddFaq}
+                    className="w-full h-10 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 mt-2"
                   >
-                    <CardContent className="p-4 space-y-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-4">
-                          <div className="space-y-2">
-                            <Label>Question</Label>
-                            <Input
-                              value={faq.question}
-                              onChange={(e) =>
-                                handleUpdateFaqField(
-                                  faq.id,
-                                  "question",
-                                  e.target.value,
-                                )
-                              }
-                              onBlur={() => handleUpdateFaq(faq)}
-                            />
+                    <Plus className="size-4" />
+                    Add FAQ Unit
+                  </button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Manage FAQs list Column */}
+            <div className="col-span-12 lg:col-span-8 space-y-4">
+              <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
+                    <HelpCircle className="size-4.5 text-[#ff6636]" />
+                    Syllabus FAQ Catalog ({faqs.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/60" />
+                    <Input
+                      placeholder="Search FAQs by question title or answer text..."
+                      value={faqSearchQuery}
+                      onChange={(e) => setFaqSearchQuery(e.target.value)}
+                      className="pl-10 h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
+                    />
+                  </div>
+
+                  {faqs.length === 0 ? (
+                    <p className="text-xs font-semibold text-muted-foreground/80 py-10 text-center">
+                      No FAQs constructed yet. Use the panel on the left to build your first FAQ.
+                    </p>
+                  ) : filteredFaqs.length === 0 ? (
+                    <p className="text-xs font-semibold text-muted-foreground/80 py-10 text-center">
+                      No FAQs match your search parameter.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredFaqs.map((faq, index) => (
+                        <div
+                          key={faq.id}
+                          className={cn(
+                            "rounded-xl border p-4 transition-all space-y-4 bg-background",
+                            !faq.isActive
+                              ? "opacity-60 border-border/40"
+                              : "border-border/60 hover:bg-muted/15"
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 space-y-3">
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Question</Label>
+                                <Input
+                                  value={faq.question}
+                                  onChange={(e) =>
+                                    handleUpdateFaqField(
+                                      faq.id,
+                                      "question",
+                                      e.target.value,
+                                    )
+                                  }
+                                  onBlur={() => handleUpdateFaq(faq)}
+                                  className="h-9 rounded-lg border-border/80 text-xs font-semibold focus-visible:ring-0 bg-card"
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Answer</Label>
+                                <Textarea
+                                  value={faq.answer}
+                                  onChange={(e) =>
+                                    handleUpdateFaqField(
+                                      faq.id,
+                                      "answer",
+                                      e.target.value,
+                                    )
+                                  }
+                                  onBlur={() => handleUpdateFaq(faq)}
+                                  rows={2}
+                                  className="rounded-lg border-border/80 text-xs font-semibold focus-visible:ring-0 bg-card resize-none"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 shrink-0">
+                              <button
+                                onClick={() => {
+                                  const realIndex = faqs.findIndex(
+                                    (f) => f.id === faq.id,
+                                  );
+                                  void handleMoveFaq(realIndex, "up");
+                                }}
+                                disabled={
+                                  faqs.findIndex((f) => f.id === faq.id) === 0
+                                }
+                                className="size-8 rounded-lg border border-border/80 bg-card flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
+                              >
+                                <MoveUp className="size-3.5" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const realIndex = faqs.findIndex(
+                                    (f) => f.id === faq.id,
+                                  );
+                                  void handleMoveFaq(realIndex, "down");
+                                }}
+                                disabled={
+                                  faqs.findIndex((f) => f.id === faq.id) ===
+                                  faqs.length - 1
+                                }
+                                className="size-8 rounded-lg border border-border/80 bg-card flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
+                              >
+                                <MoveDown className="size-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteFaq(faq.id)}
+                                className="size-8 rounded-lg border border-border/80 bg-card flex items-center justify-center text-red-500 hover:bg-red-500/10 transition-colors"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <Label>Answer</Label>
-                            <Textarea
-                              value={faq.answer}
-                              onChange={(e) =>
-                                handleUpdateFaqField(
-                                  faq.id,
-                                  "answer",
-                                  e.target.value,
-                                )
-                              }
-                              onBlur={() => handleUpdateFaq(faq)}
-                              rows={2}
+                          
+                          <div className="flex items-center gap-2 border-t border-border/40 pt-3">
+                            <Switch
+                              checked={faq.isActive}
+                              onCheckedChange={() => handleToggleFaqActive(faq)}
                             />
+                            <Label className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                              {faq.isActive ? "Published Live" : "Draft (Hidden)"}
+                            </Label>
                           </div>
                         </div>
-                        <div className="flex flex-col gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => {
-                              const realIndex = faqs.findIndex(
-                                (f) => f.id === faq.id,
-                              );
-                              void handleMoveFaq(realIndex, "up");
-                            }}
-                            disabled={
-                              faqs.findIndex((f) => f.id === faq.id) === 0
-                            }
-                          >
-                            <MoveUp className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => {
-                              const realIndex = faqs.findIndex(
-                                (f) => f.id === faq.id,
-                              );
-                              void handleMoveFaq(realIndex, "down");
-                            }}
-                            disabled={
-                              faqs.findIndex((f) => f.id === faq.id) ===
-                              faqs.length - 1
-                            }
-                          >
-                            <MoveDown className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDeleteFaq(faq.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={faq.isActive}
-                          onCheckedChange={() => handleToggleFaqActive(faq)}
-                        />
-                        <Label className="text-sm">
-                          {faq.isActive ? "Active" : "Inactive"}
-                        </Label>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </CardContent>
-          </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </AdminPage>

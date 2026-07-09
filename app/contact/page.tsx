@@ -8,6 +8,9 @@ import {
   MessageSquareText,
   Phone,
   Send,
+  HelpCircle,
+  ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,7 +20,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +27,7 @@ import {
   MarketingPublicFooter,
   MarketingPublicHeader,
 } from "@/components/marketing/public-chrome";
+import { cn } from "@/lib/utils";
 
 interface ContactSettings {
   email: string;
@@ -212,40 +215,40 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#1d2026]">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <MarketingPublicHeader activePath="/contact" />
 
-      <main>
-        <section className="border-b border-[#e9eaf0] bg-[#f5f7fa]">
-          <div className="mx-auto max-w-[1320px] px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-            <p className="text-sm font-medium text-[#8c94a3]">
-              Home / Support / FAQs
-            </p>
-            <div className="mt-4 max-w-[860px]">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ff6636]">
-                Support Center
-              </p>
-              <h1 className="mt-3 text-[40px] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-[56px]">
+      <main className="flex-1">
+        {/* Premium Hero Section */}
+        <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-[#ff6636]/5 via-transparent to-transparent py-16 sm:py-20">
+          <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#ff6636]">
+              <HelpCircle className="size-4" />
+              Support Portal
+            </div>
+            <div className="mt-4 max-w-[800px] space-y-4">
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]">
                 {settings.heroTitle}
               </h1>
-              <p className="mt-4 max-w-[720px] text-lg leading-8 text-[#6e7485]">
+              <p className="text-sm sm:text-base font-semibold leading-relaxed text-muted-foreground max-w-[640px]">
                 {settings.heroSubtitle}
               </p>
             </div>
           </div>
         </section>
 
-        <section className="px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <div className="mx-auto grid max-w-[1320px] gap-8 xl:grid-cols-[256px_minmax(0,1fr)_336px]">
-            <aside className="space-y-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8c94a3]">
-                  Topics
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold">Browse by area</h2>
+        {/* Support Grid Layout */}
+        <section className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 py-12">
+          <div className="grid gap-8 lg:grid-cols-12">
+            
+            {/* Left Sidebar Category Filter */}
+            <aside className="lg:col-span-3 space-y-4">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Browse Knowledgebase</p>
+                <h2 className="text-lg font-black text-foreground">Topics</h2>
               </div>
 
-              <div className="overflow-hidden border border-[#e9eaf0] bg-white">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm p-1.5 space-y-1">
                 {categories.map((category) => {
                   const active = category.label === activeCategory;
 
@@ -254,46 +257,53 @@ export default function ContactPage() {
                       key={category.label}
                       type="button"
                       onClick={() => setActiveCategory(category.label)}
-                      className={`flex w-full items-center justify-between border-b border-[#e9eaf0] px-4 py-4 text-left text-sm font-medium transition last:border-b-0 ${
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-xs font-bold transition-all",
                         active
-                          ? "bg-[#fff2e5] text-[#1d2026]"
-                          : "bg-white text-[#4e5566] hover:bg-[#f5f7fa]"
-                      }`}
+                          ? "bg-[#ff6636]/10 text-[#ff6636]"
+                          : "text-muted-foreground hover:bg-muted/15 hover:text-foreground"
+                      )}
                     >
-                      <span>{category.label}</span>
-                      <span className="text-xs font-semibold text-[#8c94a3]">
-                        {category.count}
+                      <span className="flex items-center gap-2">
+                        {category.label}
                       </span>
+                      <div className="flex items-center gap-1">
+                        <span className={cn(
+                          "text-[10px] font-bold rounded-full px-2 py-0.5",
+                          active ? "bg-[#ff6636] text-white" : "bg-muted text-muted-foreground"
+                        )}>
+                          {category.count}
+                        </span>
+                        {active && <ChevronRight className="size-3.5" />}
+                      </div>
                     </button>
                   );
                 })}
               </div>
             </aside>
 
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8c94a3]">
-                    Common questions
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold">
-                    Frequently asked questions
-                  </h2>
+            {/* Center Accordion Component */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Common solutions</p>
+                  <h2 className="text-lg font-black text-foreground">Frequently Asked Questions</h2>
                 </div>
-                <div className="border border-[#e9eaf0] bg-[#f5f7fa] px-4 py-3 text-sm text-[#6e7485]">
+                <div className="rounded-xl border border-border bg-muted/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {loading
-                    ? "Loading questions..."
-                    : `${filteredFaqs.length} answers in ${activeCategory}`}
+                    ? "Updating catalog..."
+                    : `${filteredFaqs.length} entries`}
                 </div>
               </div>
 
               {loading ? (
-                <div className="border border-[#e9eaf0] bg-white px-6 py-10 text-center text-[#6e7485]">
-                  Loading FAQs...
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-12 shadow-sm">
+                  <Loader2 className="size-6 text-[#ff6636] animate-spin mb-2" />
+                  <p className="text-xs font-bold text-muted-foreground/80">Updating help topics...</p>
                 </div>
               ) : filteredFaqs.length === 0 ? (
-                <div className="border border-[#e9eaf0] bg-white px-6 py-10 text-center text-[#6e7485]">
-                  No FAQs are available for this topic yet.
+                <div className="rounded-2xl border border-border bg-card p-12 text-center text-xs font-bold text-muted-foreground/85 shadow-sm">
+                  No solutions have been published for this topic yet.
                 </div>
               ) : (
                 <Accordion
@@ -301,14 +311,21 @@ export default function ContactPage() {
                   collapsible
                   value={openFaqId}
                   onValueChange={setOpenFaqId}
-                  className="border border-[#e9eaf0] bg-white"
+                  className="space-y-2"
                 >
                   {filteredFaqs.map((faq) => (
-                    <AccordionItem key={faq.id} value={faq.id} className="border-b border-[#e9eaf0] px-6 last:border-b-0">
-                      <AccordionTrigger className="py-5 text-left text-base font-semibold text-[#1d2026] hover:no-underline">
+                    <AccordionItem
+                      key={faq.id}
+                      value={faq.id}
+                      className={cn(
+                        "rounded-xl border bg-card transition-all overflow-hidden border-border/60",
+                        openFaqId === faq.id ? "shadow-sm border-[#ff6636]/40" : "hover:border-border/80"
+                      )}
+                    >
+                      <AccordionTrigger className="py-4 px-5 text-left text-xs font-bold text-foreground hover:no-underline transition-all">
                         {faq.question}
                       </AccordionTrigger>
-                      <AccordionContent className="pb-5 text-sm leading-7 text-[#6e7485]">
+                      <AccordionContent className="pb-4 px-5 text-xs font-semibold leading-relaxed text-muted-foreground border-t border-border/30 pt-3 bg-muted/5">
                         {faq.answer}
                       </AccordionContent>
                     </AccordionItem>
@@ -317,166 +334,172 @@ export default function ContactPage() {
               )}
             </div>
 
-            <aside className="space-y-6">
-              <div className="border border-[#e9eaf0] bg-[#fff2e5] p-5">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#ff6636]">
-                    Need more help?
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold">
-                    Don’t find your answer?
-                  </h2>
-                  <p className="mt-3 text-sm leading-7 text-[#6e7485]">
-                    Write your question here and our support team will help you.
+            {/* Right Form & Contact Info Sidebar */}
+            <aside className="lg:col-span-4 space-y-6">
+              
+              {/* Question submission form */}
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#ff6636]">Submit a request</p>
+                  <h2 className="text-lg font-black text-foreground">Need More Help?</h2>
+                  <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
+                    Can&apos;t find what you need? Leave a ticket and our support engineers will review your request.
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Your Name</Label>
+                <form onSubmit={handleSubmit} className="space-y-3.5 pt-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Your Name</Label>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder="e.g., John Doe"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       disabled={isSubmitting}
-                      className="h-11 rounded-none border-[#e9eaf0] bg-white"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/85 bg-background"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                  <div className="space-y-1">
+                    <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="john@example.com"
+                      placeholder="e.g., john@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={isSubmitting}
-                      className="h-11 rounded-none border-[#e9eaf0] bg-white"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/85 bg-background"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
+                  <div className="space-y-1">
+                    <Label htmlFor="subject" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subject Topic</Label>
                     <Input
                       id="subject"
                       type="text"
-                      placeholder="How can we help?"
+                      placeholder="e.g., Issue accessing lesson modules"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
                       disabled={isSubmitting}
-                      className="h-11 rounded-none border-[#e9eaf0] bg-white"
+                      className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/85 bg-background"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Question</Label>
+                  <div className="space-y-1">
+                    <Label htmlFor="message" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Detailed Description</Label>
                     <Textarea
                       id="message"
-                      placeholder="Tell us what you need help with..."
+                      placeholder="Detail your question or specific technical bug..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       disabled={isSubmitting}
-                      rows={6}
-                      className="resize-none rounded-none border-[#e9eaf0] bg-white"
+                      rows={4}
+                      className="rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/85 bg-background resize-none"
                       required
                     />
                   </div>
 
-                  <Button
+                  <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="h-11 w-full rounded-none bg-[#ff6636] text-sm font-semibold text-white hover:bg-[#e95a2b]"
+                    className="h-10 w-full rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-xs font-bold uppercase tracking-wider text-white transition-colors flex items-center justify-center gap-2 mt-2 shadow-sm"
                   >
                     {isSubmitting ? (
-                      "Sending..."
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Submitting...
+                      </>
                     ) : (
                       <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Submit Question
+                        <Send className="size-3.5" />
+                        Send Ticket
                       </>
                     )}
-                  </Button>
+                  </button>
                 </form>
               </div>
 
-              <div className="space-y-4 border border-[#e9eaf0] bg-white p-5">
-                <h3 className="text-lg font-semibold">Contact details</h3>
+              {/* Contact Details listing card */}
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Direct Contacts</h3>
 
-                {[
-                  {
-                    label: "Email",
-                    value: settings.email,
-                    icon: Mail,
-                    href: `mailto:${settings.email}`,
-                  },
-                  {
-                    label: "Phone",
-                    value: settings.phone,
-                    icon: Phone,
-                    href: `tel:${settings.phone.replace(/\s/g, "")}`,
-                  },
-                  {
-                    label: "Address",
-                    value: `${settings.addressLine1}, ${settings.addressLine2}, ${settings.addressLine3}`,
-                    icon: MapPin,
-                  },
-                  {
-                    label: "Business Hours",
-                    value: `${settings.businessHoursLine1} • ${settings.businessHoursLine2}`,
-                    icon: Clock3,
-                  },
-                ].map((item) => {
-                  const Icon = item.icon;
+                <div className="space-y-4">
+                  {[
+                    {
+                      label: "Support Mailbox",
+                      value: settings.email,
+                      icon: Mail,
+                      href: `mailto:${settings.email}`,
+                    },
+                    {
+                      label: "Phone Hotline",
+                      value: settings.phone,
+                      icon: Phone,
+                      href: `tel:${settings.phone.replace(/\s/g, "")}`,
+                    },
+                    {
+                      label: "Office Location",
+                      value: `${settings.addressLine1}, ${settings.addressLine2}, ${settings.addressLine3}`,
+                      icon: MapPin,
+                    },
+                    {
+                      label: "Business Hours",
+                      value: `${settings.businessHoursLine1} • ${settings.businessHoursLine2}`,
+                      icon: Clock3,
+                    },
+                  ].map((item) => {
+                    const Icon = item.icon;
 
-                  return (
-                    <div key={item.label} className="flex items-start gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center bg-[#fff2e5] text-[#ff6636]">
-                        <Icon className="size-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-[#1d2026]">
-                          {item.label}
-                        </p>
-                        {item.href ? (
-                          <a
-                            href={item.href}
-                            className="mt-1 block text-sm leading-6 text-[#6e7485] hover:text-[#ff6636]"
-                          >
-                            {item.value}
-                          </a>
-                        ) : (
-                          <p className="mt-1 text-sm leading-6 text-[#6e7485]">
-                            {item.value}
+                    return (
+                      <div key={item.label} className="flex items-start gap-3 text-left">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+                          <Icon className="size-4.5" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                            {item.label}
                           </p>
-                        )}
+                          {item.href ? (
+                            <a
+                              href={item.href}
+                              className="block text-xs font-semibold text-foreground hover:text-[#ff6636] transition-colors"
+                            >
+                              {item.value}
+                            </a>
+                          ) : (
+                            <p className="text-xs font-semibold text-foreground leading-relaxed">
+                              {item.value}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
 
-                <div className="border-t border-[#e9eaf0] pt-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center bg-[#ebebff] text-[#564ffd]">
-                      <MessageSquareText className="size-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#1d2026]">
-                        Response time
-                      </p>
-                      <p className="mt-1 text-sm leading-6 text-[#6e7485]">
-                        {settings.responseTime}
-                      </p>
+                  <div className="border-t border-border/40 pt-4">
+                    <div className="flex items-start gap-3 text-left">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500">
+                        <MessageSquareText className="size-4.5" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Expected Response Time
+                        </p>
+                        <p className="text-xs font-semibold text-foreground leading-relaxed">
+                          {settings.responseTime}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </aside>
+            
           </div>
         </section>
       </main>
