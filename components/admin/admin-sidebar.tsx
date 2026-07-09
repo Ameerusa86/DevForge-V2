@@ -140,137 +140,132 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
   return (
     <div
       className={cn(
-        "admin-sidebar relative border-r border-border transition-all duration-300",
+        "relative h-screen border-r border-border/50 bg-card text-foreground transition-all duration-300 flex flex-col shrink-0 select-none z-40",
         isCollapsed ? "w-16" : "w-72",
         className,
       )}
     >
-      <div className="flex h-full flex-col">
-        {/* Logo and Toggle */}
-        <div className="flex min-h-24 items-start justify-between border-b border-white/10 px-4 py-5">
+      {/* Header Logobox */}
+      <div className="flex flex-col border-b border-border/50 p-4 shrink-0 min-h-[5.5rem] justify-center relative">
+        <div className="flex items-center justify-between gap-3">
           {!isCollapsed ? (
-            <div className="space-y-4">
-              <Link href="/admin" className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/15 backdrop-blur">
-                  <Image
-                    src="/images/DevForge.png"
-                    alt="DevForge Logo"
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 object-contain"
-                    priority
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">DevForge</p>
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/55">
-                    Admin studio
-                  </p>
-                </div>
-              </Link>
-              <div className="rounded-[1.5rem] border border-white/10 bg-white/6 px-4 py-3">
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Operations
-                </div>
-                <p className="mt-2 text-sm font-medium text-white">
-                  Manage learning, content, and platform reliability from one
-                  workspace.
+            <Link href="/admin" className="flex items-center gap-3 group min-w-0">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted transition-transform group-hover:scale-105">
+                <Image
+                  src="/images/DevForge.png"
+                  alt="DevForge Logo"
+                  width={32}
+                  height={32}
+                  className="size-8 object-contain"
+                  priority
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black text-foreground uppercase tracking-wider truncate">DevForge</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#ff6636] mt-0.5">
+                  Admin Studio
                 </p>
               </div>
-            </div>
+            </Link>
           ) : (
             <Link
               href="/admin"
-              className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/15"
+              className="mx-auto flex size-10 items-center justify-center rounded-xl border border-border/60 bg-muted hover:border-[#ff6636]/40 transition-colors"
             >
-              <ShieldCheck className="h-5 w-5 text-white" />
+              <ShieldCheck className="size-5 text-[#ff6636]" />
             </Link>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
+
+          {/* Toggle Collapse Button */}
+          <button
+            type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "h-9 w-9 rounded-2xl border border-white/10 bg-white/6 text-white hover:bg-white/10 hover:text-white",
-              isCollapsed && "mx-auto",
+              "flex size-8 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground hover:text-foreground hover:border-border/80 transition-all",
+              isCollapsed && "mx-auto"
             )}
           >
             <ChevronLeft
               className={cn(
-                "h-4 w-4 transition-transform",
-                isCollapsed && "rotate-180",
+                "size-4 transition-transform duration-300",
+                isCollapsed && "rotate-180"
               )}
             />
-          </Button>
+          </button>
         </div>
+      </div>
 
-        {/* Navigation */}
-        <ScrollArea className="flex-1 px-3 py-5">
-          <nav className="flex flex-col gap-5">
-            {sidebarGroups.map((group) => (
-              <div key={group.title} className="space-y-2">
-                {!isCollapsed ? (
-                  <div className="px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                    {group.title}
-                  </div>
-                ) : null}
-                <div className="space-y-1.5">
-                  {group.items.map((item) => {
-                    const isActive =
-                      item.href === "/admin"
-                        ? pathname === item.href
-                        : pathname.startsWith(item.href);
-                    const Icon = item.icon;
-
-                    return (
-                      <Link key={item.href} href={item.href}>
-                        <Button
-                          variant="ghost"
-                          data-active={isActive}
-                          className={cn(
-                            "admin-sidebar-item h-12 w-full justify-start gap-3 rounded-2xl px-3 text-white/72 hover:bg-white/10 hover:text-white",
-                            isActive &&
-                              "bg-white/12 text-white shadow-[0_18px_48px_-28px_rgba(245,158,11,0.75)]",
-                            isCollapsed && "justify-center px-0",
-                          )}
-                          title={isCollapsed ? item.title : undefined}
-                        >
-                          <Icon className="h-5 w-5 shrink-0" />
-                          {!isCollapsed ? (
-                            <span className="flex-1 text-left text-sm font-medium">
-                              {item.title}
-                            </span>
-                          ) : null}
-                          {!isCollapsed && isActive ? (
-                            <Layers3 className="h-4 w-4 text-primary-foreground/80" />
-                          ) : null}
-                        </Button>
-                      </Link>
-                    );
-                  })}
+      {/* Navigation Group Items */}
+      <ScrollArea className="flex-1 px-3 py-4">
+        <nav className="flex flex-col gap-6">
+          {sidebarGroups.map((group) => (
+            <div key={group.title} className="space-y-2">
+              {!isCollapsed ? (
+                <div className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">
+                  {group.title}
                 </div>
-              </div>
-            ))}
-          </nav>
-        </ScrollArea>
-
-        {/* Footer */}
-        <div className="border-t border-white/10 p-3">
-          <Separator className="mb-3 bg-white/10" />
-          <Link href="/">
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start gap-3 rounded-2xl text-white/68 hover:bg-white/10 hover:text-white",
-                isCollapsed && "justify-center px-0",
+              ) : (
+                <div className="h-px bg-border/40 mx-2" />
               )}
-            >
-              <LogOut className="h-5 w-5 shrink-0" />
-              {!isCollapsed && <span>Exit Admin</span>}
-            </Button>
-          </Link>
-        </div>
+              
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive =
+                    item.href === "/admin"
+                      ? pathname === item.href
+                      : pathname.startsWith(item.href);
+                  const Icon = item.icon;
+
+                  return (
+                    <Link key={item.href} href={item.href} className="block">
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex h-11 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200 group text-left",
+                          isActive
+                            ? "bg-[#ff6636] text-white shadow-sm shadow-[#ff6636]/10"
+                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                          isCollapsed && "justify-center px-0"
+                        )}
+                        title={isCollapsed ? item.title : undefined}
+                      >
+                        <Icon className={cn("size-4 shrink-0 transition-transform group-hover:scale-105", isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        {!isCollapsed && (
+                          <span className="flex-1 text-xs font-bold uppercase tracking-wider truncate">
+                            {item.title}
+                          </span>
+                        )}
+                        {!isCollapsed && isActive && (
+                          <Layers3 className="size-3.5 text-white/80 shrink-0" />
+                        )}
+                      </button>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </ScrollArea>
+
+      {/* Footer Exit Options */}
+      <div className="border-t border-border/50 p-3 shrink-0">
+        <Link href="/" className="block">
+          <button
+            type="button"
+            className={cn(
+              "flex h-11 w-full items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors group text-left",
+              isCollapsed && "justify-center px-0"
+            )}
+          >
+            <LogOut className="size-4 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+            {!isCollapsed && (
+              <span className="text-xs font-bold uppercase tracking-wider">
+                Exit Admin
+              </span>
+            )}
+          </button>
+        </Link>
       </div>
     </div>
   );

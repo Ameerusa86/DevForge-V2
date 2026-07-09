@@ -62,7 +62,9 @@ import {
   PencilLine,
   FolderTree,
   ArrowDownAZ,
+  Loader2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface LessonsPageProps {
   params: Promise<{ courseId: string }>;
@@ -926,32 +928,36 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         }
       />
 
-      {/* Lessons Table */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle>Modules ({modules.length})</CardTitle>
+
+      {/* Modules Authoring */}
+      <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden mt-6">
+        <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
+            <FolderTree className="size-4.5 text-[#ff6636]" />
+            Syllabus Modules ({modules.length})
+          </CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-12 gap-3">
-            <div className="col-span-12 lg:col-span-6 space-y-2">
-              <Label htmlFor="module-title" className="text-sm">
+        <CardContent className="p-6 space-y-5">
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-12 lg:col-span-6 space-y-1.5">
+              <Label htmlFor="module-title" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Module Title
               </Label>
               <Input
                 id="module-title"
-                placeholder="e.g., Fundamentals"
+                placeholder="e.g., Fundamentals of API Design"
                 value={moduleForm.title}
                 onChange={(e) =>
                   setModuleForm({ ...moduleForm, title: e.target.value })
                 }
-                className="h-10"
+                className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
               />
             </div>
 
-            <div className="col-span-12 lg:col-span-3 space-y-2">
-              <Label htmlFor="module-order" className="text-sm">
-                Order
+            <div className="col-span-12 lg:col-span-3 space-y-1.5">
+              <Label htmlFor="module-order" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Display Order
               </Label>
               <Input
                 id="module-order"
@@ -966,7 +972,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       : 1,
                   })
                 }
-                className="h-10"
+                className="h-10 rounded-xl border-border text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80 bg-background"
               />
             </div>
 
@@ -975,31 +981,31 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 <Button
                   onClick={handleCancelEditModule}
                   variant="outline"
-                  className="flex-1 h-10"
+                  className="flex-1 h-10 rounded-xl text-xs font-bold"
                 >
                   Cancel
                 </Button>
               )}
-              <Button
+              <button
                 onClick={handleCreateModule}
-                className="flex-1 h-10"
                 disabled={isModuleSaving}
+                className="flex-1 h-10 rounded-xl text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white transition-colors"
               >
                 {isModuleSaving
                   ? "Saving..."
                   : editingModuleId
                     ? "Update Module"
                     : "Add Module"}
-              </Button>
+              </button>
             </div>
 
-            <div className="col-span-12 space-y-2">
-              <Label htmlFor="module-description" className="text-sm">
-                Module Description (optional)
+            <div className="col-span-12 space-y-1.5">
+              <Label htmlFor="module-description" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Module Description (Optional)
               </Label>
               <Textarea
                 id="module-description"
-                placeholder="Short summary students will see."
+                placeholder="A brief summary detailing the key learning outcomes of this module block..."
                 value={moduleForm.description}
                 onChange={(e) =>
                   setModuleForm({
@@ -1007,12 +1013,12 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     description: e.target.value,
                   })
                 }
-                className="min-h-[80px]"
+                className="min-h-[80px] rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
               />
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 bg-muted/10 border border-border/40 rounded-xl px-3.5 py-2.5">
             <Checkbox
               id="show-unassigned-header"
               checked={showUnassignedHeader}
@@ -1023,26 +1029,26 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             />
             <Label
               htmlFor="show-unassigned-header"
-              className="text-sm font-normal cursor-pointer"
+              className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
             >
-              Show &ldquo;No module&rdquo; header for unassigned lessons
-              (student view)
+              Show &ldquo;No module&rdquo; header for unassigned lessons in student view
             </Label>
           </div>
 
           {modules.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-2 mt-4">
               {modules
                 .slice()
                 .sort((a, b) => a.order - b.order)
                 .map((moduleItem) => (
                   <div
                     key={moduleItem.id}
-                    className={`flex items-start justify-between rounded-lg border px-3 py-2 ${
+                    className={cn(
+                      "flex items-start justify-between rounded-xl border p-4 transition-all cursor-grab active:cursor-grabbing",
                       editingModuleId === moduleItem.id
-                        ? "bg-primary/5 border-primary"
-                        : "bg-card"
-                    }`}
+                        ? "bg-[#ff6636]/5 border-[#ff6636]"
+                        : "bg-background hover:bg-muted/15 border-border/60"
+                    )}
                     draggable
                     onDragStart={() => setDraggingModuleId(moduleItem.id)}
                     onDragOver={(event) => event.preventDefault()}
@@ -1062,104 +1068,103 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     onDragEnd={() => setDraggingModuleId(null)}
                   >
                     <div className="flex items-start gap-3">
-                      <span className="text-xs text-muted-foreground w-8">
-                        #{moduleItem.order}
+                      <span className="text-[10px] font-black uppercase text-muted-foreground w-8 mt-0.5">
+                        m-{moduleItem.order}
                       </span>
                       <div>
-                        <span className="font-medium">{moduleItem.title}</span>
+                        <span className="text-xs font-bold text-foreground">{moduleItem.title}</span>
                         {moduleItem.description ? (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[10px] font-semibold text-muted-foreground/80 mt-0.5">
                             {moduleItem.description}
                           </p>
                         ) : null}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <button
                         onClick={() => handleEditModule(moduleItem)}
+                        className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
                       >
                         Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive"
+                      </button>
+                      <button
+                        className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/10 transition-colors"
                         onClick={() => openDeleteModuleDialog(moduleItem.id)}
                       >
                         Delete
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No modules yet. Add modules to group lessons.
+            <p className="text-xs font-semibold text-muted-foreground/80 py-4 text-center">
+              No modules built yet. Add a module block to structure your learning tracks.
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Lessons Table */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle>Lessons ({lessons.length})</CardTitle>
+      {/* Lessons Table Card */}
+      <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden mt-6">
+        <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
+            <PencilLine className="size-4.5 text-[#ff6636]" />
+            Lesson Units ({lessons.length})
+          </CardTitle>
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={handleArrangeLessonsByModule}
-              className="gap-2"
               disabled={isLoading || isSaving || isArrangingByModule}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-9 disabled:opacity-60"
             >
-              <ArrowDownAZ className="h-4 w-4" />
+              <ArrowDownAZ className="size-3.5" />
               {isArrangingByModule ? "Arranging..." : "Arrange by Module"}
-            </Button>
+            </button>
 
             {selectedLessons.size > 0 && (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
                   onClick={openBulkAssignDialog}
-                  className="gap-2"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-9"
                 >
-                  <FolderTree className="h-4 w-4" />
-                  Assign {selectedLessons.size} to Module
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
+                  <FolderTree className="size-3.5" />
+                  Assign ({selectedLessons.size})
+                </button>
+                <button
                   onClick={openBulkDeleteDialog}
-                  className="gap-2"
+                  className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 hover:bg-red-600 text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all h-9 shadow-md shadow-red-500/10"
                 >
-                  <Trash2 className="h-4 w-4" />
-                  Delete {selectedLessons.size}
-                </Button>
+                  <Trash2 className="size-3.5" />
+                  Delete ({selectedLessons.size})
+                </button>
               </>
             )}
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <p className="text-muted-foreground">Loading lessons...</p>
+            <div className="flex flex-col items-center justify-center py-14">
+              <Loader2 className="size-6 text-[#ff6636] animate-spin mb-2" />
+              <p className="text-xs font-bold text-muted-foreground/80">Loading curriculum units...</p>
             </div>
           ) : lessons.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <p className="text-muted-foreground mb-4">No lessons yet</p>
-              <Button onClick={openCreate} variant="outline">
+            <div className="flex flex-col items-center justify-center py-14">
+              <p className="text-xs font-semibold text-muted-foreground/80 mb-4">No lessons added to this course yet.</p>
+              <button
+                onClick={openCreate}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+              >
+                <Plus className="size-4" />
                 Create First Lesson
-              </Button>
+              </button>
             </div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
+              <TableHeader className="bg-muted/10">
+                <TableRow className="hover:bg-transparent border-b border-border/40">
+                  <TableHead className="w-12 px-6 py-3">
                     <Checkbox
                       checked={
                         lessons.length > 0 &&
@@ -1169,11 +1174,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       aria-label="Select all lessons"
                     />
                   </TableHead>
-                  <TableHead className="w-12" />
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Module</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="w-10 px-2 py-3" />
+                  <TableHead className="w-12 text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">#</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">Unit Title</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">Module Block</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6 py-3 text-right" />
                 </TableRow>
               </TableHeader>
 
@@ -1204,8 +1209,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         setDraggingLessonId(null);
                       }}
                       onDragEnd={() => setDraggingLessonId(null)}
+                      className="hover:bg-muted/10 border-b border-border/30 last:border-b-0 cursor-grab active:cursor-grabbing"
                     >
-                      <TableCell>
+                      <TableCell className="px-6 py-4">
                         <Checkbox
                           checked={selectedLessons.has(lesson.id)}
                           onCheckedChange={() => toggleSelectLesson(lesson.id)}
@@ -1213,67 +1219,67 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         />
                       </TableCell>
 
-                      <TableCell className="cursor-grab">
-                        <GripVertical className="h-4 w-4 text-muted-foreground" />
+                      <TableCell className="px-2 py-4">
+                        <GripVertical className="size-4 text-muted-foreground/60" />
                       </TableCell>
 
-                      <TableCell className="font-medium">
+                      <TableCell className="px-4 py-4 text-xs font-bold text-foreground">
                         {lesson.order}
                       </TableCell>
 
-                      <TableCell>
+                      <TableCell className="px-4 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium">{lesson.title}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {lesson.content?.length?.toLocaleString()} chars
+                          <span className="text-xs font-bold text-foreground">{lesson.title}</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground/75 mt-0.5">
+                            {lesson.content?.length?.toLocaleString() || 0} characters
                           </span>
                         </div>
                       </TableCell>
 
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
+                      <TableCell className="px-4 py-4">
+                        <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border/40">
                           {lesson.moduleId
                             ? moduleNameMap[lesson.moduleId] || "Unknown"
                             : "Unassigned"}
                         </span>
                       </TableCell>
 
-                      <TableCell className="text-right">
+                      <TableCell className="px-6 py-4 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
+                            <button
                               aria-label="Actions"
+                              className="size-8 rounded-xl border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-auto"
                             >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
+                              <MoreVertical className="size-4" />
+                            </button>
                           </DropdownMenuTrigger>
 
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
+                          <DropdownMenuContent align="end" className="rounded-xl border-border bg-popover">
+                            <DropdownMenuLabel className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground px-3.5 py-2">Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-border" />
 
-                            <DropdownMenuItem onClick={() => openEdit(lesson)}>
-                              <Edit2 className="h-4 w-4 mr-2" />
-                              Edit
+                            <DropdownMenuItem onClick={() => openEdit(lesson)} className="text-xs font-semibold px-3.5 py-2 cursor-pointer gap-2">
+                              <Edit2 className="size-3.5" />
+                              Edit Unit
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
                               onClick={() => openChangeModule(lesson.id)}
+                              className="text-xs font-semibold px-3.5 py-2 cursor-pointer gap-2"
                             >
-                              <FolderTree className="h-4 w-4 mr-2" />
+                              <FolderTree className="size-3.5" />
                               Change Module
                             </DropdownMenuItem>
 
-                            <DropdownMenuSeparator />
+                            <DropdownMenuSeparator className="bg-border" />
 
                             <DropdownMenuItem
                               onClick={() => openDeleteDialog(lesson.id)}
-                              className="text-destructive"
+                              className="text-xs font-bold text-red-500 focus:bg-red-500/10 focus:text-red-500 px-3.5 py-2 cursor-pointer gap-2"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
+                              <Trash2 className="size-3.5" />
+                              Delete Unit
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1289,30 +1295,29 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       {/* Lesson Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
-          className="flex h-[calc(100dvh-1rem)] max-h-[900px] max-w-[1100px] flex-col gap-0 overflow-hidden border-[#d7dae0] bg-white p-0 text-[#1d2026] sm:h-[calc(100dvh-2rem)] dark:border-white/10 dark:bg-[#0f1218] dark:text-white"
+          className="flex h-[calc(100dvh-1rem)] max-h-[900px] max-w-[1100px] flex-col gap-0 overflow-hidden border-border bg-card p-0 text-foreground sm:h-[calc(100dvh-2rem)] shadow-2xl rounded-2xl"
           onKeyDownCapture={handleLessonDialogKeyDown}
         >
           {/* IMPORTANT: make the dialog a full-height flex column */}
           <div className="flex min-h-0 flex-1 flex-col">
             {/* Header */}
-            <div className="shrink-0 border-b border-[#e9eaf0] bg-[#f8f9fb] px-4 py-4 pr-12 sm:px-6 sm:py-5 sm:pr-14 lg:px-8 lg:py-6 dark:border-white/10 dark:bg-[#141925]">
+            <div className="shrink-0 border-b border-border/50 bg-muted/10 px-4 py-4 pr-12 sm:px-6 sm:py-5 sm:pr-14 lg:px-8 lg:py-6">
               <DialogHeader className="space-y-1">
-                <DialogTitle className="text-2xl">{dialogTitle}</DialogTitle>
-                <DialogDescription className="text-sm">
-                  Create engaging lessons with our Confluence-style rich text
-                  editor featuring panels, callouts, code blocks, and more.
+                <DialogTitle className="text-base font-extrabold text-foreground">{dialogTitle}</DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Create engaging syllabus units with our rich text editor featuring panels, callouts, and code frames.
                 </DialogDescription>
               </DialogHeader>
             </div>
 
             {/* Body (scroll region) */}
-            <div className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 dark:bg-[#0f1218]">
+            <div className="min-h-0 flex-1 overflow-y-auto bg-card px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
               <div className="space-y-6">
                 {/* Top fields */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Title */}
-                  <div className="col-span-12 lg:col-span-7 space-y-2">
-                    <Label htmlFor="lesson-title" className="text-sm">
+                  <div className="col-span-12 lg:col-span-7 space-y-1.5">
+                    <Label htmlFor="lesson-title" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       Lesson Title <span className="text-destructive">*</span>
                     </Label>
                     <Input
@@ -1323,14 +1328,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       onChange={(e) =>
                         setFormData({ ...formData, title: e.target.value })
                       }
-                      className="h-11 border-[#d7dae0] bg-white text-base focus-visible:border-[#ff6636] dark:border-white/12 dark:bg-[#151822]"
+                      className="h-10 rounded-xl border-border bg-background text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                     />
                   </div>
 
                   {/* Module */}
-                  <div className="col-span-12 lg:col-span-5 space-y-2">
-                    <Label htmlFor="lesson-module" className="text-sm">
-                      Module
+                  <div className="col-span-12 lg:col-span-5 space-y-1.5">
+                    <Label htmlFor="lesson-module" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Module Assignment
                     </Label>
                     <Select
                       value={formData.moduleId || "unassigned"}
@@ -1343,12 +1348,12 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     >
                       <SelectTrigger
                         id="lesson-module"
-                        className="h-11 border-[#d7dae0] bg-white focus:border-[#ff6636] dark:border-white/12 dark:bg-[#151822]"
+                        className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
                       >
                         <SelectValue placeholder="Choose a module" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="unassigned" className="text-xs font-semibold">Unassigned</SelectItem>
                         {modules
                           .slice()
                           .sort((a, b) => a.order - b.order)
@@ -1356,6 +1361,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                             <SelectItem
                               key={moduleItem.id}
                               value={moduleItem.id}
+                              className="text-xs font-semibold"
                             >
                               {moduleItem.title}
                             </SelectItem>
@@ -1364,30 +1370,29 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     </Select>
                   </div>
 
-                  <div className="col-span-12 flex items-center justify-between rounded-md border border-[#e9eaf0] bg-[#f8f9fb] px-3 py-2 dark:border-white/10 dark:bg-[#141925]">
+                  <div className="col-span-12 flex items-center justify-between rounded-xl border border-border/50 bg-muted/15 px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium">Advanced options</p>
-                      <p className="text-xs text-muted-foreground">
-                        Set manual order or reset lesson template.
+                      <p className="text-xs font-bold text-foreground">Advanced Options</p>
+                      <p className="text-[10px] font-semibold text-muted-foreground">
+                        Configure order indices or clear syllabus blueprints.
                       </p>
                     </div>
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
-                      size="sm"
                       onClick={() =>
                         setShowAdvancedLessonFields((current) => !current)
                       }
+                      className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
                     >
-                      {showAdvancedLessonFields ? "Hide" : "Show"}
-                    </Button>
+                      {showAdvancedLessonFields ? "Hide Options" : "Show Options"}
+                    </button>
                   </div>
 
                   {showAdvancedLessonFields ? (
                     <div className="col-span-12 grid grid-cols-12 gap-3">
-                      <div className="col-span-12 md:col-span-6 lg:col-span-4 space-y-2">
-                        <Label htmlFor="lesson-order" className="text-sm">
-                          Order <span className="text-destructive">*</span>
+                      <div className="col-span-12 md:col-span-6 lg:col-span-4 space-y-1.5">
+                        <Label htmlFor="lesson-order" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Order Index <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="lesson-order"
@@ -1402,7 +1407,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                                 : 1,
                             })
                           }
-                          className="h-11 border-[#d7dae0] bg-white text-base focus-visible:border-[#ff6636] dark:border-white/12 dark:bg-[#151822]"
+                          className="h-10 rounded-xl border-border bg-background text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                         />
                       </div>
 
@@ -1410,11 +1415,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         <Button
                           type="button"
                           variant="outline"
-                          className="h-11 w-full gap-2"
+                          className="h-10 w-full gap-2 rounded-xl text-xs font-bold"
                           onClick={resetForm}
                         >
-                          <RotateCcw className="h-4 w-4" />
-                          Reset
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          Reset Blueprint
                         </Button>
                       </div>
                     </div>
@@ -1422,7 +1427,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 </div>
 
                 {/* Free Lesson Checkbox */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 bg-muted/10 border border-border/40 rounded-xl p-3.5">
                   <Checkbox
                     id="is-free"
                     checked={formData.isFree}
@@ -1432,33 +1437,32 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                   />
                   <Label
                     htmlFor="is-free"
-                    className="text-sm font-normal cursor-pointer"
+                    className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
                   >
-                    Make this a free preview lesson (accessible without
-                    enrollment)
+                    Make this a free preview lesson (accessible to all visitors without enrollment)
                   </Label>
                 </div>
 
                 {/* Editor / Preview */}
-                <div className="min-h-0">
+                <div className="min-h-0 pt-2">
                   <Tabs
                     value={activeTab}
                     onValueChange={(v) => setActiveTab(v as "edit" | "preview")}
                     className="flex min-h-0 flex-col"
                   >
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <TabsList className="h-10">
-                        <TabsTrigger value="edit" className="px-4 gap-2">
-                          <PencilLine className="h-4 w-4" />
-                          Edit
+                      <TabsList className="h-10 rounded-xl bg-muted/20 border border-border/40 p-1">
+                        <TabsTrigger value="edit" className="px-4 gap-1.5 rounded-lg text-xs font-bold data-[state=active]:bg-[#ff6636] data-[state=active]:text-white">
+                          <PencilLine className="h-3.5 w-3.5" />
+                          Edit Code
                         </TabsTrigger>
-                        <TabsTrigger value="preview" className="px-4 gap-2">
-                          <Eye className="h-4 w-4" />
-                          Preview
+                        <TabsTrigger value="preview" className="px-4 gap-1.5 rounded-lg text-xs font-bold data-[state=active]:bg-[#ff6636] data-[state=active]:text-white">
+                          <Eye className="h-3.5 w-3.5" />
+                          Live Preview
                         </TabsTrigger>
                       </TabsList>
 
-                      <div className="text-xs text-muted-foreground sm:text-right">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 sm:text-right">
                         Live preview (same renderer students will see)
                       </div>
                     </div>
@@ -1519,10 +1523,10 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </div>
 
             {/* Footer (always visible) */}
-            <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-[#e9eaf0] bg-[#f8f9fb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8 dark:border-white/10 dark:bg-[#141925]">
+            <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-border/50 bg-muted/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8">
               <Button
                 variant="outline"
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto rounded-xl h-10 text-xs font-bold"
                 onClick={() => setIsDialogOpen(false)}
               >
                 Cancel
@@ -1530,20 +1534,20 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
               <div className="flex w-full items-center gap-2 sm:w-auto">
                 <Button
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto rounded-xl h-10 text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white shadow-md shadow-[#ff6636]/10"
                   onClick={() => handleSaveLesson(false)}
                   disabled={isSaving}
                 >
                   {isSaving
                     ? "Saving..."
                     : editingId
-                      ? "Update Lesson"
+                      ? "Update Unit"
                       : "Create Lesson"}
                 </Button>
                 {!editingId ? (
                   <Button
                     variant="outline"
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto rounded-xl h-10 text-xs font-bold border-border hover:border-[#ff6636]/40 hover:text-[#ff6636]"
                     onClick={() => handleSaveLesson(true)}
                     disabled={isSaving}
                   >
@@ -1553,8 +1557,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               </div>
             </div>
             {!editingId ? (
-              <div className="shrink-0 border-t border-[#e9eaf0] bg-white px-4 py-2 text-xs text-muted-foreground sm:px-6 lg:px-8 dark:border-white/10 dark:bg-[#0f1218]">
-                Tip: press Ctrl+Enter (or Cmd+Enter) to create and continue.
+              <div className="shrink-0 border-t border-border/50 bg-card px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/80 sm:px-6 lg:px-8">
+                Tip: Press Ctrl+Enter (or Cmd+Enter) to save blueprint and continue adding.
               </div>
             ) : null}
           </div>
@@ -1563,30 +1567,30 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
       {/* Quick Module Change Dialog */}
       <Dialog open={isModuleDialogOpen} onOpenChange={setIsModuleDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] h-auto">
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card text-foreground">
           <DialogHeader>
-            <DialogTitle>Change Module</DialogTitle>
-            <DialogDescription>
-              Assign this lesson to a different module
+            <DialogTitle className="text-base font-extrabold text-foreground">Change Module</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Assign this lesson unit to a different module.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
-            <Label htmlFor="quick-module-select">Module</Label>
+          <div className="space-y-1.5 py-2">
+            <Label htmlFor="quick-module-select" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Syllabus Module</Label>
             <Select
               value={selectedModuleId}
               onValueChange={setSelectedModuleId}
             >
-              <SelectTrigger id="quick-module-select">
+              <SelectTrigger id="quick-module-select" className="h-10 rounded-xl border-border text-xs font-semibold bg-background">
                 <SelectValue placeholder="Choose a module" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="unassigned" className="text-xs font-semibold">Unassigned</SelectItem>
                 {modules
                   .slice()
                   .sort((a, b) => a.order - b.order)
                   .map((moduleItem) => (
-                    <SelectItem key={moduleItem.id} value={moduleItem.id}>
+                    <SelectItem key={moduleItem.id} value={moduleItem.id} className="text-xs font-semibold">
                       {moduleItem.title}
                     </SelectItem>
                   ))}
@@ -1594,14 +1598,19 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </Select>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
               onClick={() => setIsModuleDialogOpen(false)}
+              className="rounded-xl h-10 text-xs font-bold"
             >
               Cancel
             </Button>
-            <Button onClick={handleChangeModule} disabled={isSaving}>
+            <Button 
+              onClick={handleChangeModule} 
+              disabled={isSaving}
+              className="rounded-xl h-10 text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white"
+            >
               {isSaving ? "Updating..." : "Update"}
             </Button>
           </div>
@@ -1610,25 +1619,26 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] h-auto">
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card text-foreground">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-base font-extrabold text-foreground">
               {lessonToDelete
-                ? "Delete Lesson"
-                : `Delete ${selectedLessons.size} Lessons`}
+                ? "Delete Lesson Unit?"
+                : `Delete ${selectedLessons.size} Lesson Units?`}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs text-muted-foreground">
               {lessonToDelete
                 ? "Are you sure you want to delete this lesson? This action cannot be undone."
                 : `Are you sure you want to delete ${selectedLessons.size} selected lesson(s)? This action cannot be undone.`}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isDeleting}
+              className="rounded-xl h-10 text-xs font-bold"
             >
               Cancel
             </Button>
@@ -1636,8 +1646,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               variant="destructive"
               onClick={lessonToDelete ? handleDeleteLesson : handleBulkDelete}
               disabled={isDeleting}
+              className="rounded-xl h-10 text-xs font-bold bg-red-500 hover:bg-red-600 text-white border-none"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Deleting..." : "Permanently Delete"}
             </Button>
           </div>
         </DialogContent>
@@ -1648,20 +1659,21 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         open={isDeleteModuleDialogOpen}
         onOpenChange={setIsDeleteModuleDialogOpen}
       >
-        <DialogContent className="sm:max-w-[425px] h-auto">
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card text-foreground">
           <DialogHeader>
-            <DialogTitle>Delete Module</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base font-extrabold text-foreground">Delete Module Block?</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
               Are you sure you want to delete this module? All lessons in this
               module will be left unassigned. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
               onClick={() => setIsDeleteModuleDialogOpen(false)}
               disabled={isDeleting}
+              className="rounded-xl h-10 text-xs font-bold"
             >
               Cancel
             </Button>
@@ -1669,8 +1681,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               variant="destructive"
               onClick={handleDeleteModule}
               disabled={isDeleting}
+              className="rounded-xl h-10 text-xs font-bold bg-red-500 hover:bg-red-600 text-white border-none"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Deleting..." : "Permanently Delete"}
             </Button>
           </div>
         </DialogContent>
@@ -1681,30 +1694,30 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         open={isBulkAssignDialogOpen}
         onOpenChange={setIsBulkAssignDialogOpen}
       >
-        <DialogContent className="sm:max-w-[425px] h-auto">
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card text-foreground">
           <DialogHeader>
-            <DialogTitle>Assign to Module</DialogTitle>
-            <DialogDescription>
-              Assign {selectedLessons.size} selected lesson(s) to a module
+            <DialogTitle className="text-base font-extrabold text-foreground">Assign to Module</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Assign {selectedLessons.size} selected lesson(s) to a syllabus module.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
-            <Label htmlFor="bulk-module-select">Module</Label>
+          <div className="space-y-1.5 py-2">
+            <Label htmlFor="bulk-module-select" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Syllabus Module</Label>
             <Select
               value={bulkAssignModuleId}
               onValueChange={setBulkAssignModuleId}
             >
-              <SelectTrigger id="bulk-module-select">
+              <SelectTrigger id="bulk-module-select" className="h-10 rounded-xl border-border text-xs font-semibold bg-background">
                 <SelectValue placeholder="Choose a module" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="unassigned" className="text-xs font-semibold">Unassigned</SelectItem>
                 {modules
                   .slice()
                   .sort((a, b) => a.order - b.order)
                   .map((moduleItem) => (
-                    <SelectItem key={moduleItem.id} value={moduleItem.id}>
+                    <SelectItem key={moduleItem.id} value={moduleItem.id} className="text-xs font-semibold">
                       {moduleItem.title}
                     </SelectItem>
                   ))}
@@ -1712,15 +1725,20 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </Select>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
               onClick={() => setIsBulkAssignDialogOpen(false)}
               disabled={isSaving}
+              className="rounded-xl h-10 text-xs font-bold"
             >
               Cancel
             </Button>
-            <Button onClick={handleBulkAssignModule} disabled={isSaving}>
+            <Button 
+              onClick={handleBulkAssignModule} 
+              disabled={isSaving}
+              className="rounded-xl h-10 text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white"
+            >
               {isSaving ? "Assigning..." : "Assign"}
             </Button>
           </div>

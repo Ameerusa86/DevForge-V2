@@ -22,7 +22,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { generateSlug } from "@/lib/slug";
 import { getProxiedImageUrl } from "@/lib/s3-utils";
-import { ArrowLeft, ImageIcon, Loader2, X } from "lucide-react";
+import { ArrowLeft, ImageIcon, Loader2, X, Plus, Sparkles, DollarSign, Clock, HelpCircle, Layers3 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function CreateCoursePage() {
   const router = useRouter();
@@ -156,7 +157,7 @@ export default function CreateCoursePage() {
       }
 
       const created = await response.json();
-      toast.success("Course created", {
+      toast.success("Course created successfully", {
         description: `${created.title} is ready.`,
       });
       router.push(`/admin/courses/${created.id}/lessons`);
@@ -170,9 +171,9 @@ export default function CreateCoursePage() {
   };
 
   const statusDescriptions: Record<string, string> = {
-    DRAFT: "Not visible to students.",
-    PUBLISHED: "Visible and enrollable by students.",
-    ARCHIVED: "Hidden, no new enrollments.",
+    DRAFT: "Not visible to students in search or browse catalog lists.",
+    PUBLISHED: "Immediately visible and enrollable by registered students.",
+    ARCHIVED: "Hidden from catalog lists; existing enrollments remain active.",
   };
 
   const previewImageUrl =
@@ -184,123 +185,143 @@ export default function CreateCoursePage() {
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Catalog authoring"
+        eyebrow="Catalog Authoring"
         title="Create Course"
-        description="Configure metadata and upload a cover image, then add lessons once the course is created."
+        description="Configure syllabus metadata and upload a cover image, then add lessons once the blueprint is established."
         actions={
           <Link href="/admin/courses">
-            <Button variant="outline" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
+            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-10">
+              <ArrowLeft className="size-4" />
               Back to courses
-            </Button>
+            </button>
           </Link>
         }
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        {/* Sticky sidebar preview */}
-        <div className="lg:col-span-1">
-          <CoursePreview
-            title={title}
-            category={category}
-            level={level}
-            price={price}
-            instructor=""
-            imageUrl={previewImageUrl ?? ""}
-          />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 mt-6 items-start">
+        
+        {/* Course Card Preview Sticky Sidebar */}
+        <div className="lg:col-span-1 lg:sticky lg:top-24">
+          <div className="space-y-3">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 pl-1">
+              Live Card Preview
+            </span>
+            <CoursePreview
+              title={title}
+              category={category}
+              level={level}
+              price={price}
+              instructor=""
+              imageUrl={previewImageUrl ?? ""}
+            />
+          </div>
         </div>
 
-        {/* Form */}
+        {/* Course input form */}
         <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-6">
-          {/* Basic details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Details</CardTitle>
+          
+          {/* Card 1: Basic Information */}
+          <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2">
+              <Sparkles className="size-4 text-[#ff6636]" />
+              <CardTitle className="text-sm font-extrabold text-foreground">Basic Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Course Title *</Label>
+            <CardContent className="p-6 space-y-5">
+              
+              {/* Title */}
+              <div className="space-y-1.5">
+                <Label htmlFor="title" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Course Title *</Label>
                 <Input
                   id="title"
-                  placeholder="e.g. Complete React Developer Course"
+                  placeholder="e.g. Masterclass: Advanced Web Assembly & Go"
                   value={title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   autoFocus
                   required
+                  className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="slug">URL Slug</Label>
+              {/* URL Slug Preview */}
+              <div className="space-y-1.5">
+                <Label htmlFor="slug" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">URL Slug (Auto Generated)</Label>
                 <Input
                   id="slug"
                   value={slug}
                   disabled
-                  className="bg-muted text-muted-foreground font-mono text-sm"
+                  className="h-10 rounded-xl border-border bg-muted/50 text-xs font-mono font-bold text-muted-foreground/85"
                 />
                 {slug && (
-                  <p className="text-xs text-muted-foreground">
-                    /courses/{slug}
+                  <p className="text-[10px] font-bold text-[#ff6636]/80 pl-1 uppercase tracking-wider">
+                    Target Route: /courses/{slug}
                   </p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+              {/* Description */}
+              <div className="space-y-1.5">
+                <Label htmlFor="description" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Course Syllabus Summary *</Label>
                 <Textarea
                   id="description"
-                  placeholder="What will students learn? What are the prerequisites?"
+                  placeholder="Tell learners what modules, projects, and skills will be covered in this track..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={4}
+                  className="min-h-24 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                 />
               </div>
 
+              {/* Category and Level dropdowns */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
+                
+                {/* Category */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="category" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category *</Label>
                   <Select value={category} onValueChange={setCategory} required>
-                    <SelectTrigger id="category">
-                      <SelectValue placeholder="Select category" />
+                    <SelectTrigger id="category" className="h-10 rounded-xl border-border text-xs font-semibold">
+                      <SelectValue placeholder="Select course category" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="FRONTEND">Frontend</SelectItem>
-                      <SelectItem value="BACKEND">Backend</SelectItem>
-                      <SelectItem value="FULL_STACK">Full Stack</SelectItem>
-                      <SelectItem value="PYTHON">Python</SelectItem>
-                      <SelectItem value="POWERSHELL">PowerShell</SelectItem>
-                      <SelectItem value="JAVASCRIPT">JavaScript</SelectItem>
-                      <SelectItem value="TYPESCRIPT">TypeScript</SelectItem>
-                      <SelectItem value="CSHARP">C#</SelectItem>
-                      <SelectItem value="DOT_NET">.NET</SelectItem>
-                      <SelectItem value="ASP_NET">ASP.NET</SelectItem>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="FRONTEND" className="text-xs font-semibold">Frontend</SelectItem>
+                      <SelectItem value="BACKEND" className="text-xs font-semibold">Backend</SelectItem>
+                      <SelectItem value="FULL_STACK" className="text-xs font-semibold">Full Stack</SelectItem>
+                      <SelectItem value="PYTHON" className="text-xs font-semibold">Python</SelectItem>
+                      <SelectItem value="POWERSHELL" className="text-xs font-semibold">PowerShell</SelectItem>
+                      <SelectItem value="JAVASCRIPT" className="text-xs font-semibold">JavaScript</SelectItem>
+                      <SelectItem value="TYPESCRIPT" className="text-xs font-semibold">TypeScript</SelectItem>
+                      <SelectItem value="CSHARP" className="text-xs font-semibold">C#</SelectItem>
+                      <SelectItem value="DOT_NET" className="text-xs font-semibold">.NET</SelectItem>
+                      <SelectItem value="ASP_NET" className="text-xs font-semibold">ASP.NET</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="level">Level *</Label>
+                {/* Level */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="level" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Experience Level *</Label>
                   <Select value={level} onValueChange={setLevel} required>
-                    <SelectTrigger id="level">
-                      <SelectValue placeholder="Select level" />
+                    <SelectTrigger id="level" className="h-10 rounded-xl border-border text-xs font-semibold">
+                      <SelectValue placeholder="Select experience level" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BEGINNER">Beginner</SelectItem>
-                      <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
-                      <SelectItem value="ADVANCED">Advanced</SelectItem>
-                      <SelectItem value="EXPERT">Expert</SelectItem>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="BEGINNER" className="text-xs font-semibold">Beginner</SelectItem>
+                      <SelectItem value="INTERMEDIATE" className="text-xs font-semibold">Intermediate</SelectItem>
+                      <SelectItem value="ADVANCED" className="text-xs font-semibold">Advanced</SelectItem>
+                      <SelectItem value="EXPERT" className="text-xs font-semibold">Expert</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
               </div>
 
+              {/* Course Tags */}
               <div className="space-y-2">
-                <Label htmlFor="tags">Tags</Label>
+                <Label htmlFor="tags" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Syllabus Tags</Label>
                 <div className="flex gap-2">
                   <Input
                     id="tags"
-                    placeholder="e.g. react, hooks, typescript"
+                    placeholder="Press enter to add tag, e.g. webassembly, go"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -309,45 +330,52 @@ export default function CreateCoursePage() {
                         handleAddTag();
                       }
                     }}
+                    className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
                     onClick={handleAddTag}
+                    className="flex h-10 items-center justify-center rounded-xl border border-border bg-card px-4 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all"
                   >
                     Add
-                  </Button>
+                  </button>
                 </div>
                 {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap gap-1.5 mt-2">
                     {tags.map((tag, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="cursor-pointer gap-1"
+                        className="cursor-pointer gap-1.5 rounded-lg px-2.5 py-1 text-[9px] font-bold bg-[#ff6636]/10 text-[#ff6636] border-none hover:bg-rose-500/10 hover:text-rose-500 transition-colors"
                         onClick={() => handleRemoveTag(index)}
+                        title="Remove Tag"
                       >
-                        {tag}
-                        <X className="h-3 w-3" />
+                        {tag.toLowerCase()}
+                        <X className="size-3" />
                       </Badge>
                     ))}
                   </div>
                 )}
               </div>
+
             </CardContent>
           </Card>
 
-          {/* Pricing & settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Settings</CardTitle>
+          {/* Card 2: Pricing and settings */}
+          <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2">
+              <DollarSign className="size-4 text-[#ff6636]" />
+              <CardTitle className="text-sm font-extrabold text-foreground">Pricing & Settings</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-5">
+              
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price (USD)</Label>
+                
+                {/* Price */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="price" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price (USD)</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 text-xs font-bold">
                       $
                     </span>
                     <Input
@@ -358,16 +386,17 @@ export default function CreateCoursePage() {
                       onChange={(e) => setPrice(e.target.value)}
                       step="0.01"
                       min="0"
-                      className="pl-7"
+                      className="pl-7 h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Leave 0 for a free course.
+                  <p className="text-[9px] font-semibold text-muted-foreground leading-none">
+                    Leave 0 or blank for a free course preview.
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="duration">Duration (minutes)</Label>
+                {/* Duration */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="duration" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Duration (Minutes)</Label>
                   <Input
                     id="duration"
                     type="number"
@@ -375,46 +404,53 @@ export default function CreateCoursePage() {
                     value={durationMinutes}
                     onChange={(e) => setDurationMinutes(e.target.value)}
                     min="0"
+                    className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                   />
                 </div>
+
               </div>
 
+              {/* Status */}
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Catalog Visibility Status</Label>
                 <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger id="status">
+                  <SelectTrigger id="status" className="h-10 rounded-xl border-border text-xs font-semibold">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
-                    <SelectItem value="PUBLISHED">Published</SelectItem>
-                    <SelectItem value="ARCHIVED">Archived</SelectItem>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="DRAFT" className="text-xs font-semibold">Draft</SelectItem>
+                    <SelectItem value="PUBLISHED" className="text-xs font-semibold">Published</SelectItem>
+                    <SelectItem value="ARCHIVED" className="text-xs font-semibold">Archived</SelectItem>
                   </SelectContent>
                 </Select>
                 {status && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] font-bold text-[#ff6636]/90 uppercase tracking-wide">
                     {statusDescriptions[status]}
                   </p>
                 )}
               </div>
+
             </CardContent>
           </Card>
 
-          {/* Course Image */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Image</CardTitle>
+          {/* Card 3: Course Cover Image */}
+          <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center gap-2">
+              <ImageIcon className="size-4 text-[#ff6636]" />
+              <CardTitle className="text-sm font-extrabold text-foreground">Course Cover Image</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Drop zone */}
+            <CardContent className="p-6 space-y-5">
+              
+              {/* Drag drop zone */}
               <div
                 role="button"
                 tabIndex={0}
-                className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors cursor-pointer ${
+                className={cn(
+                  "relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center transition-colors cursor-pointer select-none",
                   isDraggingOver
-                    ? "border-primary bg-primary/5"
-                    : "border-muted-foreground/25 hover:border-muted-foreground/50"
-                }`}
+                    ? "border-[#ff6636] bg-[#ff6636]/5"
+                    : "border-border hover:border-[#ff6636]/60 bg-muted/10 hover:bg-muted/20"
+                )}
                 onClick={() => imageInputRef.current?.click()}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ")
@@ -428,22 +464,24 @@ export default function CreateCoursePage() {
                 onDrop={handleImageDrop}
               >
                 {previewImageUrl ? (
-                  <img
-                    src={previewImageUrl}
-                    alt="Course image preview"
-                    className="max-h-56 w-full rounded-lg object-contain"
-                  />
+                  <div className="relative w-full max-h-56 overflow-hidden rounded-xl border border-border">
+                    <img
+                      src={previewImageUrl}
+                      alt="Course image preview"
+                      className="max-h-56 w-full object-contain"
+                    />
+                  </div>
                 ) : (
                   <>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex size-11 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+                      <ImageIcon className="size-5" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        Drop an image here, or click to browse
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-foreground">
+                        Drop an image here, or click to browse files
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        PNG, JPG, WEBP up to 10 MB
+                      <p className="text-[10px] font-semibold text-muted-foreground">
+                        PNG, JPG, WEBP formats supported up to 10 MB.
                       </p>
                     </div>
                   </>
@@ -460,13 +498,13 @@ export default function CreateCoursePage() {
                 />
               </div>
 
-              {/* URL fallback */}
-              <div className="space-y-2">
-                <Label htmlFor="imageUrl">Or paste an image URL</Label>
+              {/* Paste URL */}
+              <div className="space-y-1.5">
+                <Label htmlFor="imageUrl" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Or Paste an Image URL</Label>
                 <Input
                   id="imageUrl"
                   type="url"
-                  placeholder="https://example.com/cover.jpg"
+                  placeholder="https://example.com/course-cover.jpg"
                   value={
                     imageUrl && !imageUrl.startsWith("data:") ? imageUrl : ""
                   }
@@ -474,33 +512,36 @@ export default function CreateCoursePage() {
                     setImagePreview(null);
                     setImageUrl(e.target.value);
                   }}
+                  className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
                 />
               </div>
 
-              {(imagePreview ||
-                (imageUrl && !imageUrl.startsWith("data:"))) && (
-                <Button
+              {(imagePreview || (imageUrl && !imageUrl.startsWith("data:"))) && (
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
                   onClick={handleRemoveImage}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-rose-500 hover:bg-rose-500/10 hover:text-rose-500 transition-colors"
                 >
-                  <X className="h-4 w-4" />
-                  Remove image
-                </Button>
+                  <X className="size-4" />
+                  Remove Cover Image
+                </button>
               )}
+
             </CardContent>
           </Card>
 
-          {/* Actions */}
-          <div className="flex gap-3">
+          {/* Form actions triggers */}
+          <div className="flex items-center justify-end gap-3 pt-3">
             <Link href="/admin/courses">
-              <Button type="button" variant="outline" disabled={isSubmitting}>
+              <button
+                type="button"
+                disabled={isSubmitting}
+                className="flex h-10 items-center justify-center rounded-xl border border-border bg-card px-5 text-xs font-bold uppercase tracking-wider text-foreground hover:bg-muted/50 transition-all"
+              >
                 Cancel
-              </Button>
+              </button>
             </Link>
-            <Button
+            <button
               type="submit"
               disabled={
                 isSubmitting ||
@@ -510,15 +551,17 @@ export default function CreateCoursePage() {
                 !category ||
                 !level
               }
-              className="gap-2"
+              className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-6 text-xs font-bold uppercase tracking-wider text-white transition-colors shadow-md shadow-[#ff6636]/10 disabled:opacity-60"
             >
               {(isSubmitting || isUploading) && (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin" />
               )}
-              {isSubmitting ? "Creating..." : "Create Course"}
-            </Button>
+              {isSubmitting ? "Creating Blueprint..." : "Create Course"}
+            </button>
           </div>
+
         </form>
+
       </div>
     </AdminPage>
   );

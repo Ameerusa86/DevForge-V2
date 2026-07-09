@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { toast } from "sonner";
 import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
@@ -66,6 +67,9 @@ import {
   CheckSquare,
   CalendarDays,
   Clock3,
+  Star,
+  CheckCircle,
+  Layers3,
 } from "lucide-react";
 
 type AdminCourse = {
@@ -801,134 +805,128 @@ export default function CoursesPage() {
         />
 
         {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Courses
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.published} published
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Published
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.published}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {((stats.published / stats.total) * 100).toFixed(0)}% of total
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                In Draft
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.draft}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {((stats.draft / stats.total) * 100).toFixed(0)}% of total
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Avg. Rating
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.avgRating}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                From {courses.filter((c) => c.rating > 0).length} rated courses
-              </p>
-            </CardContent>
-          </Card>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-6">
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Courses</p>
+              <h3 className="text-3xl font-extrabold text-foreground">{stats.total}</h3>
+              <p className="text-[9px] font-semibold text-muted-foreground mt-0.5">{stats.published} active, {stats.draft} draft</p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+              <Layers3 className="size-4.5" />
+            </div>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Published</p>
+              <h3 className="text-3xl font-extrabold text-foreground">{stats.published}</h3>
+              <p className="text-[9px] font-semibold text-muted-foreground mt-0.5">{((stats.published / (stats.total || 1)) * 100).toFixed(0)}% of total catalog</p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+              <CheckCircle className="size-4.5" />
+            </div>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">In Draft</p>
+              <h3 className="text-3xl font-extrabold text-foreground">{stats.draft}</h3>
+              <p className="text-[9px] font-semibold text-muted-foreground mt-0.5">{((stats.draft / (stats.total || 1)) * 100).toFixed(0)}% awaiting release</p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 font-bold">
+              <Edit className="size-4.5" />
+            </div>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Avg. Rating</p>
+              <h3 className="text-3xl font-extrabold text-foreground">{stats.avgRating}</h3>
+              <p className="text-[9px] font-semibold text-muted-foreground mt-0.5">From {courses.filter((c) => c.rating > 0).length} rated courses</p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600">
+              <Star className="size-4.5" />
+            </div>
+          </div>
         </div>
 
         {/* Filters and Search */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search courses by title, slug, or instructor..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={handleExportFilteredCourses}
-              >
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">Sort</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Sort courses</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSortMode("newest")}>
-                    Newest updated
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortMode("oldest")}>
-                    Oldest updated
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortMode("stale-first")}>
-                    Stale first
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortMode("health-low")}>
-                    Lowest health first
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mt-6 bg-card border border-border/50 rounded-2xl p-4 shadow-sm">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search courses by title, slug, or instructor..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 rounded-xl border-border bg-background text-xs font-semibold placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:border-border/80"
+            />
+          </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              {(
-                [
-                  ["all", "All"],
-                  ["no-image", "No Image"],
-                  ["no-lessons", "No Lessons"],
-                  ["no-modules", "No Modules"],
-                  ["no-enrollments", "No Enrollments"],
-                  ["unrated", "Unrated"],
-                ] as Array<[AttentionFilter, string]>
-              ).map(([value, label]) => (
-                <Button
-                  key={value}
-                  variant={
-                    activeAttentionFilter === value ? "default" : "outline"
-                  }
-                  size="sm"
-                  onClick={() => setActiveAttentionFilter(value)}
-                  className="gap-2"
-                >
-                  {label}
-                  <Badge variant="secondary" className="ml-1">
-                    {attentionCounts[value]}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleExportFilteredCourses}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-10"
+            >
+              <Download className="size-3.5" />
+              Export
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-10">
+                  Sort Order
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl border-border bg-popover">
+                <DropdownMenuLabel className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground px-3.5 py-2">Sort Courses</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem onClick={() => setSortMode("newest")} className="text-xs font-semibold px-3.5 py-2 cursor-pointer">
+                  Newest Updated
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode("oldest")} className="text-xs font-semibold px-3.5 py-2 cursor-pointer">
+                  Oldest Updated
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode("stale-first")} className="text-xs font-semibold px-3.5 py-2 cursor-pointer">
+                  Stale First
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode("health-low")} className="text-xs font-semibold px-3.5 py-2 cursor-pointer">
+                  Lowest Health First
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Attention Filter Pills */}
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {(
+            [
+              ["all", "All Courses"],
+              ["no-image", "No Image"],
+              ["no-lessons", "No Lessons"],
+              ["no-modules", "No Modules"],
+              ["no-enrollments", "No Enrollments"],
+              ["unrated", "Unrated"],
+            ] as Array<[AttentionFilter, string]>
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              onClick={() => setActiveAttentionFilter(value)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-wider transition-all border",
+                activeAttentionFilter === value
+                  ? "bg-[#ff6636] border-[#ff6636] text-white"
+                  : "bg-card border-border text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {label}
+              <span className={cn(
+                "ml-1 rounded-md px-1.5 py-0.5 text-[8px] font-bold",
+                activeAttentionFilter === value ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"
+              )}>
+                {attentionCounts[value]}
+              </span>
+            </button>
+          ))}
+        </div>
 
         {selectedCourseIds.size > 0 ? (
           <Card>

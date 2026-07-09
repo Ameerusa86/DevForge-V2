@@ -14,6 +14,10 @@ import {
   TrendingUp,
   Download,
   RefreshCw,
+  Award,
+  Star,
+  CheckCircle,
+  HelpCircle,
 } from "lucide-react";
 import {
   Table,
@@ -32,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
   const periodOptions = [
@@ -92,6 +97,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeCourses: 0,
@@ -100,6 +106,7 @@ export default function AdminDashboard() {
     recentUsers: 0,
     recentEnrollments: 0,
   });
+
   const [insights, setInsights] = useState({
     averageRating: 0,
     totalReviews: 0,
@@ -166,7 +173,7 @@ export default function AdminDashboard() {
       ]);
 
       if (!coursesResponse.ok || !usersResponse.ok || !enrollmentsResponse.ok) {
-        throw new Error("Failed to fetch core dashboard data");
+        throw new Error("Failed to fetch core data");
       }
 
       const courses: CourseApiData[] = await coursesResponse.json();
@@ -214,8 +221,7 @@ export default function AdminDashboard() {
       setStats((prev) => ({
         ...prev,
         totalUsers: users.length,
-        activeCourses: courses.filter((course) => course.status === "PUBLISHED")
-          .length,
+        activeCourses: courses.filter((course) => course.status === "PUBLISHED").length,
         totalRevenue: fallbackTotalRevenue,
         completionRate,
       }));
@@ -280,49 +286,50 @@ export default function AdminDashboard() {
         title="Dashboard"
         description="Welcome back. Track platform growth, revenue, completions, and top-performing courses from one place."
         actions={
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:items-center">
             <div className="w-full sm:w-auto">
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-full sm:w-42.5">
+                <SelectTrigger className="w-full sm:w-44 rounded-xl border-border bg-card font-semibold text-xs h-10 shadow-sm focus:ring-0">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl">
                   {periodOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem key={option.value} value={option.value} className="text-xs font-semibold">
                       {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              variant="outline"
-              className="w-full gap-2 sm:w-auto"
+            
+            <button
               onClick={() => fetchDashboardData(true)}
               disabled={isRefreshing}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] disabled:opacity-60 transition-all h-10"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
               Refresh
-            </Button>
-            <Button
-              className="w-full gap-2 sm:w-auto"
+            </button>
+
+            <button
               onClick={exportDashboardReport}
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors h-10 shadow-md shadow-[#ff6636]/10"
             >
-              <Download className="h-4 w-4" />
+              <Download className="size-3.5" />
               Export Report
-            </Button>
+            </button>
           </div>
         }
       />
 
-      {lastUpdated ? (
-        <p className="text-xs text-muted-foreground">
-          Updated {lastUpdated.toLocaleTimeString()} for{" "}
-          {periodLabel.toLowerCase()}
-        </p>
-      ) : null}
+      {lastUpdated && (
+        <div className="flex items-center gap-2 mb-6">
+          <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Updated {lastUpdated.toLocaleTimeString()} for {periodLabel.toLowerCase()}
+          </p>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -353,55 +360,68 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 mt-6 items-start">
+        
         {/* Top Courses Table */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Performing Courses</CardTitle>
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 px-6 py-5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+                  <Award className="size-5" />
+                </div>
+                <CardTitle className="text-base font-extrabold text-foreground">
+                  Top Performing Courses
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Instructor</TableHead>
-                    <TableHead>Enrollments</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>Status</TableHead>
+                <TableHeader className="bg-muted/10">
+                  <TableRow className="hover:bg-transparent border-b border-border/40">
+                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6">Course</TableHead>
+                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4">Instructor</TableHead>
+                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 text-right">Enrollments</TableHead>
+                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 text-right">Revenue</TableHead>
+                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6 text-center">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {topCourses.length > 0 ? (
                     topCourses.map((course) => (
-                      <TableRow key={course.id}>
-                        <TableCell className="font-medium">
+                      <TableRow key={course.id} className="hover:bg-muted/10 border-b border-border/30 last:border-b-0">
+                        <TableCell className="font-bold text-xs text-foreground px-6 py-4.5 max-w-[200px] truncate">
                           {course.name}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-4 py-4.5">
                           <div className="flex items-center gap-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src="" />
-                              <AvatarFallback className="text-xs">
+                            <Avatar className="size-6 border border-border/80">
+                              <AvatarFallback className="bg-[#ff6636]/10 text-[9px] font-bold text-[#ff6636]">
                                 {course.instructor
                                   .split(" ")
                                   .map((n: string) => n[0])
-                                  .join("")}
+                                  .join("")
+                                  .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="text-sm">{course.instructor}</span>
+                            <span className="text-xs font-semibold text-muted-foreground truncate max-w-[120px]">{course.instructor}</span>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-4 py-4.5 text-right font-semibold text-xs text-foreground">
                           {course.enrollments.toLocaleString()}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="px-4 py-4.5 text-right font-extrabold text-xs text-[#ff6636]">
                           ${course.revenue.toLocaleString()}
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="default" className="bg-green-500">
+                        <TableCell className="px-6 py-4.5 text-center">
+                          <span className={cn(
+                            "rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                            course.status === "active"
+                              ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-500"
+                              : "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500"
+                          )}>
                             {course.status}
-                          </Badge>
+                          </span>
                         </TableCell>
                       </TableRow>
                     ))
@@ -409,11 +429,11 @@ export default function AdminDashboard() {
                     <TableRow>
                       <TableCell
                         colSpan={5}
-                        className="text-center text-muted-foreground"
+                        className="text-center text-xs font-semibold text-muted-foreground py-10"
                       >
                         {isLoading
-                          ? "Loading top courses..."
-                          : "No courses found"}
+                          ? "Loading top courses data…"
+                          : "No top-performing courses found."}
                       </TableCell>
                     </TableRow>
                   )}
@@ -423,66 +443,89 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity Column */}
         <div className="lg:col-span-1">
           <RecentActivity />
         </div>
+
       </div>
 
       {/* Additional Stats Row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
+        
+        {/* Average Rating */}
+        <Card className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+          <div className="border-b border-border/50 pb-3 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Average Rating
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
+            </p>
+            <Star className="size-4 fill-amber-500 text-amber-500" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-extrabold tracking-tight text-foreground">
               {insights.averageRating.toFixed(1)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Based on {insights.totalReviews.toLocaleString()} reviews
-            </p>
-          </CardContent>
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              stars average
+            </span>
+          </div>
+          <p className="text-[10px] font-semibold text-muted-foreground leading-none">
+            Calculated across {insights.totalReviews.toLocaleString()} reviews.
+          </p>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        {/* Completions */}
+        <Card className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+          <div className="border-b border-border/50 pb-3 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Course Completions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
+            </p>
+            <CheckCircle className="size-4 text-emerald-500" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-extrabold tracking-tight text-foreground">
               {insights.completionsInPeriod.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">{periodLabel}</p>
-          </CardContent>
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              graduated
+            </span>
+          </div>
+          <p className="text-[10px] font-semibold text-muted-foreground leading-none">
+            Recorded in the {periodLabel.toLowerCase()}.
+          </p>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Support Tickets
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="text-3xl font-bold">
-              {insights.supportTicketsTotal}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {insights.supportTicketsResolved} resolved,{" "}
-              {insights.supportTicketsPending} pending
+        {/* Support Tickets */}
+        <Card className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+          <div className="border-b border-border/50 pb-3 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Support Incidents
             </p>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+            <HelpCircle className="size-4 text-violet-500" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-extrabold tracking-tight text-foreground">
+              {insights.supportTicketsTotal}
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              incidents logged
+            </span>
+          </div>
+          
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground">
+              <span>{insights.supportTicketsResolved} resolved</span>
+              <span>{insights.supportTicketsPending} pending</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full bg-emerald-500 transition-all duration-300"
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${resolvedTicketsRatio}%` }}
               />
             </div>
-          </CardContent>
+          </div>
         </Card>
+
       </div>
     </AdminPage>
   );

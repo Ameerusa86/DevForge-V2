@@ -24,32 +24,33 @@ export function StatsCard({
   className,
 }: StatsCardProps) {
   return (
-    <Card className={cn("admin-metric-card gap-4", className)}>
-      <CardHeader className="flex flex-row items-start justify-between gap-4 pb-0">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary ring-1 ring-primary/10">
-          <Icon className="h-5 w-5" />
+    <Card className={cn("rounded-2xl border border-border bg-card p-6 shadow-sm flex items-center justify-between transition-all duration-200 hover:shadow-md", className)}>
+      <div className="space-y-1.5 min-w-0 flex-1">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </p>
+        <h3 className="text-3xl font-extrabold text-foreground tracking-tight truncate">
+          {value}
+        </h3>
+        {description && (
+          <p className="text-[9px] font-semibold text-muted-foreground leading-none truncate mt-1">
+            {description}
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col items-end gap-2 shrink-0 ml-4">
+        <div className="flex size-11 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+          <Icon className="size-5" />
         </div>
-        {trend ? (
-          <Badge variant="outline" className="admin-metric-badge">
-            <ArrowUpRight className="h-3.5 w-3.5" />
+        {trend && (
+          <Badge className="text-[8px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border-none">
+            <ArrowUpRight className="size-2.5 mr-0.5" />
             {trend.isPositive ? "+" : "-"}
             {trend.value}%
           </Badge>
-        ) : null}
-      </CardHeader>
-      <CardContent className="space-y-2 pt-0">
-        <CardTitle className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          {title}
-        </CardTitle>
-        <div className="text-3xl font-semibold tracking-[-0.04em] text-foreground">
-          {value}
-        </div>
-        {(description || trend) && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {description ? <p>{description}</p> : null}
-          </div>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

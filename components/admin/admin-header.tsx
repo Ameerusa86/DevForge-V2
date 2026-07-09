@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, ShieldAlert, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { UserDropdown } from "@/components/user-dropdown";
 import { NotificationBell } from "@/components/notification-bell";
@@ -37,6 +37,7 @@ export function AdminHeader({ title }: AdminHeaderProps) {
     const matched = titleMap.find(([pattern]) => pattern.test(pathname));
     return matched?.[1] ?? "Admin";
   }, [pathname, title]);
+
   const formattedDate = useMemo(
     () =>
       new Intl.DateTimeFormat("en-US", {
@@ -48,55 +49,62 @@ export function AdminHeader({ title }: AdminHeaderProps) {
   );
 
   return (
-    <header className="admin-topbar sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/70">
-      <div className="page-shell-full flex flex-col gap-4 py-4 xl:flex-row xl:items-center">
-        <div className="space-y-2">
+    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-md transition-all duration-200">
+      <div className="page-shell-full flex flex-col gap-4 py-4 xl:flex-row xl:items-center justify-between">
+        
+        {/* Left Side Info */}
+        <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="admin-header-badge">
-              Platform control center
-            </Badge>
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#ff6636]/20 bg-[#ff6636]/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ff6636]">
+              <Cpu className="size-2.5" /> control center
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/80">
               {formattedDate}
             </span>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="text-lg font-semibold tracking-[-0.02em] text-foreground">
+          <div className="flex flex-wrap items-baseline gap-2 pt-0.5">
+            <h1 className="text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
               {routeTitle}
-            </p>
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              Monitor operations, users, content, and revenue in one view.
+            </h1>
+            <span className="hidden text-xs font-semibold text-muted-foreground sm:inline border-l border-border/60 pl-2 ml-1">
+              Admin Studio Workspace
             </span>
           </div>
         </div>
 
-        {/* Search */}
-        <div className="ml-auto hidden max-w-xl flex-1 xl:block">
+        {/* Center: Search (Light/Dark mode fully compatible) */}
+        <div className="hidden max-w-md flex-1 xl:block mx-8">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search users, courses, enrollments..."
-              className="h-11 w-full rounded-full border-white/70 bg-white/80 pl-11"
+              placeholder="Search catalog, students, settings..."
+              className="h-10 w-full rounded-xl border-border bg-muted/40 pl-10 text-xs font-semibold placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:border-[#ff6636]/50"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3">
-          <div className="hidden rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-sm lg:flex">
+        {/* Right Actions */}
+        <div className="flex items-center justify-end gap-3 shrink-0">
+          <Badge variant="outline" className="hidden items-center gap-1.5 rounded-xl border-border/80 bg-muted/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground lg:flex">
+            <ShieldAlert className="size-3 text-[#ff6636]" />
             Live admin mode
-          </div>
+          </Badge>
+          
           <NotificationBell />
 
           {/* User Menu */}
           {session?.user && (
-            <UserDropdown
-              user={{
-                id: session.user.id,
-                name: session.user.name,
-                email: session.user.email,
-                image: session.user.image || undefined,
-              }}
-            />
+            <div className="border-l border-border/60 pl-3">
+              <UserDropdown
+                user={{
+                  id: session.user.id,
+                  name: session.user.name,
+                  email: session.user.email,
+                  image: session.user.image || undefined,
+                }}
+              />
+            </div>
           )}
         </div>
       </div>
