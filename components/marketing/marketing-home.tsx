@@ -658,8 +658,8 @@ export function MarketingHomePage() {
           <div className="pointer-events-none absolute -top-40 -right-40 size-150 rounded-full bg-[#ff6636]/5 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-40 -left-40 size-125 rounded-full bg-violet-500/5 blur-3xl" />
 
-          <div className="relative mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div className="grid items-center gap-12 lg:grid-cols-[1fr_560px]">
+          <div className="relative mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+            <div className="grid items-center gap-12 lg:grid-cols-2">
               {/* Left */}
               <div className="space-y-7">
                 <span className="inline-flex items-center gap-2 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#ff6636]">
@@ -716,8 +716,8 @@ export function MarketingHomePage() {
               </div>
 
               {/* Right — hero image */}
-              <div className="relative mx-auto w-full max-w-880px">
-                <div className="relative aspect-4/5 w-full overflow-hidden rounded-4xl border-4 border-card shadow-2xl shadow-black/20 group">
+              <div className="relative mx-auto w-full max-w-[880px]">
+                <div className="relative aspect-[3/2] w-full overflow-hidden rounded-4xl border-4 border-card shadow-2xl shadow-black/20 group">
                   <Image
                     src="/images/homeHeroIMG.png"
                     alt="DevForge learning hero"
