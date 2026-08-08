@@ -21,11 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  MarketingPublicFooter,
-  MarketingPublicHeader,
-} from "@/components/marketing/public-chrome";
-import { Progress } from "@/components/ui/progress";
+import { LearnerShell } from "@/components/lms/learner-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,16 +31,14 @@ import { toast } from "sonner";
 import {
   Award,
   BookOpen,
-  CheckCircle2,
   Clock3,
-  GraduationCap,
   Loader2,
   Play,
   RefreshCw,
-  Sparkles,
   Star,
-  TrendingUp,
   Trash2,
+  Search,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -85,7 +79,9 @@ async function fetchUserReviews(userId: string): Promise<Record<string, UserRevi
       acc[r.course.id] = r;
       return acc;
     }, {});
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 async function fetchProgressData(enrollments: Enrollment[]) {
@@ -99,7 +95,7 @@ async function fetchProgressData(enrollments: Enrollment[]) {
       } catch {
         return [e.id, { progress: e.progress, totalLessons: e.course.lessons.length, lessonProgress: {} }] as const;
       }
-    }),
+    })
   );
   return Object.fromEntries(entries);
 }
@@ -124,29 +120,10 @@ function formatDuration(minutes: number | null) {
 }
 
 const levelColor: Record<string, string> = {
-  BEGINNER:     "bg-emerald-500/10 text-emerald-600",
-  INTERMEDIATE: "bg-amber-500/10 text-amber-600",
-  ADVANCED:     "bg-red-500/10 text-red-600",
+  BEGINNER: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
+  INTERMEDIATE: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20",
+  ADVANCED: "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20",
 };
-
-// ─── Loading skeleton ─────────────────────────────────────────────────────────
-
-function PageSkeleton() {
-  return (
-    <div className="min-h-screen bg-background">
-      <MarketingPublicHeader activePath="/my-courses" showSearch={false} />
-      <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 space-y-8">
-        <Skeleton className="h-10 w-56 rounded-2xl" />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-96 rounded-2xl" />)}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── Enrollment Card ──────────────────────────────────────────────────────────
 
@@ -182,7 +159,7 @@ function EnrollmentCard({
   const lvlKey = course.level?.toUpperCase();
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/40">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xs transition-all duration-300 hover:border-[#ff6636]/40 hover:shadow-md">
       {/* Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
         {imageUrl ? (
@@ -201,34 +178,41 @@ function EnrollmentCard({
 
         {/* Top row */}
         <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
-          <span className={cn(
-            "rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide backdrop-blur-sm",
-            isComplete
-              ? "bg-emerald-500/80 text-white border border-emerald-400/30"
-              : "bg-black/55 border border-white/10 text-white"
-          )}>
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wide backdrop-blur-md",
+              isComplete
+                ? "bg-emerald-500/80 text-white border border-emerald-400/30"
+                : "bg-black/60 border border-white/10 text-white"
+            )}
+          >
             {isComplete ? "✓ Completed" : "In Progress"}
           </span>
           <button
             type="button"
             onClick={() => onUnenroll(enrollment.id)}
             disabled={unenrollingId === enrollment.id}
-            className="flex size-8 items-center justify-center rounded-xl border border-white/15 bg-black/40 text-white backdrop-blur-sm hover:border-red-400/60 hover:bg-red-500/70 transition-all duration-200"
+            className="flex size-7 items-center justify-center rounded-lg border border-white/15 bg-black/40 text-white backdrop-blur-sm hover:border-red-400/60 hover:bg-red-500/70 transition-all duration-200"
             aria-label="Unenroll"
           >
-            {unenrollingId === enrollment.id
-              ? <Loader2 className="size-3.5 animate-spin" />
-              : <Trash2 className="size-3.5" />}
+            {unenrollingId === enrollment.id ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="size-3.5" />
+            )}
           </button>
         </div>
 
         {/* Progress ring overlay */}
         <div className="absolute bottom-3 right-3">
-          <div className="relative flex size-12 items-center justify-center">
-            <svg className="size-12 -rotate-90" viewBox="0 0 48 48">
+          <div className="relative flex size-11 items-center justify-center">
+            <svg className="size-11 -rotate-90" viewBox="0 0 48 48">
               <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4" />
               <circle
-                cx="24" cy="24" r="20" fill="none"
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
                 stroke={isComplete ? "#22c55e" : "#ff6636"}
                 strokeWidth="4"
                 strokeLinecap="round"
@@ -243,12 +227,17 @@ function EnrollmentCard({
 
         {/* Bottom title */}
         <div className="absolute bottom-3 left-3 right-16">
-          <h2 className="text-sm font-bold leading-tight text-white line-clamp-2">{course.title}</h2>
+          <span className="text-[9px] font-bold uppercase tracking-wider text-[#ff6636]">
+            {course.category}
+          </span>
+          <h3 className="text-xs font-bold leading-tight text-white line-clamp-1 truncate">
+            {course.title}
+          </h3>
         </div>
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col p-4 space-y-4">
+      <div className="flex flex-1 flex-col p-4 space-y-3.5">
         {/* Instructor + level */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -265,16 +254,18 @@ function EnrollmentCard({
         </div>
 
         {/* Progress bar */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex items-center justify-between text-[10px] font-semibold">
             <span className="text-muted-foreground">{completedLessons}/{totalLessons} lessons</span>
-            <span className={isComplete ? "text-emerald-600" : "text-[#ff6636]"}>{actualProgress}%</span>
+            <span className={isComplete ? "text-emerald-600 font-bold" : "text-[#ff6636] font-bold"}>
+              {actualProgress}%
+            </span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
             <div
               className={cn(
                 "h-full rounded-full transition-all duration-700",
-                isComplete ? "bg-emerald-500" : "bg-[#ff6636]",
+                isComplete ? "bg-emerald-500" : "bg-[#ff6636]"
               )}
               style={{ width: `${actualProgress}%` }}
             />
@@ -282,42 +273,41 @@ function EnrollmentCard({
         </div>
 
         {/* Stats row */}
-        <div className="flex items-center gap-3 text-[10px] font-semibold text-muted-foreground">
+        <div className="flex items-center gap-3 text-[10px] font-semibold text-muted-foreground pt-0.5">
           <span className="flex items-center gap-1"><BookOpen className="size-3" />{course.lessons.length} lessons</span>
           <span className="flex items-center gap-1"><Clock3 className="size-3" />{formatDuration(course.durationMinutes)}</span>
-          <span className="flex items-center gap-1"><GraduationCap className="size-3" />{course.category}</span>
         </div>
 
-        {/* CTA */}
-        <div className="pt-1 space-y-2">
+        {/* CTA Button */}
+        <div className="pt-2 space-y-2">
           {isComplete ? (
-            <>
+            <div className="grid grid-cols-2 gap-2">
               <Link
                 href={`/certificates/${enrollment.id}`}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-xs font-bold text-background hover:bg-foreground/90 transition-colors duration-200"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-foreground py-2 text-xs font-bold text-background hover:bg-foreground/90 transition-colors"
               >
-                <Award className="size-3.5" /> View Certificate
+                <Award className="size-3.5" /> Certificate
               </Link>
               <button
                 type="button"
                 onClick={() => onReview(course.id, course.title)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/50 hover:text-[#ff6636] transition-all duration-200"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card py-2 text-xs font-bold text-foreground hover:border-[#ff6636]/50 hover:text-[#ff6636] transition-all"
               >
-                <Star className={cn("size-3.5", hasReview ? "fill-[#fd8e1f] text-[#fd8e1f]" : "")} />
-                {hasReview ? "Update Review" : "Write Review"}
+                <Star className={cn("size-3.5", hasReview ? "fill-amber-500 text-amber-500" : "")} />
+                {hasReview ? "Edit Review" : "Review"}
               </button>
-            </>
+            </div>
           ) : nextLesson ? (
             <Link
               href={`/courses/${course.slug}/lessons/${nextLesson.id}`}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] py-2.5 text-xs font-bold text-white transition-colors duration-200"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] py-2.5 text-xs font-bold text-white transition-colors"
             >
-              <Play className="size-3.5 ml-0.5" fill="currentColor" />
-              {actualProgress > 0 ? "Continue Learning" : "Start Learning"}
+              <Play className="size-3.5 fill-current" />
+              {actualProgress > 0 ? "Continue Lesson" : "Start Learning"}
             </Link>
           ) : (
-            <div className="flex w-full items-center justify-center rounded-xl border border-dashed border-border py-2.5 text-xs font-semibold text-muted-foreground">
-              No lessons available yet
+            <div className="flex w-full items-center justify-center rounded-xl border border-dashed border-border py-2 text-xs font-semibold text-muted-foreground">
+              No lessons available
             </div>
           )}
         </div>
@@ -332,18 +322,20 @@ export default function MyCoursesPage() {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
-  const [enrollments, setEnrollments]         = useState<Enrollment[]>([]);
-  const [loading, setLoading]                 = useState(true);
-  const [refreshing, setRefreshing]           = useState(false);
-  const [unenrollingId, setUnenrollingId]     = useState<string | null>(null);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [unenrollingId, setUnenrollingId] = useState<string | null>(null);
   const [confirmUnenroll, setConfirmUnenroll] = useState<string | null>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  const [reviewCourse, setReviewCourse]       = useState<{ id: string; title: string; existingRating?: number; existingComment?: string } | null>(null);
-  const [reviewRating, setReviewRating]       = useState(0);
-  const [reviewComment, setReviewComment]     = useState("");
+  const [reviewCourse, setReviewCourse] = useState<{ id: string; title: string; existingRating?: number; existingComment?: string } | null>(null);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
-  const [userReviews, setUserReviews]         = useState<Record<string, UserReview>>({});
-  const [progressMap, setProgressMap]         = useState<Record<string, { progress: number; totalLessons: number; lessonProgress: Record<string, boolean> }>>({});
+  const [userReviews, setUserReviews] = useState<Record<string, UserReview>>({});
+  const [progressMap, setProgressMap] = useState<Record<string, { progress: number; totalLessons: number; lessonProgress: Record<string, boolean> }>>({});
+  const [activeTab, setActiveTab] = useState<"all" | "in-progress" | "completed">("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const shouldRedirectToLogin = !isPending && !session?.user;
 
@@ -354,12 +346,17 @@ export default function MyCoursesPage() {
   useEffect(() => {
     if (!session?.user?.id) return;
     setLoading(true);
-    fetchDashboard(session.user.id).then((d) => {
-      setEnrollments(d.enrollments);
-      setProgressMap(d.progressData);
-      setUserReviews(d.reviews);
-    }).catch((e) => { console.error(e); toast.error("Failed to load your courses."); })
-    .finally(() => setLoading(false));
+    fetchDashboard(session.user.id)
+      .then((d) => {
+        setEnrollments(d.enrollments);
+        setProgressMap(d.progressData);
+        setUserReviews(d.reviews);
+      })
+      .catch((e) => {
+        console.error(e);
+        toast.error("Failed to load your courses.");
+      })
+      .finally(() => setLoading(false));
   }, [session?.user?.id]);
 
   const handleRefresh = async () => {
@@ -370,9 +367,12 @@ export default function MyCoursesPage() {
       setEnrollments(d.enrollments);
       setProgressMap(d.progressData);
       setUserReviews(d.reviews);
-      toast.success("Dashboard refreshed.");
-    } catch { toast.error("Failed to refresh."); }
-    finally { setRefreshing(false); }
+      toast.success("Courses refreshed.");
+    } catch {
+      toast.error("Failed to refresh.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleUnenroll = async (enrollmentId: string) => {
@@ -381,253 +381,306 @@ export default function MyCoursesPage() {
       const res = await fetch(`/api/enrollments/${enrollmentId}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       setEnrollments((p) => p.filter((e) => e.id !== enrollmentId));
-      setProgressMap((p) => { const n = { ...p }; delete n[enrollmentId]; return n; });
+      setProgressMap((p) => {
+        const n = { ...p };
+        delete n[enrollmentId];
+        return n;
+      });
       toast.success("Unenrolled successfully.");
-    } catch { toast.error("Failed to unenroll."); }
-    finally { setUnenrollingId(null); setConfirmUnenroll(null); }
+    } catch {
+      toast.error("Failed to unenroll.");
+    } finally {
+      setUnenrollingId(null);
+      setConfirmUnenroll(null);
+    }
   };
 
   const handleOpenReview = (courseId: string, courseTitle: string) => {
     const existing = userReviews[courseId];
-    setReviewCourse({ id: courseId, title: courseTitle, existingRating: existing?.rating, existingComment: existing?.comment ?? undefined });
+    setReviewCourse({
+      id: courseId,
+      title: courseTitle,
+      existingRating: existing?.rating,
+      existingComment: existing?.comment ?? undefined,
+    });
     setReviewRating(existing?.rating ?? 0);
     setReviewComment(existing?.comment ?? "");
     setReviewDialogOpen(true);
   };
 
   const handleSubmitReview = async () => {
-    if (!reviewCourse || reviewRating === 0) { toast.error("Please select a rating."); return; }
+    if (!reviewCourse || reviewRating === 0) {
+      toast.error("Please select a rating.");
+      return;
+    }
     setSubmittingReview(true);
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseId: reviewCourse.id, rating: reviewRating, comment: reviewComment.trim() || null }),
+        body: JSON.stringify({
+          courseId: reviewCourse.id,
+          rating: reviewRating,
+          comment: reviewComment.trim() || null,
+        }),
       });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error);
+      }
       const review = await res.json();
-      setUserReviews((p) => ({ ...p, [reviewCourse.id]: { course: { id: reviewCourse.id }, rating: review.rating, comment: review.comment } }));
+      setUserReviews((p) => ({
+        ...p,
+        [reviewCourse.id]: {
+          course: { id: reviewCourse.id },
+          rating: review.rating,
+          comment: review.comment,
+        },
+      }));
       toast.success("Review submitted!");
       setReviewDialogOpen(false);
-    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed to submit review."); }
-    finally { setSubmittingReview(false); }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to submit review.");
+    } finally {
+      setSubmittingReview(false);
+    }
   };
 
-  // ── Derived stats ─────────────────────────────────────────────────────────
-  const enriched = useMemo(() =>
-    enrollments.map((e) => {
+  // ── Derived list ───────────────────────────────────────────────────────────
+  const enriched = useMemo(() => {
+    return enrollments.map((e) => {
       const p = progressMap[e.id];
-      const actualProgress  = p?.progress    ?? e.progress;
-      const totalLessons    = p?.totalLessons ?? e.course.lessons.length;
-      const lessonProgress  = p?.lessonProgress ?? {};
+      const actualProgress = p?.progress ?? e.progress;
+      const totalLessons = p?.totalLessons ?? e.course.lessons.length;
+      const lessonProgress = p?.lessonProgress ?? {};
       const completedLessons = Math.round((actualProgress / 100) * totalLessons);
       return { enrollment: e, actualProgress, totalLessons, completedLessons, lessonProgress };
-    }),
-  [enrollments, progressMap]);
+    });
+  }, [enrollments, progressMap]);
+
+  const filteredCourses = useMemo(() => {
+    return enriched.filter(({ enrollment, actualProgress }) => {
+      // Tab filter
+      if (activeTab === "in-progress" && actualProgress >= 100) return false;
+      if (activeTab === "completed" && actualProgress < 100) return false;
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const titleMatch = enrollment.course.title.toLowerCase().includes(q);
+        const catMatch = enrollment.course.category.toLowerCase().includes(q);
+        const instrMatch = enrollment.course.instructor.name.toLowerCase().includes(q);
+        return titleMatch || catMatch || instrMatch;
+      }
+      return true;
+    });
+  }, [enriched, activeTab, searchQuery]);
 
   const completedCourses = enriched.filter((e) => e.actualProgress === 100);
-  const activeCourses    = enriched.filter((e) => e.actualProgress  < 100);
-  const avgProgress      = enriched.length
-    ? Math.round(enriched.reduce((s, e) => s + e.actualProgress, 0) / enriched.length)
-    : 0;
+  const activeCourses = enriched.filter((e) => e.actualProgress < 100);
 
-  if (shouldRedirectToLogin || isPending || loading) return <PageSkeleton />;
+  if (shouldRedirectToLogin || isPending || loading) {
+    return (
+      <LearnerShell pageTitle="My Courses" pageDescription="Loading your enrolled courses...">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-6">
+          <Skeleton className="h-10 w-48 rounded-2xl" />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-80 rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </LearnerShell>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <MarketingPublicHeader activePath="/my-courses" showSearch={false} />
-
-      <main className="flex-1">
-        {/* ── Hero banner ──────────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-10 lg:py-14">
-          <div className="pointer-events-none absolute -top-40 right-0 size-[500px] rounded-full bg-[#ff6636]/5 blur-3xl" />
-          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex flex-wrap items-start justify-between gap-6">
-              <div className="max-w-2xl space-y-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#ff6636]">
-                  <GraduationCap className="size-3.5" /> My Learning
-                </span>
-                <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl">
-                  {session?.user?.name
-                    ? `Welcome back, ${session.user.name.split(" ")[0]} 👋`
-                    : "Your Learning Dashboard"}
-                </h1>
-                <p className="text-sm font-semibold text-muted-foreground leading-relaxed max-w-lg">
-                  Track progress, jump back into lessons, and celebrate your completions — all in one place.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] disabled:opacity-60 transition-all duration-200"
-                >
-                  <RefreshCw className={cn("size-4", refreshing && "animate-spin")} />
-                  {refreshing ? "Refreshing…" : "Refresh"}
-                </button>
-                <Link
-                  href="/courses"
-                  className="flex items-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-4 py-2.5 text-sm font-bold text-white transition-colors duration-200"
-                >
-                  <BookOpen className="size-4" /> Browse Courses
-                </Link>
-              </div>
-            </div>
-
-            {/* ── Stat cards ────────────────────────────────────────────────── */}
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                { label: "Enrolled",    value: enrollments.length.toString(),  icon: BookOpen,      color: "text-[#ff6636]",  bg: "bg-[#ff6636]/10",  desc: "Total learning paths"       },
-                { label: "In Progress", value: activeCourses.length.toString(),icon: TrendingUp,    color: "text-violet-500", bg: "bg-violet-500/10", desc: "Courses still underway"     },
-                { label: "Completed",   value: completedCourses.length.toString(), icon: CheckCircle2,  color: "text-emerald-500",bg: "bg-emerald-500/10",desc: "Ready to certify"           },
-                { label: "Avg Progress",value: `${avgProgress}%`,              icon: Sparkles,      color: "text-amber-500",  bg: "bg-amber-500/10",  desc: "Across all your courses"   },
-              ].map((stat) => {
-                const SIcon = stat.icon;
-                return (
-                  <div key={stat.label} className="flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4">
-                    <div className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${stat.bg} ${stat.color}`}>
-                      <SIcon className="size-5" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-extrabold tracking-tight text-foreground">{stat.value}</p>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{stat.label}</p>
-                      <p className="text-[10px] font-semibold text-muted-foreground/70 mt-0.5">{stat.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+    <LearnerShell
+      pageTitle="My Courses"
+      pageDescription="Manage your enrolled courses, certificates, and reviews"
+    >
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
+        {/* Top Filter and Search Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
+          {/* Tab buttons */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/60 border border-border w-fit">
+            <button
+              type="button"
+              onClick={() => setActiveTab("all")}
+              className={cn(
+                "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-colors",
+                activeTab === "all"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              All ({enriched.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("in-progress")}
+              className={cn(
+                "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-colors",
+                activeTab === "in-progress"
+                  ? "bg-card text-[#ff6636] shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              In Progress ({activeCourses.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("completed")}
+              className={cn(
+                "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-colors",
+                activeTab === "completed"
+                  ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Completed ({completedCourses.length})
+            </button>
           </div>
-        </section>
 
-        {/* ── Course Grid ───────────────────────────────────────────────────── */}
-        <section className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
-          {enriched.length === 0 ? (
-            /* Empty state */
-            <div className="flex min-h-[26rem] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-8 py-16 text-center">
-              <div className="flex size-16 items-center justify-center rounded-2xl bg-[#ff6636]/10 text-[#ff6636] mb-5">
-                <BookOpen className="size-8" />
-              </div>
-              <h2 className="text-xl font-extrabold text-foreground">No enrolled courses yet</h2>
-              <p className="mt-2 max-w-sm text-sm font-semibold text-muted-foreground leading-relaxed">
-                Browse the catalog, pick a learning path, and your progress dashboard will appear here.
-              </p>
+          {/* Search input + Refresh */}
+          <div className="flex items-center gap-2.5">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filter by course or topic..."
+                className="w-full rounded-xl border border-border bg-card pl-9 pr-3 py-1.5 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:border-[#ff6636]/50 focus:outline-none"
+              />
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="rounded-xl text-xs font-semibold"
+            >
+              <RefreshCw className={cn("size-3.5", refreshing && "animate-spin")} />
+            </Button>
+          </div>
+        </div>
+
+        {/* Course Grid */}
+        {filteredCourses.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center space-y-4">
+            <BookOpen className="size-10 text-muted-foreground/40 mx-auto" />
+            <h3 className="text-base font-bold text-foreground">
+              {searchQuery ? "No matching courses found" : "No courses in this tab"}
+            </h3>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto font-medium">
+              {searchQuery
+                ? "Try adjusting your search keyword."
+                : "Explore our catalog to find your next development course."}
+            </p>
+            {!searchQuery && (
               <Link
                 href="/courses"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-6 py-2.5 text-sm font-bold text-white transition-colors duration-200"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#ff6636] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#e95a2b] transition-colors"
               >
-                <BookOpen className="size-4" /> Browse Courses
+                Browse Catalog <ArrowRight className="size-3.5" />
               </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredCourses.map(
+              ({ enrollment, actualProgress, totalLessons, completedLessons, lessonProgress }) => (
+                <EnrollmentCard
+                  key={enrollment.id}
+                  enrollment={enrollment}
+                  actualProgress={actualProgress}
+                  totalLessons={totalLessons}
+                  completedLessons={completedLessons}
+                  lessonProgress={lessonProgress}
+                  hasReview={Boolean(userReviews[enrollment.course.id])}
+                  unenrollingId={unenrollingId}
+                  onUnenroll={(id) => setConfirmUnenroll(id)}
+                  onReview={handleOpenReview}
+                />
+              )
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Review Dialog */}
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold">
+              {reviewCourse?.existingRating ? "Update Your Review" : "Write a Review"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1 font-medium">{reviewCourse?.title}</p>
+              <div className="flex items-center gap-1.5">
+                <StarRating rating={reviewRating} onRatingChange={setReviewRating} size={22} />
+                <span className="text-xs font-bold text-[#ff6636] ml-2">
+                  {reviewRating > 0 ? `${reviewRating} / 5` : "Select rating"}
+                </span>
+              </div>
             </div>
-          ) : (
-            <>
-              {/* Section label */}
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Your library</p>
-                  <h2 className="mt-0.5 text-xl font-extrabold text-foreground">
-                    {enriched.length} Course{enriched.length !== 1 ? "s" : ""} Enrolled
-                  </h2>
-                </div>
-                {completedCourses.length > 0 && (
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600">
-                    🎉 {completedCourses.length} Completed
-                  </span>
-                )}
-              </div>
+            <div>
+              <label className="text-xs font-bold text-foreground">Your Thoughts (optional)</label>
+              <Textarea
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="What did you think of the curriculum, code exercises, and pacing?"
+                className="mt-1 text-xs rounded-xl border-border resize-none"
+                rows={4}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setReviewDialogOpen(false)}
+              className="rounded-xl text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitReview}
+              disabled={submittingReview || reviewRating === 0}
+              className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white text-xs font-bold"
+            >
+              {submittingReview ? <Loader2 className="size-3.5 animate-spin mr-1.5" /> : null}
+              Submit Review
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {enriched.map(({ enrollment, actualProgress, totalLessons, completedLessons, lessonProgress }) => (
-                  <EnrollmentCard
-                    key={enrollment.id}
-                    enrollment={enrollment}
-                    actualProgress={actualProgress}
-                    totalLessons={totalLessons}
-                    completedLessons={completedLessons}
-                    lessonProgress={lessonProgress}
-                    hasReview={Boolean(userReviews[enrollment.course.id])}
-                    unenrollingId={unenrollingId}
-                    onUnenroll={(id) => setConfirmUnenroll(id)}
-                    onReview={handleOpenReview}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </section>
-      </main>
-
-      <MarketingPublicFooter />
-
-      {/* ── Unenroll confirmation ─────────────────────────────────────────── */}
-      <AlertDialog open={Boolean(confirmUnenroll)} onOpenChange={(o) => !o && setConfirmUnenroll(null)}>
-        <AlertDialogContent className="rounded-2xl">
+      {/* Unenroll Confirm Alert */}
+      <AlertDialog
+        open={Boolean(confirmUnenroll)}
+        onOpenChange={(open) => !open && setConfirmUnenroll(null)}
+      >
+        <AlertDialogContent className="rounded-2xl border-border bg-card">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg font-extrabold">Unenroll from this course?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm font-semibold text-muted-foreground">
-              This removes the course from your dashboard and clears your saved progress permanently.
+            <AlertDialogTitle className="text-base font-bold">Unenroll from course?</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground leading-relaxed font-medium">
+              Are you sure you want to unenroll? Your lesson completion history for this course will be reset.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl text-xs">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => confirmUnenroll && handleUnenroll(confirmUnenroll)}
-              className="rounded-xl bg-destructive font-bold text-destructive-foreground hover:bg-destructive/90"
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs font-bold"
             >
-              Unenroll
+              Yes, Unenroll
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* ── Review dialog ─────────────────────────────────────────────────── */}
-      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
-        <DialogContent className="rounded-2xl sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-extrabold">
-              {reviewCourse?.existingRating ? "Update your review" : "Write a review"}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-5 pt-1">
-            <div className="rounded-xl bg-muted/40 px-4 py-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Course</p>
-              <p className="mt-1 text-sm font-bold text-foreground">{reviewCourse?.title}</p>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Your rating</p>
-              <StarRating rating={reviewRating} size="lg" interactive onRatingChange={setReviewRating} />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Comment <span className="normal-case font-normal">(optional)</span></label>
-              <Textarea
-                value={reviewComment}
-                onChange={(e) => setReviewComment(e.target.value)}
-                placeholder="Share what this course did well and where it helped most…"
-                rows={4}
-                className="rounded-xl resize-none"
-              />
-            </div>
-
-            <div className="flex justify-end gap-3 pt-1">
-              <Button variant="outline" onClick={() => setReviewDialogOpen(false)} className="rounded-xl font-bold">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitReview}
-                disabled={submittingReview || reviewRating === 0}
-                className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] font-bold text-white"
-              >
-                {submittingReview ? <><Loader2 className="mr-2 size-4 animate-spin" />Saving…</> : reviewCourse?.existingRating ? "Update Review" : "Submit Review"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </LearnerShell>
   );
 }

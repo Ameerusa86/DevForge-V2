@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { JSONContent } from "@tiptap/react";
 import {
   Accordion,
@@ -19,25 +20,24 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { RichTextRenderer } from "@/components/editor/RichTextRenderer";
-import {
-  MarketingPublicFooter,
-  MarketingPublicHeader,
-} from "@/components/marketing/public-chrome";
+import { ThemeToggle } from "@/components/themeToggle";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  ArrowUp,
-  BookOpen,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Circle,
   ClipboardCheck,
-  Layers3,
   Lock,
-  PlayCircle,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Menu,
   Sparkles,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// ─── Interfaces ───────────────────────────────────────────────────────────────
 
 export interface LessonOutlineItem {
   id: string;
@@ -82,10 +82,7 @@ export interface LessonProgressData {
   isComplete: boolean;
 }
 
-function scrollToTop() {
-  if (typeof window === "undefined") return;
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
+// ─── Outline Subcomponents ───────────────────────────────────────────────────
 
 function OutlineLessonLink({
   courseSlug,
@@ -94,6 +91,7 @@ function OutlineLessonLink({
   activeLessonId,
   completionMap,
   hasEnrollment,
+  onNavigate,
 }: {
   courseSlug: string;
   lesson: LessonOutlineItem;
@@ -101,67 +99,49 @@ function OutlineLessonLink({
   activeLessonId: string;
   completionMap: Record<string, boolean>;
   hasEnrollment: boolean;
+  onNavigate?: () => void;
 }) {
   const isActive = lesson.id === activeLessonId;
   const isComplete = completionMap[lesson.id] ?? false;
   const isLocked = !lesson.isFree && !hasEnrollment;
-  
-  const activeClassName = isActive
-    ? "border-[#ff6636] bg-[#ff6636]/10 text-foreground"
-    : "border-border bg-card text-foreground hover:border-[#ff6636]/80 hover:bg-[#ff6636]/5";
-  const mutedClassName = isActive ? "text-[#ff6636]/80" : "text-muted-foreground";
-  const previewClassName = isActive
-    ? "bg-white/15 text-[#ff6636] border border-[#ff6636]/20"
-    : "bg-[#fff2e5] text-[#ff6636]";
 
   return (
     <Link
       href={`/courses/${courseSlug}/lessons/${lesson.id}`}
-      className={`flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-200 ${activeClassName}`}
+      onClick={onNavigate}
+      className={cn(
+        "flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-xs font-medium transition-all duration-200 group relative border",
+        isActive
+          ? "border-[#ff6636]/50 bg-[#ff6636]/10 text-foreground shadow-2xs font-semibold"
+          : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground"
+      )}
     >
       <span
-        className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+        className={cn(
+          "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold font-mono",
           isActive
-            ? "bg-[#ff6636]/20 text-[#ff6636]"
-            : "bg-muted text-muted-foreground"
-        }`}
+            ? "bg-[#ff6636] text-white shadow-xs"
+            : isComplete
+              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+              : "bg-muted text-muted-foreground"
+        )}
       >
-        {lessonNumber}
+        {isComplete ? <CheckCircle2 className="size-3.5" /> : lessonNumber}
       </span>
 
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-bold leading-snug">{lesson.title}</p>
-          {lesson.isFree ? (
-            <span
-              className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${previewClassName}`}
-            >
-              Preview
-            </span>
-          ) : null}
-        </div>
-        <p
-          className={`mt-1.5 text-[10px] font-bold uppercase tracking-wider ${mutedClassName}`}
-        >
-          {isLocked
-            ? "Enrollment required"
-            : isComplete
-              ? "Completed"
-              : "Available now"}
+      <div className="min-w-0 flex-1 leading-snug break-words">
+        <p className={cn("text-xs", isActive ? "text-foreground font-bold" : "text-foreground/90")}>
+          {lesson.title}
         </p>
       </div>
 
-      {isLocked ? (
-        <Lock className={`mt-1 size-4 shrink-0 ${mutedClassName}`} />
-      ) : isComplete ? (
-        <CheckCircle2
-          className={`mt-1 size-4 shrink-0 ${isActive ? "text-[#ff6636]" : "text-[#23bd33]"}`}
-        />
-      ) : (
-        <PlayCircle
-          className={`mt-1 size-4 shrink-0 ${isActive ? "text-[#ff6636]" : "text-[#ff6636]"}`}
-        />
+      {lesson.isFree && !hasEnrollment && (
+        <span className="shrink-0 rounded-md bg-[#ff6636]/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ff6636]">
+          Free
+        </span>
       )}
+
+      {isLocked && <Lock className="size-3.5 text-muted-foreground/70 shrink-0 mt-0.5" />}
     </Link>
   );
 }
@@ -175,6 +155,7 @@ function CourseOutline({
   lessonIndexMap,
   completionMap,
   hasEnrollment,
+  onNavigate,
 }: {
   courseSlug: string;
   orderedModules: LessonOutlineModule[];
@@ -184,75 +165,66 @@ function CourseOutline({
   lessonIndexMap: Record<string, number>;
   completionMap: Record<string, boolean>;
   hasEnrollment: boolean;
+  onNavigate?: () => void;
 }) {
   const defaultOpenModules = orderedModules
     .filter((moduleItem) =>
-      moduleItem.lessons.some((lesson) => lesson.id === activeLessonId),
+      moduleItem.lessons.some((lesson) => lesson.id === activeLessonId)
     )
     .map((moduleItem) => moduleItem.id);
 
   return (
-    <div className="space-y-4">
-      {unassignedLessons.length > 0 ? (
-        <div className="space-y-3">
-          {showNoModuleHeader ? (
-            <div className="pl-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#ff6636]">
-                Quick start
-              </p>
-              <h3 className="mt-1.5 text-base font-bold text-foreground">
-                Standalone Lessons
-              </h3>
-            </div>
-          ) : null}
-
-          <div className="grid gap-2">
-            {unassignedLessons.map((lesson) => (
-              <OutlineLessonLink
-                key={lesson.id}
-                courseSlug={courseSlug}
-                lesson={lesson}
-                lessonNumber={lessonIndexMap[lesson.id]}
-                activeLessonId={activeLessonId}
-                completionMap={completionMap}
-                hasEnrollment={hasEnrollment}
-              />
-            ))}
-          </div>
+    <div className="space-y-3">
+      {/* Unassigned Lessons */}
+      {unassignedLessons.length > 0 && (
+        <div className="space-y-1.5">
+          {showNoModuleHeader && (
+            <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Core Lessons
+            </p>
+          )}
+          {unassignedLessons.map((lesson) => (
+            <OutlineLessonLink
+              key={lesson.id}
+              courseSlug={courseSlug}
+              lesson={lesson}
+              lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
+              activeLessonId={activeLessonId}
+              completionMap={completionMap}
+              hasEnrollment={hasEnrollment}
+              onNavigate={onNavigate}
+            />
+          ))}
         </div>
-      ) : null}
+      )}
 
-      {orderedModules.length > 0 ? (
+      {/* Module Accordions */}
+      {orderedModules.length > 0 && (
         <Accordion
           type="multiple"
-          defaultValue={defaultOpenModules}
-          className="space-y-3"
+          defaultValue={defaultOpenModules.length > 0 ? defaultOpenModules : [orderedModules[0].id]}
+          className="space-y-2.5"
         >
-          {orderedModules.map((moduleItem) => (
-            <AccordionItem
-              key={moduleItem.id}
-              value={moduleItem.id}
-              className="border border-border rounded-xl overflow-hidden bg-muted/15 transition-all duration-300 hover:border-border/80"
-            >
-              <AccordionTrigger className="px-5 py-4 text-left hover:no-underline hover:bg-muted/40 transition-colors [&[data-state=open]]:bg-muted/30">
-                <div className="pr-4">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Module {moduleItem.order}
-                  </p>
-                  <p className="mt-1 text-base font-bold text-foreground leading-tight">
-                    {moduleItem.title}
-                  </p>
-                </div>
-              </AccordionTrigger>
+          {orderedModules.map((moduleItem) => {
+            const completedCount = moduleItem.lessons.filter((l) => completionMap[l.id]).length;
 
-              <AccordionContent className="border-t border-border/40 px-4 py-4 bg-card">
-                {moduleItem.description ? (
-                  <p className="mb-4 text-xs leading-relaxed text-muted-foreground font-medium pl-1">
-                    {moduleItem.description}
-                  </p>
-                ) : null}
-
-                <div className="grid gap-2">
+            return (
+              <AccordionItem
+                key={moduleItem.id}
+                value={moduleItem.id}
+                className="rounded-2xl border border-border/80 bg-card/60 shadow-2xs overflow-hidden"
+              >
+                <AccordionTrigger className="px-3.5 py-3 text-xs font-bold hover:no-underline hover:bg-muted/40 transition-colors">
+                  <div className="flex items-start justify-between w-full gap-2 pr-2 text-left">
+                    <span className="text-xs font-bold text-foreground leading-snug break-words flex-1">
+                      {moduleItem.title}
+                    </span>
+                    <span className="text-[10px] font-mono text-muted-foreground shrink-0 mt-0.5 bg-muted/80 rounded-md px-1.5 py-0.5">
+                      {completedCount}/{moduleItem.lessons.length}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-1.5 space-y-1 border-t border-border/40 bg-background/50">
                   {moduleItem.lessons
                     .slice()
                     .sort((a, b) => a.order - b.order)
@@ -261,21 +233,24 @@ function CourseOutline({
                         key={lesson.id}
                         courseSlug={courseSlug}
                         lesson={lesson}
-                        lessonNumber={lessonIndexMap[lesson.id]}
+                        lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
                         activeLessonId={activeLessonId}
                         completionMap={completionMap}
                         hasEnrollment={hasEnrollment}
+                        onNavigate={onNavigate}
                       />
                     ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
         </Accordion>
-      ) : null}
+      )}
     </div>
   );
 }
+
+// ─── Main Classroom Client Component ──────────────────────────────────────────
 
 export function LessonDetailClient({
   course,
@@ -285,69 +260,78 @@ export function LessonDetailClient({
 }: {
   course: LessonDetailCourse;
   currentLesson: LessonDetailState;
-  initialEnrollmentId: string | null;
-  initialProgressData: LessonProgressData | null;
+  initialEnrollmentId?: string | null;
+  initialProgressData?: LessonProgressData | null;
 }) {
-  const [progressData, setProgressData] = useState(initialProgressData);
+  const router = useRouter();
+  const [progressData, setProgressData] = useState<LessonProgressData | null>(
+    initialProgressData ?? null
+  );
+  const [isLessonComplete, setIsLessonComplete] = useState<boolean>(
+    initialProgressData?.lessonProgress?.[currentLesson.id] ?? false
+  );
   const [isMarking, setIsMarking] = useState(false);
-  const [isLessonComplete, setIsLessonComplete] = useState(
-    initialProgressData?.lessonProgress?.[currentLesson.id] ?? false,
-  );
 
-  const sortedLessons = useMemo(
-    () => course.lessons.slice().sort((a, b) => a.order - b.order),
-    [course.lessons],
-  );
-  const orderedModules = useMemo(
-    () => (course.modules || []).slice().sort((a, b) => a.order - b.order),
-    [course.modules],
-  );
-  const unassignedLessons = useMemo(
-    () => sortedLessons.filter((lesson) => !lesson.moduleId),
-    [sortedLessons],
-  );
-  const orderedLessons = useMemo(
-    () => [
-      ...unassignedLessons,
-      ...orderedModules.flatMap((moduleItem) =>
-        moduleItem.lessons.slice().sort((a, b) => a.order - b.order),
-      ),
-    ],
-    [orderedModules, unassignedLessons],
-  );
-  const lessonIndexMap = useMemo(
-    () =>
-      orderedLessons.reduce<Record<string, number>>((acc, lesson, index) => {
-        acc[lesson.id] = index + 1;
-        return acc;
-      }, {}),
-    [orderedLessons],
-  );
+  // Left sidebar collapsible state
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
-  const currentIndex = orderedLessons.findIndex(
-    (lesson) => lesson.id === currentLesson.id,
-  );
-  const previousLesson =
-    currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
-  const nextLesson =
-    currentIndex >= 0 && currentIndex < orderedLessons.length - 1
-      ? orderedLessons[currentIndex + 1]
-      : null;
+  // Ordered lessons and navigation computation
+  const orderedModules = useMemo(() => {
+    return (course.modules ?? []).slice().sort((a, b) => a.order - b.order);
+  }, [course.modules]);
+
+  const orderedLessons = useMemo(() => {
+    const unassigned = course.lessons
+      .filter((lesson) => !lesson.moduleId)
+      .slice()
+      .sort((a, b) => a.order - b.order);
+
+    const moduleLessons = orderedModules.flatMap((m) =>
+      m.lessons.slice().sort((a, b) => a.order - b.order)
+    );
+
+    return [...unassigned, ...moduleLessons];
+  }, [course.lessons, orderedModules]);
+
+  const lessonIndexMap = useMemo(() => {
+    return orderedLessons.reduce<Record<string, number>>((acc, lesson, index) => {
+      acc[lesson.id] = index + 1;
+      return acc;
+    }, {});
+  }, [orderedLessons]);
+
+  const currentIndex = orderedLessons.findIndex((l) => l.id === currentLesson.id);
+  const previousLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex >= 0 && currentIndex < orderedLessons.length - 1 ? orderedLessons[currentIndex + 1] : null;
+
+  const unassignedLessons = useMemo(() => {
+    return course.lessons
+      .filter((lesson) => !lesson.moduleId)
+      .slice()
+      .sort((a, b) => a.order - b.order);
+  }, [course.lessons]);
 
   const progressPercent = progressData?.progress ?? 0;
   const completedLessons = progressData?.completedLessons ?? 0;
-  const progressState =
-    progressPercent >= 100
-      ? "Course complete"
-      : progressPercent >= 75
-        ? "Almost there"
-        : progressPercent >= 40
-          ? "Steady progress"
-          : progressPercent > 0
-            ? "Getting started"
-            : initialEnrollmentId
-              ? "Ready to learn"
-              : "Enroll to track";
+
+  // Keyboard navigation shortcuts (Shift + N = next, Shift + P = prev)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      if (e.shiftKey && e.key.toLowerCase() === "n" && nextLesson) {
+        e.preventDefault();
+        router.push(`/courses/${course.slug}/lessons/${nextLesson.id}`);
+      } else if (e.shiftKey && e.key.toLowerCase() === "p" && previousLesson) {
+        e.preventDefault();
+        router.push(`/courses/${course.slug}/lessons/${previousLesson.id}`);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [course.slug, nextLesson, previousLesson, router]);
 
   const handleMarkComplete = async () => {
     if (!initialEnrollmentId) {
@@ -356,7 +340,6 @@ export function LessonDetailClient({
     }
 
     setIsMarking(true);
-
     try {
       const response = await fetch(
         `/api/enrollments/${initialEnrollmentId}/progress`,
@@ -367,18 +350,15 @@ export function LessonDetailClient({
             lessonId: currentLesson.id,
             completed: !isLessonComplete,
           }),
-        },
+        }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(
-          errorData.details || errorData.error || "Failed to update progress",
-        );
+        throw new Error(errorData.details || errorData.error || "Failed to update progress");
       }
 
       const updated = await response.json();
-
       setProgressData((previous) => ({
         progress: updated.progress,
         completedLessons: updated.completedLessons,
@@ -389,420 +369,314 @@ export function LessonDetailClient({
           [currentLesson.id]: !isLessonComplete,
         },
       }));
-      setIsLessonComplete((value) => !value);
+      setIsLessonComplete((val) => !val);
 
       toast.success(
-        isLessonComplete
-          ? "Lesson marked incomplete."
-          : "Lesson marked complete.",
+        isLessonComplete ? "Lesson marked incomplete." : "Lesson marked complete!"
       );
     } catch (error) {
       console.error("Failed to update lesson progress", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to update lesson progress.",
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to update lesson progress.");
     } finally {
       setIsMarking(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <MarketingPublicHeader activePath="/courses" />
+    <div className="flex h-screen flex-col bg-background text-foreground overflow-hidden select-none">
+      {/* ── 1. Top Distraction-Free Header Bar ───────────────────────────────── */}
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/85 px-3 sm:px-6 backdrop-blur-xl z-20">
+        {/* Left: Back Link, Sidebar Toggle, & Lesson Info */}
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <Link
+            href={`/courses/${course.slug}`}
+            className="flex items-center gap-1.5 rounded-xl border border-border/80 bg-muted/40 px-2.5 py-1.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:bg-muted transition-colors shrink-0"
+            title="Back to Course Overview"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span className="hidden sm:inline truncate max-w-[180px]">{course.title}</span>
+          </Link>
 
-      <main>
-        {/* Deep, Premium Dark Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#121418] via-[#16181d] to-[#1e222b] text-white border-b border-border py-12 lg:py-16">
-          {/* Subtle Ambient Background Light */}
-          <div className="absolute -left-20 -top-20 size-[350px] rounded-full bg-[#ff6636]/10 blur-[120px] pointer-events-none" />
-          <div className="absolute right-10 bottom-0 size-[400px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
+          <div className="h-4 w-px bg-border/60 hidden lg:block" />
 
-          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex flex-wrap items-start justify-between gap-6">
-              <div className="max-w-[760px] space-y-5">
+          {/* Desktop Left Sidebar Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="hidden lg:flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted"
+            title={sidebarOpen ? "Collapse Curriculum Sidebar" : "Expand Curriculum Sidebar"}
+          >
+            {sidebarOpen ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
+            <span className="text-[11px] font-bold">{sidebarOpen ? "Hide Outline" : "Show Outline"}</span>
+          </Button>
+
+          {/* Mobile Drawer Trigger */}
+          <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground"
+              >
+                <Menu className="size-4" />
+                <span className="text-[11px]">Outline</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[min(24rem,100vw)] p-0 bg-card border-border">
+              <SheetHeader className="p-4 border-b border-border text-left">
+                <SheetTitle className="text-sm font-bold text-foreground truncate">
+                  {course.title}
+                </SheetTitle>
+                <SheetDescription className="text-xs text-muted-foreground">
+                  {completedLessons} of {orderedLessons.length} lessons completed ({progressPercent}%)
+                </SheetDescription>
+              </SheetHeader>
+              <div className="p-4 overflow-y-auto max-h-[calc(100vh-5rem)]">
+                <CourseOutline
+                  courseSlug={course.slug}
+                  orderedModules={orderedModules}
+                  unassignedLessons={unassignedLessons}
+                  showNoModuleHeader={course.showUnassignedHeader ?? true}
+                  activeLessonId={currentLesson.id}
+                  lessonIndexMap={lessonIndexMap}
+                  completionMap={progressData?.lessonProgress ?? {}}
+                  hasEnrollment={Boolean(initialEnrollmentId)}
+                  onNavigate={() => setMobileSheetOpen(false)}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Current Lesson Badge */}
+          <div className="min-w-0 truncate hidden md:flex items-center gap-2">
+            <span className="rounded-md bg-[#ff6636]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#ff6636] shrink-0">
+              Lesson {currentLesson.order}
+            </span>
+            <span className="text-xs font-bold text-foreground truncate max-w-md">
+              {currentLesson.title}
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Progress Controls & Theme */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Mark Complete Instant Action */}
+          {initialEnrollmentId && (
+            <Button
+              size="sm"
+              onClick={handleMarkComplete}
+              disabled={isMarking}
+              className={cn(
+                "rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all duration-200 shadow-2xs",
+                isLessonComplete
+                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/30"
+                  : "bg-[#ff6636] text-white hover:bg-[#e95a2b]"
+              )}
+            >
+              {isLessonComplete ? (
+                <>
+                  <CheckCircle2 className="size-3.5 mr-1.5" />
+                  <span>Completed</span>
+                </>
+              ) : (
+                <>
+                  <Circle className="size-3.5 mr-1.5" />
+                  <span>Mark Done</span>
+                </>
+              )}
+            </Button>
+          )}
+
+          {/* Theme Toggle */}
+          <ThemeToggle className="size-8 rounded-xl" />
+        </div>
+      </header>
+
+      {/* ── 2. Fluid Full-Window Workspace (Left Sidebar + Expanded Main Content) ─ */}
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* ── Left Pane: Collapsible Curriculum Tree ─────────────────────────── */}
+        {sidebarOpen && (
+          <aside className="hidden lg:flex w-80 xl:w-[340px] flex-col border-r border-border bg-card/60 shrink-0 select-none overflow-hidden transition-all duration-300">
+            {/* Header & Course Progress */}
+            <div className="p-4 border-b border-border space-y-2.5 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Sparkles className="size-3 text-[#ff6636]" /> Course Syllabus
+                </span>
+                <span className="text-xs font-mono font-bold text-[#ff6636]">
+                  {progressPercent}%
+                </span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-[#ff6636] rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground font-medium truncate">
+                {completedLessons} of {orderedLessons.length} lessons completed
+              </p>
+            </div>
+
+            {/* Tree Scroll Area with full-text wrapping */}
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-2">
+              <CourseOutline
+                courseSlug={course.slug}
+                orderedModules={orderedModules}
+                unassignedLessons={unassignedLessons}
+                showNoModuleHeader={course.showUnassignedHeader ?? true}
+                activeLessonId={currentLesson.id}
+                lessonIndexMap={lessonIndexMap}
+                completionMap={progressData?.lessonProgress ?? {}}
+                hasEnrollment={Boolean(initialEnrollmentId)}
+              />
+            </div>
+
+            {/* Bottom Collapse Helper */}
+            <div className="p-2.5 border-t border-border/70 bg-card/80">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(false)}
+                className="w-full flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground rounded-xl h-8"
+              >
+                <PanelLeftClose className="size-3.5" />
+                <span>Hide Sidebar</span>
+              </Button>
+            </div>
+          </aside>
+        )}
+
+        {/* ── Center Pane: Expanded Full-Window Content Workspace ────────────── */}
+        <main className="flex-1 flex flex-col min-w-0 bg-background overflow-y-auto select-text">
+          <div className="flex-1 w-full px-4 py-8 sm:px-8 md:px-12 lg:px-16 xl:px-20 space-y-8">
+            
+            {/* Article Heading */}
+            <div className="space-y-3 border-b border-border pb-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-md bg-[#ff6636]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#ff6636]">
+                  <ClipboardCheck className="size-3.5" />
+                  Lesson {currentLesson.order}
+                </span>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Part of {course.title}
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                {currentLesson.title}
+              </h1>
+            </div>
+
+            {/* Locked vs Content View */}
+            {currentLesson.isLocked ? (
+              <div className="rounded-3xl border border-border bg-card p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-5 shadow-sm my-8">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-[#ff6636]/10 text-[#ff6636]">
+                  <Lock className="size-6" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl font-bold text-foreground">This lesson requires enrollment</h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+                    {currentLesson.message || "Enroll in this course to access the full interactive code and text lessons."}
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <Link
+                    href={`/courses/${course.slug}`}
+                    className="inline-flex items-center justify-center rounded-xl bg-[#ff6636] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#e95a2b] shadow-md shadow-[#ff6636]/20 transition-all"
+                  >
+                    Enroll in Course
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <article
+                className="
+                  lesson-content prose prose-neutral dark:prose-invert max-w-none w-full
+                  prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
+                  prose-h1:text-3xl prose-h1:mb-6
+                  prose-h2:border-b prose-h2:border-border prose-h2:pb-2.5 prose-h2:mt-10 prose-h2:text-2xl
+                  prose-h3:text-xl prose-h3:mt-8
+                  prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:text-base
+                  prose-code:rounded-md prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-code:text-sm
+                  prose-pre:rounded-2xl prose-pre:border prose-pre:border-border prose-pre:bg-[#16181d] prose-pre:w-full prose-pre:p-5
+                  prose-blockquote:rounded-xl prose-blockquote:border-l-4 prose-blockquote:border-[#ff6636] prose-blockquote:bg-[#ff6636]/5 prose-blockquote:px-5 prose-blockquote:py-3.5 prose-blockquote:not-italic
+                  prose-a:text-[#ff6636] prose-a:font-semibold hover:prose-a:underline
+                  prose-img:rounded-2xl prose-img:border prose-img:border-border
+                "
+              >
+                {(() => {
+                  if (!currentLesson.content) {
+                    return (
+                      <p className="text-sm text-muted-foreground italic">
+                        Lesson content is being authored for this module.
+                      </p>
+                    );
+                  }
+                  try {
+                    const content =
+                      typeof currentLesson.content === "string"
+                        ? JSON.parse(currentLesson.content)
+                        : currentLesson.content;
+                    return <RichTextRenderer content={content} />;
+                  } catch (err) {
+                    console.error("Content parsing error:", err);
+                    return (
+                      <div className="rounded-xl border border-dashed border-border bg-muted/40 p-6 text-center text-xs text-muted-foreground">
+                        Lesson content could not be displayed. Refresh to retry.
+                      </div>
+                    );
+                  }
+                })()}
+              </article>
+            )}
+
+            {/* Sticky Bottom Navigation Controls */}
+            <div className="pt-10 pb-12 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              {previousLesson ? (
+                <Link
+                  href={`/courses/${course.slug}/lessons/${previousLesson.id}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/50 hover:text-[#ff6636] transition-all"
+                  title="Shortcut: Shift + P"
+                >
+                  <ChevronLeft className="size-4" />
+                  <span>Previous Lesson</span>
+                </Link>
+              ) : (
                 <Link
                   href={`/courses/${course.slug}`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#8c94a3] transition-colors duration-200 hover:text-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/50 hover:text-[#ff6636] transition-all"
                 >
                   <ArrowLeft className="size-4" />
-                  Back to course
+                  <span>Course Syllabus</span>
                 </Link>
+              )}
 
-                <div className="pt-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-white/10 border border-white/10 text-white">
-                    <ClipboardCheck className="size-3.5 text-[#ff6636]" />
-                    Lesson {currentLesson.order}
-                  </span>
-                </div>
-
-                <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl leading-[1.1]">
-                  {currentLesson.title}
-                </h1>
-                
-                <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-                  {course.title} and lesson {currentIndex + 1} of{" "}
-                  {orderedLessons.length}.
-                </p>
-              </div>
-
-              {/* Responsive Outline Trigger for Small Screens */}
-              <div className="flex items-center gap-3 lg:hidden self-end">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="rounded-xl border-white/15 bg-white/5 px-4.5 py-2.5 text-sm font-bold text-white hover:bg-white/10 hover:text-white"
-                    >
-                      <Layers3 className="mr-2 size-4" />
-                      Outline
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side="right"
-                    className="w-[min(28rem,100vw)] overflow-y-auto border-border px-0 bg-background"
-                  >
-                    <SheetHeader className="px-6 pb-4">
-                      <SheetTitle className="text-left text-xl font-bold">
-                        Course Outline
-                      </SheetTitle>
-                      <SheetDescription className="text-left text-sm leading-relaxed text-muted-foreground">
-                        Jump between lessons and keep track of the full learning path.
-                      </SheetDescription>
-                    </SheetHeader>
-
-                    <div className="border-t border-border px-6 py-6">
-                      <CourseOutline
-                        courseSlug={course.slug}
-                        orderedModules={orderedModules}
-                        unassignedLessons={unassignedLessons}
-                        showNoModuleHeader={course.showUnassignedHeader ?? true}
-                        activeLessonId={currentLesson.id}
-                        lessonIndexMap={lessonIndexMap}
-                        completionMap={progressData?.lessonProgress ?? {}}
-                        hasEnrollment={Boolean(initialEnrollmentId)}
-                      />
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            </div>
-
-            {/* Hero Stats */}
-            <div className="mt-8 grid gap-4 grid-cols-3">
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c94a3]">
-                  Current Lesson
-                </p>
-                <p className="mt-1 text-lg font-bold text-white">
-                  {currentIndex + 1} of {orderedLessons.length}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c94a3]">
-                  Access Mode
-                </p>
-                <p className="mt-1 text-lg font-bold text-white">
-                  {currentLesson.isLocked
-                    ? "Enrollment required"
-                    : currentLesson.isFree
-                      ? "Free Preview"
-                      : "Full Access"}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c94a3]">
-                  Progress
-                </p>
-                <p className="mt-1 text-lg font-bold text-white">
-                  {progressData
-                    ? `${progressPercent}% complete`
-                    : "Enroll to track"}
-                </p>
-              </div>
+              {nextLesson ? (
+                <Link
+                  href={`/courses/${course.slug}/lessons/${nextLesson.id}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#ff6636]/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                  title="Shortcut: Shift + N"
+                >
+                  <span>Next Lesson</span>
+                  <ChevronRight className="size-4" />
+                </Link>
+              ) : (
+                <Link
+                  href={`/courses/${course.slug}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-background hover:bg-foreground/90 transition-all"
+                >
+                  <span>Finish Course</span>
+                  <CheckCircle2 className="size-4" />
+                </Link>
+              )}
             </div>
           </div>
-        </section>
+        </main>
 
-        {/* Content & Outline Sidebar Grid */}
-        <section className="mx-auto max-w-[1320px] px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-8 xl:grid-cols-[1fr_360px]">
-            {/* Left Column: Lesson Article Content */}
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ff6636]/10 border border-[#ff6636]/20 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#ff6636]">
-                    <ClipboardCheck className="size-3.5" />
-                    Lesson {currentLesson.order}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground shadow-sm">
-                    <BookOpen className="size-3.5 text-[#ff6636]" />
-                    {course.title}
-                  </span>
-                </div>
-
-                {currentLesson.isLocked ? (
-                  <div className="mt-8 rounded-2xl border border-border bg-muted/30 px-6 py-12 text-center max-w-2xl mx-auto space-y-6">
-                    <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636] shadow-sm">
-                      <Lock className="size-6" />
-                    </div>
-                    <div className="space-y-2">
-                      <h2 className="text-2xl font-bold tracking-tight">
-                        This lesson is locked
-                      </h2>
-                      <p className="text-sm leading-relaxed text-muted-foreground font-medium">
-                        {currentLesson.message ||
-                          "Enroll in the course to access the full lesson and keep your progress in sync."}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-3 justify-center pt-2">
-                      <Link
-                        href={`/courses/${course.slug}`}
-                        className="inline-flex items-center justify-center rounded-xl bg-[#ff6636] px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#e95a2b] shadow-md shadow-[#ff6636]/15"
-                      >
-                        View course and enroll
-                      </Link>
-                      <Link
-                        href="/courses"
-                        className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-6 py-3 text-sm font-bold text-foreground transition-colors duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5"
-                      >
-                        Browse more courses
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <article
-                    className="
-                      lesson-content prose prose-neutral mt-8 max-w-none
-                      px-0
-                      prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
-                      prose-h1:mb-6 prose-h1:mt-0 prose-h1:text-3xl
-                      prose-h2:mb-4 prose-h2:mt-10 prose-h2:border-b prose-h2:border-border prose-h2:pb-3 prose-h2:text-2xl
-                      prose-h3:mb-3 prose-h3:mt-8 prose-h3:text-xl
-                      prose-h4:mb-2 prose-h4:mt-6 prose-h4:text-lg
-                      prose-p:my-4 prose-p:text-base prose-p:leading-relaxed prose-p:text-foreground/80
-                      prose-ul:my-5 prose-ul:space-y-2
-                      prose-ol:my-5 prose-ol:space-y-2
-                      prose-li:text-foreground/80 prose-li:leading-relaxed
-                      prose-strong:text-foreground
-                      prose-code:rounded-lg prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:text-foreground prose-code:before:content-[''] prose-code:after:content-[''] prose-code:font-bold prose-code:text-sm
-                      prose-pre:rounded-xl prose-pre:border prose-pre:border-border prose-pre:bg-[#16181d]
-                      prose-blockquote:rounded-xl prose-blockquote:border-l-4 prose-blockquote:border-[#ff6636] prose-blockquote:bg-[#ff6636]/5 prose-blockquote:px-5 prose-blockquote:py-4 prose-blockquote:not-italic prose-blockquote:text-foreground/90
-                      prose-a:text-[#ff6636] prose-a:font-semibold prose-a:underline hover:prose-a:text-[#e95a2b]
-                      prose-img:rounded-xl prose-img:border prose-img:border-border
-                      prose-hr:my-8 prose-hr:border-border
-                    "
-                  >
-                    {(() => {
-                      if (!currentLesson.content) {
-                        return (
-                          <p className="text-sm leading-relaxed text-muted-foreground font-semibold">
-                            Lesson content is not available yet.
-                          </p>
-                        );
-                      }
-
-                      try {
-                        const content =
-                          typeof currentLesson.content === "string"
-                            ? JSON.parse(currentLesson.content)
-                            : currentLesson.content;
-                        return <RichTextRenderer content={content} />;
-                      } catch (error) {
-                        console.error("Failed to parse lesson content", error);
-                        return (
-                          <div className="rounded-xl border border-dashed border-border bg-muted/40 px-6 py-8 text-sm leading-relaxed text-muted-foreground font-semibold text-center">
-                            Lesson content could not be displayed. Refresh the
-                            page and try again.
-                          </div>
-                        );
-                      }
-                    })()}
-                  </article>
-                )}
-              </div>
-
-              {/* Progress Controls Box */}
-              <div className="rounded-2xl border border-border bg-muted/40 p-5 sm:p-6 shadow-sm">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                      Progress Controls
-                    </p>
-                    <p className="mt-1.5 text-sm font-semibold text-muted-foreground">
-                      {initialEnrollmentId
-                        ? "Save your place and move through the course in order."
-                        : "Enroll in the course to unlock tracked progress and completion history."}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2.5">
-                    <Button
-                      onClick={handleMarkComplete}
-                      disabled={isMarking || !initialEnrollmentId}
-                      className={`rounded-xl px-5 py-2.5 text-sm font-bold shadow-md shadow-[#ff6636]/15 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 ${
-                        isLessonComplete
-                          ? "bg-foreground text-background hover:bg-foreground/90"
-                          : "bg-[#ff6636] text-white hover:bg-[#e95a2b]"
-                      }`}
-                    >
-                      {isLessonComplete ? (
-                        <>
-                          <CheckCircle2 className="mr-2 size-4" />
-                          Completed
-                        </>
-                      ) : (
-                        <>
-                          <Circle className="mr-2 size-4" />
-                          Mark Complete
-                        </>
-                      )}
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      onClick={scrollToTop}
-                      className="rounded-xl border-border px-5 py-2.5 text-sm font-bold text-foreground hover:border-[#ff6636] hover:bg-[#ff6636]/5 hover:text-[#ff6636]"
-                    >
-                      <ArrowUp className="mr-2 size-4" />
-                      Back to Top
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Navigation Footer */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
-                {previousLesson ? (
-                  <Link
-                    href={`/courses/${course.slug}/lessons/${previousLesson.id}`}
-                    className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-all duration-200 hover:border-[#ff6636] hover:text-[#ff6636] hover:bg-[#ff6636]/5"
-                  >
-                    <ChevronLeft className="mr-2 size-4" />
-                    Previous Lesson
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/courses/${course.slug}`}
-                    className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-all duration-200 hover:border-[#ff6636] hover:text-[#ff6636] hover:bg-[#ff6636]/5"
-                  >
-                    <ArrowLeft className="mr-2 size-4" />
-                    Back to Course
-                  </Link>
-                )}
-
-                {nextLesson ? (
-                  <Link
-                    href={`/courses/${course.slug}/lessons/${nextLesson.id}`}
-                    className="inline-flex items-center justify-center rounded-xl bg-[#ff6636] px-5 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#e95a2b] shadow-md shadow-[#ff6636]/15"
-                  >
-                    Next Lesson
-                    <ChevronRight className="ml-2 size-4" />
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/courses/${course.slug}`}
-                    className="inline-flex items-center justify-center rounded-xl bg-[#1d2026] px-5 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#111318]"
-                  >
-                    Finish Course
-                    <CheckCircle2 className="ml-2 size-4" />
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            {/* Right Column: Outline Sidebar & Progress Gauge */}
-            <aside className="hidden lg:block">
-              <div className="sticky top-24 space-y-6">
-                {/* Gauge card */}
-                <div className="rounded-2xl border border-border bg-[#1d2026] p-6 text-white shadow-md">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#b7bac7]">
-                    Your Pace
-                  </p>
-                  <div className="mt-3.5 flex items-end gap-2.5">
-                    <span className="text-[44px] font-extrabold leading-none tracking-tight">
-                      {progressPercent}%
-                    </span>
-                    <span className="pb-1 text-xs font-semibold text-[#d0d3dd]">
-                      complete
-                    </span>
-                  </div>
-                  <div className="mt-5 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#ff6636] rounded-full transition-all duration-300"
-                      style={{ width: `${progressPercent}%` }}
-                    />
-                  </div>
-                  <p className="mt-4 text-xs font-bold text-white uppercase tracking-wider">
-                    {progressState}
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-[#d0d3dd] font-semibold">
-                    {progressData
-                      ? `${completedLessons} of ${progressData.totalLessons} lessons marked complete.`
-                      : "Progress tracking starts after you enroll in the course."}
-                  </p>
-                </div>
-
-                {/* Outline Sidebar Component */}
-                <div className="flex max-h-[calc(100vh-14rem)] flex-col rounded-2xl border border-border bg-card p-6 shadow-sm">
-                  <div className="flex items-center justify-between gap-3 border-b border-border pb-5">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                        Course Outline
-                      </p>
-                      <h2 className="mt-1.5 text-xl font-bold tracking-tight">
-                        Navigate the path
-                      </h2>
-                    </div>
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#fff2e5] text-[#ff6636]">
-                      <Layers3 className="size-4.5" />
-                    </div>
-                  </div>
-
-                  <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1 space-y-2">
-                    <CourseOutline
-                      courseSlug={course.slug}
-                      orderedModules={orderedModules}
-                      unassignedLessons={unassignedLessons}
-                      showNoModuleHeader={course.showUnassignedHeader ?? true}
-                      activeLessonId={currentLesson.id}
-                      lessonIndexMap={lessonIndexMap}
-                      completionMap={progressData?.lessonProgress ?? {}}
-                      hasEnrollment={Boolean(initialEnrollmentId)}
-                    />
-                  </div>
-                </div>
-
-                {/* Study advice card */}
-                <div className="rounded-2xl border border-border bg-muted/40 p-6 space-y-4 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                    Study Mode
-                  </p>
-                  <div className="space-y-4 text-xs leading-relaxed text-muted-foreground font-semibold">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="mt-0.5 size-4 shrink-0 text-[#ff6636]" />
-                      <p className="mt-0.5">Read the lesson once, then revisit the outline for context.</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="mt-0.5 size-4 shrink-0 text-[#ff6636]" />
-                      <p className="mt-0.5">Mark progress only after you can explain the idea back in your own words.</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="mt-0.5 size-4 shrink-0 text-[#ff6636]" />
-                      <p className="mt-0.5">Move to the next lesson while the examples are still fresh.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
-      </main>
-
-      <MarketingPublicFooter />
+      </div>
     </div>
   );
 }

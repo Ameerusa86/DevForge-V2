@@ -145,18 +145,18 @@ function LessonRow({
   return (
     <Link
       href={`/courses/${courseSlug}/lessons/${lesson.id}`}
-      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5 hover:shadow-sm"
+      className="group flex items-start gap-3.5 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5 hover:shadow-2xs"
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground transition-colors duration-200 group-hover:bg-[#ff6636]/10 group-hover:text-[#ff6636]">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground transition-colors duration-200 group-hover:bg-[#ff6636]/10 group-hover:text-[#ff6636] font-mono">
         {lesson.order}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-base font-semibold text-foreground transition-colors duration-200 group-hover:text-[#ff6636]">
+          <p className="text-sm font-semibold text-foreground transition-colors duration-200 group-hover:text-[#ff6636] leading-snug break-words">
             {lesson.title}
           </p>
           {lesson.isFree ? (
-            <span className="rounded-full bg-[#ff6636]/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ff6636]">
+            <span className="rounded-full bg-[#ff6636]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ff6636]">
               Preview
             </span>
           ) : null}
@@ -165,7 +165,7 @@ function LessonRow({
           Lesson {lesson.order} in this learning path.
         </p>
       </div>
-      <ArrowRight className="mt-1.5 size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#ff6636]" />
+      <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#ff6636]" />
     </Link>
   );
 }
@@ -618,22 +618,22 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                           >
                             <AccordionTrigger className="px-5 py-4.5 text-left hover:no-underline hover:bg-muted/40 transition-colors [&[data-state=open]]:bg-muted/30">
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between w-full pr-4">
-                                <div className="flex items-start gap-3">
-                                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                                <div className="flex items-start gap-3 min-w-0 flex-1">
+                                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
                                     <Layers3 className="size-4.5" />
                                   </span>
-                                  <div>
-                                    <p className="text-base font-bold text-foreground leading-tight">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-base font-bold text-foreground leading-snug break-words">
                                       {moduleItem.title}
                                     </p>
                                     {moduleItem.description ? (
-                                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal">
+                                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal break-words">
                                         {moduleItem.description}
                                       </p>
                                     ) : null}
                                   </div>
                                 </div>
-                                <span className="self-start sm:self-auto rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground shadow-sm">
+                                <span className="self-start sm:self-auto shrink-0 rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground shadow-2xs">
                                   {moduleItem.lessons.length}{" "}
                                   {pluralize(
                                     moduleItem.lessons.length,
