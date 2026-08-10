@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 interface StarRatingProps {
   rating: number;
   maxRating?: number;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | number;
   showValue?: boolean;
   interactive?: boolean;
   onRatingChange?: (rating: number) => void;
@@ -27,6 +27,15 @@ export function StarRating({
     md: "h-4 w-4",
     lg: "h-5 w-5",
   };
+
+  const resolvedSizeClass =
+    typeof size === "string"
+      ? sizeClasses[size] || sizeClasses.md
+      : size <= 14
+      ? sizeClasses.sm
+      : size >= 20
+      ? sizeClasses.lg
+      : sizeClasses.md;
 
   const handleStarClick = (value: number) => {
     if (interactive && onRatingChange) {
@@ -54,7 +63,7 @@ export function StarRating({
           >
             <Star
               className={cn(
-                sizeClasses[size],
+                resolvedSizeClass,
                 isFilled
                   ? "fill-yellow-400 text-yellow-400"
                   : "fill-muted text-muted-foreground"
@@ -69,7 +78,7 @@ export function StarRating({
               >
                 <Star
                   className={cn(
-                    sizeClasses[size],
+                    resolvedSizeClass,
                     "fill-yellow-400 text-yellow-400"
                   )}
                 />

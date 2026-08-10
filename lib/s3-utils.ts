@@ -3,7 +3,7 @@
  * @param keyOrUrl - Either just the S3 key or a full URL
  * @returns Full public URL to access the object
  */
-export function getS3PublicUrl(keyOrUrl: string): string {
+export function getS3PublicUrl(keyOrUrl?: string | null): string {
   if (!keyOrUrl) return "";
 
   // If it's a data URL (base64), return as-is for preview
@@ -36,7 +36,7 @@ export function getS3PublicUrl(keyOrUrl: string): string {
  * @param keyOrUrl - Either just the S3 key or a full URL
  * @returns URL that serves the image through /api/images/proxy/[key]
  */
-export function getProxiedImageUrl(keyOrUrl: string): string {
+export function getProxiedImageUrl(keyOrUrl?: string | null): string {
   if (!keyOrUrl) return "";
 
   // If it's a data URL, return as-is
@@ -68,7 +68,7 @@ export function getProxiedImageUrl(keyOrUrl: string): string {
  * Extract the object key from a Supabase Storage/S3 URL. Returns the input if it already
  * looks like a key. Returns null for data URLs or external URLs.
  */
-export function getS3KeyFromUrl(keyOrUrl: string): string | null {
+export function getS3KeyFromUrl(keyOrUrl?: string | null): string | null {
   if (!keyOrUrl || keyOrUrl.startsWith("data:")) {
     return null;
   }

@@ -505,7 +505,7 @@ export function ProfilePageComponent() {
                         >
                           {review.course.title}
                         </Link>
-                        <StarRating rating={review.rating} size={16} />
+                        <StarRating rating={review.rating} size="sm" />
                       </div>
                       <p className="text-xs text-muted-foreground font-medium leading-relaxed bg-card/60 p-3 rounded-lg border border-border/50">
                         {review.comment || "Rated without written comment."}

@@ -488,7 +488,9 @@ export default function DashboardPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 {data.enrollments.map((enrollment) => {
                   const state = getProgressState(enrollment.progress);
-                  const imageUrl = getProxiedImageUrl(enrollment.course.imageUrl);
+                  const imageUrl = enrollment.course.imageUrl
+                    ? getProxiedImageUrl(enrollment.course.imageUrl)
+                    : null;
 
                   return (
                     <div

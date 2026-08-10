@@ -621,7 +621,7 @@ export default function MyCoursesPage() {
             <div>
               <p className="text-xs text-muted-foreground mb-1 font-medium">{reviewCourse?.title}</p>
               <div className="flex items-center gap-1.5">
-                <StarRating rating={reviewRating} onRatingChange={setReviewRating} size={22} />
+                <StarRating rating={reviewRating} onRatingChange={setReviewRating} interactive size="lg" />
                 <span className="text-xs font-bold text-[#ff6636] ml-2">
                   {reviewRating > 0 ? `${reviewRating} / 5` : "Select rating"}
                 </span>
