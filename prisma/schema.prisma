@@ -85,7 +85,7 @@ model Course {
   slug                 String         @unique
   title                String
   description          String
-  category             CourseCategory
+  category             String
   level                CourseLevel    @default(BEGINNER)
   tags                 String[]       @default([])
   price                Decimal        @default(0)
@@ -214,17 +214,21 @@ enum CourseStatus {
   ARCHIVED
 }
 
-enum CourseCategory {
-  FRONTEND
-  BACKEND
-  FULL_STACK
-  PYTHON
-  POWERSHELL
-  JAVASCRIPT
-  TYPESCRIPT
-  CSHARP
-  DOT_NET
-  ASP_NET
+model CourseCategory {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?  @default("BookOpen")
+  color       String?  @default("text-[#ff6636]")
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+  @@map("course_category")
 }
 
 enum UserRole {

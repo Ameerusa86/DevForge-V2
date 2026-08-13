@@ -61,6 +61,7 @@ export const ModelName = {
   Lesson: 'Lesson',
   LessonProgress: 'LessonProgress',
   Review: 'Review',
+  CourseCategory: 'CourseCategory',
   fileUpload: 'fileUpload',
   Notification: 'Notification',
   ContactSettings: 'ContactSettings',
@@ -240,6 +241,22 @@ export const ReviewScalarFieldEnum = {
 } as const
 
 export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
+
+
+export const CourseCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  icon: 'icon',
+  color: 'color',
+  order: 'order',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CourseCategoryScalarFieldEnum = (typeof CourseCategoryScalarFieldEnum)[keyof typeof CourseCategoryScalarFieldEnum]
 
 
 export const FileUploadScalarFieldEnum = {

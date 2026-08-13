@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -22,7 +22,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { generateSlug } from "@/lib/slug";
 import { getProxiedImageUrl } from "@/lib/s3-utils";
-import { ArrowLeft, ImageIcon, Loader2, X, Plus, Sparkles, DollarSign, Clock, HelpCircle, Layers3 } from "lucide-react";
+import { getCategoryIcon, getCategoryColorTheme } from "@/lib/categories";
+import type { CourseCategory } from "@/types/course";
+import { ArrowLeft, ImageIcon, Loader2, X, Plus, Sparkles, DollarSign, Clock, HelpCircle, Layers3, FolderPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function CreateCoursePage() {
@@ -42,8 +44,27 @@ export default function CreateCoursePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [categories, setCategories] = useState<CourseCategory[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch("/api/admin/categories");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setCategories(data.data.filter((c: CourseCategory) => c.isActive));
+        }
+      } catch (err) {
+        console.warn("Failed to load categories:", err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    }
+    loadCategories();
+  }, []);
 
   const {
     uploadedImage,
@@ -277,22 +298,35 @@ export default function CreateCoursePage() {
                 
                 {/* Category */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="category" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="category" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category *</Label>
+                    <Link
+                      href="/admin/categories"
+                      target="_blank"
+                      className="text-[10px] font-bold text-[#ff6636] hover:underline inline-flex items-center gap-0.5"
+                    >
+                      <FolderPlus className="size-3" /> Manage
+                    </Link>
+                  </div>
                   <Select value={category} onValueChange={setCategory} required>
                     <SelectTrigger id="category" className="h-10 rounded-xl border-border text-xs font-semibold">
-                      <SelectValue placeholder="Select course category" />
+                      <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select course category"} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="FRONTEND" className="text-xs font-semibold">Frontend</SelectItem>
-                      <SelectItem value="BACKEND" className="text-xs font-semibold">Backend</SelectItem>
-                      <SelectItem value="FULL_STACK" className="text-xs font-semibold">Full Stack</SelectItem>
-                      <SelectItem value="PYTHON" className="text-xs font-semibold">Python</SelectItem>
-                      <SelectItem value="POWERSHELL" className="text-xs font-semibold">PowerShell</SelectItem>
-                      <SelectItem value="JAVASCRIPT" className="text-xs font-semibold">JavaScript</SelectItem>
-                      <SelectItem value="TYPESCRIPT" className="text-xs font-semibold">TypeScript</SelectItem>
-                      <SelectItem value="CSHARP" className="text-xs font-semibold">C#</SelectItem>
-                      <SelectItem value="DOT_NET" className="text-xs font-semibold">.NET</SelectItem>
-                      <SelectItem value="ASP_NET" className="text-xs font-semibold">ASP.NET</SelectItem>
+                    <SelectContent className="rounded-xl max-h-60">
+                      {categories.map((cat) => {
+                        const Icon = getCategoryIcon(cat.icon);
+                        const theme = getCategoryColorTheme(cat.color);
+                        return (
+                          <SelectItem key={cat.id} value={cat.slug} className="text-xs font-semibold">
+                            <div className="flex items-center gap-2">
+                              <span className={`flex size-4 items-center justify-center rounded-sm ${theme.bg} ${theme.text}`}>
+                                <Icon className="size-2.5" />
+                              </span>
+                              <span>{cat.name}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>

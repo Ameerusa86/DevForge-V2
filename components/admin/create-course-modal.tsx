@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,19 +31,6 @@ import { Plus, Loader2 } from "lucide-react";
 import { Course, CreateCourseModalProps } from "@/types/course";
 import { toast } from "sonner";
 
-const CATEGORIES = [
-  { value: "FRONTEND", label: "Frontend" },
-  { value: "BACKEND", label: "Backend" },
-  { value: "FULL_STACK", label: "Full Stack" },
-  { value: "PYTHON", label: "Python" },
-  { value: "POWERSHELL", label: "PowerShell" },
-  { value: "JAVASCRIPT", label: "JavaScript" },
-  { value: "TYPESCRIPT", label: "TypeScript" },
-  { value: "CSHARP", label: "C#" },
-  { value: "DOT_NET", label: ".NET" },
-  { value: "ASP_NET", label: "ASP.NET" },
-];
-
 const DIFFICULTY_LEVELS = [
   { value: "BEGINNER", label: "Beginner" },
   { value: "INTERMEDIATE", label: "Intermediate" },
@@ -54,6 +41,7 @@ const DIFFICULTY_LEVELS = [
 export function CreateCourseModal({ onCourseCreated }: CreateCourseModalProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -63,6 +51,30 @@ export function CreateCourseModal({ onCourseCreated }: CreateCourseModalProps) {
     price: "",
     imageUrl: "",
   });
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch("/api/admin/categories");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setCategories(
+            data.data
+              .filter((c: { isActive: boolean }) => c.isActive)
+              .map((c: { slug: string; name: string }) => ({
+                value: c.slug,
+                label: c.name,
+              }))
+          );
+        }
+      } catch (err) {
+        console.warn("Failed to load categories in modal:", err);
+      }
+    }
+    if (open) {
+      loadCategories();
+    }
+  }, [open]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -218,7 +230,7 @@ export function CreateCourseModal({ onCourseCreated }: CreateCourseModalProps) {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {CATEGORIES.map((cat) => (
+                          {categories.map((cat) => (
                             <SelectItem key={cat.value} value={cat.value}>
                               {cat.label}
                             </SelectItem>

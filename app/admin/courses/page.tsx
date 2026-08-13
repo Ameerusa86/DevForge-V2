@@ -140,33 +140,13 @@ type AttentionFilter =
 
 type BulkUpdatePayload = {
   status?: "PUBLISHED" | "DRAFT" | "ARCHIVED";
-  category?:
-    | "FRONTEND"
-    | "BACKEND"
-    | "FULL_STACK"
-    | "PYTHON"
-    | "POWERSHELL"
-    | "JAVASCRIPT"
-    | "TYPESCRIPT"
-    | "CSHARP"
-    | "DOT_NET"
-    | "ASP_NET";
+  category?: string;
 };
 
 type BulkActionSnapshot = {
   id: string;
   status: "PUBLISHED" | "DRAFT" | "ARCHIVED";
-  category:
-    | "FRONTEND"
-    | "BACKEND"
-    | "FULL_STACK"
-    | "PYTHON"
-    | "POWERSHELL"
-    | "JAVASCRIPT"
-    | "TYPESCRIPT"
-    | "CSHARP"
-    | "DOT_NET"
-    | "ASP_NET";
+  category: string;
 };
 
 type PendingBulkAction = {
@@ -218,10 +198,24 @@ export default function CoursesPage() {
   const [savingSchedule, setSavingSchedule] = useState(false);
   const [publishAtInput, setPublishAtInput] = useState("");
   const [unpublishAtInput, setUnpublishAtInput] = useState("");
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug: string }>>([]);
 
   useEffect(() => {
     fetchCourses();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/admin/categories");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setCategories(data.data.filter((c: { isActive: boolean }) => c.isActive));
+      }
+    } catch (err) {
+      console.warn("Failed to fetch categories for bulk actions:", err);
+    }
+  };
 
   const fetchCourses = async () => {
     try {
@@ -983,33 +977,19 @@ export default function CoursesPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Apply Category</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {[
-                        "FRONTEND",
-                        "BACKEND",
-                        "FULL_STACK",
-                        "PYTHON",
-                        "POWERSHELL",
-                        "JAVASCRIPT",
-                        "TYPESCRIPT",
-                        "CSHARP",
-                        "DOT_NET",
-                        "ASP_NET",
-                      ].map((category) => (
+                      {categories.map((cat) => (
                         <DropdownMenuItem
-                          key={category}
+                          key={cat.id}
                           onClick={() =>
                             openBulkActionConfirm(
                               {
-                                category:
-                                  category as BulkUpdatePayload["category"],
+                                category: cat.slug,
                               },
-                              `set category to ${category}`,
+                              `set category to ${cat.name}`,
                             )
                           }
                         >
-                          {category}
+                          {cat.name} ({cat.slug})
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>

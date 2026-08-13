@@ -7,18 +7,6 @@ import { logCourseAuditEventSafe } from "@/lib/course-audit";
 import { getErrorMessage } from "@/lib/utils";
 
 const ALLOWED_STATUSES = new Set(["PUBLISHED", "DRAFT", "ARCHIVED"]);
-const ALLOWED_CATEGORIES = new Set([
-  "FRONTEND",
-  "BACKEND",
-  "FULL_STACK",
-  "PYTHON",
-  "POWERSHELL",
-  "JAVASCRIPT",
-  "TYPESCRIPT",
-  "CSHARP",
-  "DOT_NET",
-  "ASP_NET",
-]);
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -47,23 +35,15 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    if (category && !ALLOWED_CATEGORIES.has(category)) {
-      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    if (category) {
+      if (typeof category !== "string" || !category.trim()) {
+        return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+      }
     }
 
     const updateData: {
       status?: "PUBLISHED" | "DRAFT" | "ARCHIVED";
-      category?:
-        | "FRONTEND"
-        | "BACKEND"
-        | "FULL_STACK"
-        | "PYTHON"
-        | "POWERSHELL"
-        | "JAVASCRIPT"
-        | "TYPESCRIPT"
-        | "CSHARP"
-        | "DOT_NET"
-        | "ASP_NET";
+      category?: string;
       publishedAt?: Date | null;
     } = {};
 
@@ -73,17 +53,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (category) {
-      updateData.category = category as
-        | "FRONTEND"
-        | "BACKEND"
-        | "FULL_STACK"
-        | "PYTHON"
-        | "POWERSHELL"
-        | "JAVASCRIPT"
-        | "TYPESCRIPT"
-        | "CSHARP"
-        | "DOT_NET"
-        | "ASP_NET";
+      updateData.category = category.trim();
     }
 
     const result = await prisma.course.updateMany({

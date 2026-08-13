@@ -394,6 +394,7 @@ export const ModelName = {
   Lesson: 'Lesson',
   LessonProgress: 'LessonProgress',
   Review: 'Review',
+  CourseCategory: 'CourseCategory',
   fileUpload: 'fileUpload',
   Notification: 'Notification',
   ContactSettings: 'ContactSettings',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "course" | "module" | "enrollment" | "lesson" | "lessonProgress" | "review" | "fileUpload" | "notification" | "contactSettings" | "contactFaq" | "systemStatus" | "service" | "incident" | "incidentUpdate" | "maintenanceWindow" | "pricingPlan" | "pricingFeature" | "lessonQuestion" | "lessonAnswer"
+    modelProps: "user" | "session" | "account" | "verification" | "course" | "module" | "enrollment" | "lesson" | "lessonProgress" | "review" | "courseCategory" | "fileUpload" | "notification" | "contactSettings" | "contactFaq" | "systemStatus" | "service" | "incident" | "incidentUpdate" | "maintenanceWindow" | "pricingPlan" | "pricingFeature" | "lessonQuestion" | "lessonAnswer"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1163,6 +1164,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ReviewCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ReviewCountAggregateOutputType> | number
+        }
+      }
+    }
+    CourseCategory: {
+      payload: Prisma.$CourseCategoryPayload<ExtArgs>
+      fields: Prisma.CourseCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CourseCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CourseCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.CourseCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CourseCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.CourseCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.CourseCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.CourseCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CourseCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.CourseCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>
+        }
+        update: {
+          args: Prisma.CourseCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.CourseCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CourseCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CourseCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.CourseCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourseCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.CourseCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCourseCategory>
+        }
+        groupBy: {
+          args: Prisma.CourseCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CourseCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CourseCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CourseCategoryCountAggregateOutputType> | number
         }
       }
     }
@@ -2317,6 +2392,22 @@ export const ReviewScalarFieldEnum = {
 export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
 
 
+export const CourseCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  icon: 'icon',
+  color: 'color',
+  order: 'order',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CourseCategoryScalarFieldEnum = (typeof CourseCategoryScalarFieldEnum)[keyof typeof CourseCategoryScalarFieldEnum]
+
+
 export const FileUploadScalarFieldEnum = {
   id: 'id',
   fileName: 'fileName',
@@ -2599,20 +2690,6 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'CourseCategory'
- */
-export type EnumCourseCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CourseCategory'>
-    
-
-
-/**
- * Reference to a field of type 'CourseCategory[]'
- */
-export type ListEnumCourseCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CourseCategory[]'>
-    
-
-
-/**
  * Reference to a field of type 'CourseLevel'
  */
 export type EnumCourseLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CourseLevel'>
@@ -2842,6 +2919,7 @@ export type GlobalOmitConfig = {
   lesson?: Prisma.LessonOmit
   lessonProgress?: Prisma.LessonProgressOmit
   review?: Prisma.ReviewOmit
+  courseCategory?: Prisma.CourseCategoryOmit
   fileUpload?: Prisma.fileUploadOmit
   notification?: Prisma.NotificationOmit
   contactSettings?: Prisma.ContactSettingsOmit

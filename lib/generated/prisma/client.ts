@@ -90,6 +90,11 @@ export type LessonProgress = Prisma.LessonProgressModel
  */
 export type Review = Prisma.ReviewModel
 /**
+ * Model CourseCategory
+ * 
+ */
+export type CourseCategory = Prisma.CourseCategoryModel
+/**
  * Model fileUpload
  * 
  */

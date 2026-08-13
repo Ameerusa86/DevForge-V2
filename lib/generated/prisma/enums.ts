@@ -28,22 +28,6 @@ export const CourseStatus = {
 export type CourseStatus = (typeof CourseStatus)[keyof typeof CourseStatus]
 
 
-export const CourseCategory = {
-  FRONTEND: 'FRONTEND',
-  BACKEND: 'BACKEND',
-  FULL_STACK: 'FULL_STACK',
-  PYTHON: 'PYTHON',
-  POWERSHELL: 'POWERSHELL',
-  JAVASCRIPT: 'JAVASCRIPT',
-  TYPESCRIPT: 'TYPESCRIPT',
-  CSHARP: 'CSHARP',
-  DOT_NET: 'DOT_NET',
-  ASP_NET: 'ASP_NET'
-} as const
-
-export type CourseCategory = (typeof CourseCategory)[keyof typeof CourseCategory]
-
-
 export const UserRole = {
   ADMIN: 'ADMIN',
   INSTRUCTOR: 'INSTRUCTOR',

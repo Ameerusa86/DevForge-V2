@@ -10,18 +10,26 @@ export const CourseLevelSchema = z.enum([
 
 export const CourseStatusSchema = z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]);
 
-export const CourseCategorySchema = z.enum([
-  "FRONTEND",
-  "BACKEND",
-  "FULL_STACK",
-  "PYTHON",
-  "POWERSHELL",
-  "JAVASCRIPT",
-  "TYPESCRIPT",
-  "CSHARP",
-  "DOT_NET",
-  "ASP_NET",
-]);
+export const CourseCategorySchema = z
+  .string()
+  .min(1, "Category is required")
+  .max(100, "Category name is too long");
+
+// Category management schemas
+export const CreateCategorySchema = z.object({
+  name: z.string().min(1, "Category name is required").max(100),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .regex(/^[A-Za-z0-9_-]+$/, "Slug can only contain letters, numbers, hyphens and underscores"),
+  description: z.string().max(500).optional().nullable(),
+  icon: z.string().optional().nullable(),
+  color: z.string().optional().nullable(),
+  order: z.number().int().default(0).optional(),
+  isActive: z.boolean().default(true).optional(),
+});
+
+export const UpdateCategorySchema = CreateCategorySchema.partial();
 
 // User schemas
 export const UserSchema = z.object({

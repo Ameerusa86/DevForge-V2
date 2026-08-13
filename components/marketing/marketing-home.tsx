@@ -131,7 +131,15 @@ const CAT: Record<
 };
 
 function getCat(category: string) {
-  return CAT[category] ?? CAT.FULL_STACK;
+  const upper = (category || "").toUpperCase();
+  if (CAT[upper]) return CAT[upper];
+  if (CAT[category]) return CAT[category];
+  return {
+    label: (category || "General").replace(/[_-]+/g, " "),
+    icon: Code2,
+    color: "text-[#ff6636]",
+    bg: "bg-[#ff6636]/10",
+  };
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────

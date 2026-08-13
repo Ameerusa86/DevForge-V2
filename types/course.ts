@@ -1,19 +1,23 @@
+export interface CourseCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  courseCount?: number;
+}
+
 export interface Course {
   id: string;
   slug: string;
   title: string;
   description: string;
-  category:
-    | "FRONTEND"
-    | "BACKEND"
-    | "FULL_STACK"
-    | "PYTHON"
-    | "POWERSHELL"
-    | "JAVASCRIPT"
-    | "TYPESCRIPT"
-    | "CSHARP"
-    | "DOT_NET"
-    | "ASP_NET";
+  category: string;
   level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
   tags: string[];
   price: number;

@@ -41,7 +41,7 @@ export type CourseMinAggregateOutputType = {
   slug: string | null
   title: string | null
   description: string | null
-  category: $Enums.CourseCategory | null
+  category: string | null
   level: $Enums.CourseLevel | null
   price: runtime.Decimal | null
   durationMinutes: number | null
@@ -60,7 +60,7 @@ export type CourseMaxAggregateOutputType = {
   slug: string | null
   title: string | null
   description: string | null
-  category: $Enums.CourseCategory | null
+  category: string | null
   level: $Enums.CourseLevel | null
   price: runtime.Decimal | null
   durationMinutes: number | null
@@ -256,7 +256,7 @@ export type CourseGroupByOutputType = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level: $Enums.CourseLevel
   tags: string[]
   price: runtime.Decimal
@@ -299,7 +299,7 @@ export type CourseWhereInput = {
   slug?: Prisma.StringFilter<"Course"> | string
   title?: Prisma.StringFilter<"Course"> | string
   description?: Prisma.StringFilter<"Course"> | string
-  category?: Prisma.EnumCourseCategoryFilter<"Course"> | $Enums.CourseCategory
+  category?: Prisma.StringFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -354,7 +354,7 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CourseWhereInput | Prisma.CourseWhereInput[]
   title?: Prisma.StringFilter<"Course"> | string
   description?: Prisma.StringFilter<"Course"> | string
-  category?: Prisma.EnumCourseCategoryFilter<"Course"> | $Enums.CourseCategory
+  category?: Prisma.StringFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -408,7 +408,7 @@ export type CourseScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringWithAggregatesFilter<"Course"> | string
   title?: Prisma.StringWithAggregatesFilter<"Course"> | string
   description?: Prisma.StringWithAggregatesFilter<"Course"> | string
-  category?: Prisma.EnumCourseCategoryWithAggregatesFilter<"Course"> | $Enums.CourseCategory
+  category?: Prisma.StringWithAggregatesFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelWithAggregatesFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalWithAggregatesFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -428,7 +428,7 @@ export type CourseCreateInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -452,7 +452,7 @@ export type CourseUncheckedCreateInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -476,7 +476,7 @@ export type CourseUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -500,7 +500,7 @@ export type CourseUncheckedUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -524,7 +524,7 @@ export type CourseCreateManyInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -544,7 +544,7 @@ export type CourseUpdateManyMutationInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -562,7 +562,7 @@ export type CourseUncheckedUpdateManyInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -756,10 +756,6 @@ export type CourseCreatetagsInput = {
   set: string[]
 }
 
-export type EnumCourseCategoryFieldUpdateOperationsInput = {
-  set?: $Enums.CourseCategory
-}
-
 export type EnumCourseLevelFieldUpdateOperationsInput = {
   set?: $Enums.CourseLevel
 }
@@ -850,7 +846,7 @@ export type CourseCreateWithoutUserInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -873,7 +869,7 @@ export type CourseUncheckedCreateWithoutUserInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -906,7 +902,7 @@ export type CourseCreateWithoutInstructorInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -929,7 +925,7 @@ export type CourseUncheckedCreateWithoutInstructorInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -981,7 +977,7 @@ export type CourseScalarWhereInput = {
   slug?: Prisma.StringFilter<"Course"> | string
   title?: Prisma.StringFilter<"Course"> | string
   description?: Prisma.StringFilter<"Course"> | string
-  category?: Prisma.EnumCourseCategoryFilter<"Course"> | $Enums.CourseCategory
+  category?: Prisma.StringFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1017,7 +1013,7 @@ export type CourseCreateWithoutModulesInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1040,7 +1036,7 @@ export type CourseUncheckedCreateWithoutModulesInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1079,7 +1075,7 @@ export type CourseUpdateWithoutModulesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1102,7 +1098,7 @@ export type CourseUncheckedUpdateWithoutModulesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1125,7 +1121,7 @@ export type CourseCreateWithoutEnrollmentsInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1148,7 +1144,7 @@ export type CourseUncheckedCreateWithoutEnrollmentsInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1187,7 +1183,7 @@ export type CourseUpdateWithoutEnrollmentsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1210,7 +1206,7 @@ export type CourseUncheckedUpdateWithoutEnrollmentsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1233,7 +1229,7 @@ export type CourseCreateWithoutLessonsInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1256,7 +1252,7 @@ export type CourseUncheckedCreateWithoutLessonsInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1295,7 +1291,7 @@ export type CourseUpdateWithoutLessonsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1318,7 +1314,7 @@ export type CourseUncheckedUpdateWithoutLessonsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1341,7 +1337,7 @@ export type CourseCreateWithoutReviewsInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1364,7 +1360,7 @@ export type CourseUncheckedCreateWithoutReviewsInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1403,7 +1399,7 @@ export type CourseUpdateWithoutReviewsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1426,7 +1422,7 @@ export type CourseUncheckedUpdateWithoutReviewsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1449,7 +1445,7 @@ export type CourseCreateManyUserInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1468,7 +1464,7 @@ export type CourseCreateManyInstructorInput = {
   slug: string
   title: string
   description: string
-  category: $Enums.CourseCategory
+  category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1487,7 +1483,7 @@ export type CourseUpdateWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1510,7 +1506,7 @@ export type CourseUncheckedUpdateWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1533,7 +1529,7 @@ export type CourseUncheckedUpdateManyWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1552,7 +1548,7 @@ export type CourseUpdateWithoutInstructorInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1575,7 +1571,7 @@ export type CourseUncheckedUpdateWithoutInstructorInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1598,7 +1594,7 @@ export type CourseUncheckedUpdateManyWithoutInstructorInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumCourseCategoryFieldUpdateOperationsInput | $Enums.CourseCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1795,7 +1791,7 @@ export type $CoursePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     slug: string
     title: string
     description: string
-    category: $Enums.CourseCategory
+    category: string
     level: $Enums.CourseLevel
     tags: string[]
     price: runtime.Decimal
@@ -2241,7 +2237,7 @@ export interface CourseFieldRefs {
   readonly slug: Prisma.FieldRef<"Course", 'String'>
   readonly title: Prisma.FieldRef<"Course", 'String'>
   readonly description: Prisma.FieldRef<"Course", 'String'>
-  readonly category: Prisma.FieldRef<"Course", 'CourseCategory'>
+  readonly category: Prisma.FieldRef<"Course", 'String'>
   readonly level: Prisma.FieldRef<"Course", 'CourseLevel'>
   readonly tags: Prisma.FieldRef<"Course", 'String[]'>
   readonly price: Prisma.FieldRef<"Course", 'Decimal'>

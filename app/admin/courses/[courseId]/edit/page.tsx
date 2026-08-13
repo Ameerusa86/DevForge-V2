@@ -18,12 +18,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FolderPlus } from "lucide-react";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { FileUpload } from "@/components/admin/file-upload";
 import { CoursePreview } from "@/components/admin/course-preview";
 import { generateSlug } from "@/lib/slug";
+import { getCategoryIcon, getCategoryColorTheme } from "@/lib/categories";
+import type { CourseCategory } from "@/types/course";
 import { toast } from "sonner";
 
 interface EditCoursePageProps {
@@ -50,6 +52,8 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
   const [status, setStatus] = useState("DRAFT");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [categories, setCategories] = useState<CourseCategory[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   // File upload state
   const {
@@ -64,14 +68,23 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
     uploadError,
   } = useFileUpload();
 
-  // Fetch existing course data
+  // Fetch existing course data and categories
   useEffect(() => {
-    const fetchCourse = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/admin/courses/${courseId}`);
-        if (!response.ok) throw new Error("Failed to fetch course");
+        const [courseRes, catRes] = await Promise.all([
+          fetch(`/api/admin/courses/${courseId}`),
+          fetch("/api/admin/categories"),
+        ]);
 
-        const course = await response.json();
+        if (!courseRes.ok) throw new Error("Failed to fetch course");
+
+        const course = await courseRes.json();
+        const catData = await catRes.json();
+
+        if (catData.success && Array.isArray(catData.data)) {
+          setCategories(catData.data);
+        }
 
         setTitle(course.title);
         setSlug(course.slug);
@@ -84,14 +97,15 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         setImageUrl(course.imageUrl || "");
         setStatus(course.status || "DRAFT");
       } catch (error) {
-        console.error("Error fetching course:", error);
+        console.error("Error fetching course data:", error);
         toast.error("Failed to load course data");
       } finally {
         setIsFetching(false);
+        setLoadingCategories(false);
       }
     };
 
-    fetchCourse();
+    fetchData();
   }, [courseId]);
 
   // Auto-generate slug from title
@@ -308,22 +322,35 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category *</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="category">Category *</Label>
+                      <Link
+                        href="/admin/categories"
+                        target="_blank"
+                        className="text-[11px] font-bold text-[#ff6636] hover:underline inline-flex items-center gap-0.5"
+                      >
+                        <FolderPlus className="size-3" /> Manage
+                      </Link>
+                    </div>
                     <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
+                      <SelectTrigger id="category" className="rounded-xl border-border text-xs font-semibold">
+                        <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select category"} />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="FRONTEND">Frontend</SelectItem>
-                        <SelectItem value="BACKEND">Backend</SelectItem>
-                        <SelectItem value="FULL_STACK">Full Stack</SelectItem>
-                        <SelectItem value="PYTHON">Python</SelectItem>
-                        <SelectItem value="POWERSHELL">PowerShell</SelectItem>
-                        <SelectItem value="JAVASCRIPT">JavaScript</SelectItem>
-                        <SelectItem value="TYPESCRIPT">TypeScript</SelectItem>
-                        <SelectItem value="CSHARP">C#</SelectItem>
-                        <SelectItem value="DOT_NET">.NET</SelectItem>
-                        <SelectItem value="ASP_NET">ASP.NET</SelectItem>
+                      <SelectContent className="rounded-xl max-h-60">
+                        {categories.map((cat) => {
+                          const Icon = getCategoryIcon(cat.icon);
+                          const theme = getCategoryColorTheme(cat.color);
+                          return (
+                            <SelectItem key={cat.id} value={cat.slug} className="text-xs font-semibold">
+                              <div className="flex items-center gap-2">
+                                <span className={`flex size-4 items-center justify-center rounded-sm ${theme.bg} ${theme.text}`}>
+                                  <Icon className="size-2.5" />
+                                </span>
+                                <span>{cat.name}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>

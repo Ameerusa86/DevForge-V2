@@ -114,8 +114,26 @@ const CAT_CONFIG: Record<
   ASP_NET:    { label: "ASP.NET",     icon: Globe,       color: "text-teal-500",   bg: "bg-teal-500/10"   },
 };
 
+function formatCategoryLabel(str: string): string {
+  if (!str) return "";
+  if (CAT_CONFIG[str]?.label) return CAT_CONFIG[str].label;
+  const upper = str.toUpperCase();
+  if (CAT_CONFIG[upper]?.label) return CAT_CONFIG[upper].label;
+  return str
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function getCat(category: string) {
-  return CAT_CONFIG[category] ?? { label: category, icon: BookOpen, color: "text-[#ff6636]", bg: "bg-[#ff6636]/10" };
+  const upper = (category || "").toUpperCase();
+  if (CAT_CONFIG[upper]) return CAT_CONFIG[upper];
+  if (CAT_CONFIG[category]) return CAT_CONFIG[category];
+  return {
+    label: formatCategoryLabel(category),
+    icon: BookOpen,
+    color: "text-[#ff6636]",
+    bg: "bg-[#ff6636]/10",
+  };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
