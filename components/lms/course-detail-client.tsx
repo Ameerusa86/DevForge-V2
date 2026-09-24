@@ -39,6 +39,7 @@ export interface LessonItem {
   order: number;
   isFree?: boolean;
   moduleId?: string | null;
+  phaseId?: string | null;
 }
 
 export interface ModuleItem {
@@ -46,6 +47,7 @@ export interface ModuleItem {
   title: string;
   order: number;
   description?: string | null;
+  phaseId?: string | null;
   lessons: LessonItem[];
 }
 
@@ -65,7 +67,7 @@ export interface CourseDetail {
   modules?: ModuleItem[];
   showUnassignedHeader?: boolean;
   enrollments: number;
-  phases?: { title: string; description?: string }[] | null;
+  phases?: { id: string; title: string; description?: string }[] | null;
 }
 
 function formatPrice(price: number) {
