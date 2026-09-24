@@ -46,7 +46,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
   const [level, setLevel] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [phases, setPhases] = useState<{title: string, description: string}[]>([]);
+  const [phases, setPhases] = useState<{id: string, title: string, description?: string}[]>([]);
   const [phaseTitleInput, setPhaseTitleInput] = useState("");
   const [phaseDescInput, setPhaseDescInput] = useState("");
   const [price, setPrice] = useState("");
@@ -95,8 +95,18 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         setCategory(course.category);
         setLevel(course.level);
         setTags(course.tags || []);
-        if (course.phases && Array.isArray(course.phases)) {
-          setPhases(course.phases);
+        if (course.phases) {
+          let parsedPhases: any[] = [];
+          if (Array.isArray(course.phases)) {
+            parsedPhases = course.phases;
+          } else if (typeof course.phases === "string") {
+            try {
+              parsedPhases = JSON.parse(course.phases);
+            } catch (e) {
+              console.error("Failed to parse phases JSON", e);
+            }
+          }
+          setPhases(parsedPhases.map((p, i) => ({ ...p, id: p.id || crypto.randomUUID() })));
         }
         setPrice(course.price?.toString() || "");
         setDurationMinutes(course.durationMinutes?.toString() || "");
@@ -135,7 +145,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
     const titleTrimmed = phaseTitleInput.trim();
     const descTrimmed = phaseDescInput.trim();
     if (titleTrimmed) {
-      setPhases((prev) => [...prev, { title: titleTrimmed, description: descTrimmed }]);
+      setPhases((prev) => [...prev, { id: crypto.randomUUID(), title: titleTrimmed, description: descTrimmed }]);
       setPhaseTitleInput("");
       setPhaseDescInput("");
     }

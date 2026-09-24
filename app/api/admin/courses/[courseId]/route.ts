@@ -215,7 +215,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating course:", error);
     return NextResponse.json(
-      { error: "Failed to update course" },
+      { error: error instanceof Error ? error.message : String(error) },
       { status: 500 },
     );
   }

@@ -114,6 +114,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
+  const [phases, setPhases] = useState<{id: string, title: string, description?: string}[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false);
   const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
@@ -153,12 +154,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     content: "",
     isFree: false,
     moduleId: "",
+    phaseId: "none",
   });
 
   const [moduleForm, setModuleForm] = useState({
     title: "",
     order: 1,
     description: "",
+    phaseId: "none",
   });
 
   const dialogTitle = useMemo(
@@ -312,6 +315,18 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         if (!response.ok) throw new Error("Failed to load course settings");
         const data = await response.json();
         setShowUnassignedHeader(data.showUnassignedHeader ?? true);
+        
+        let parsedPhases: any[] = [];
+        if (Array.isArray(data.phases)) {
+          parsedPhases = data.phases;
+        } else if (typeof data.phases === "string") {
+          try {
+            parsedPhases = JSON.parse(data.phases);
+          } catch (e) {
+            console.error("Failed to parse phases JSON", e);
+          }
+        }
+        setPhases(parsedPhases.map((p, i) => ({ ...p, id: p.id || `phase-${i}` })));
       } catch (error) {
         console.error(error);
         toast.error("Failed to load course settings");
@@ -348,6 +363,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       content: LESSON_TEMPLATE,
       isFree: false,
       moduleId: "",
+      phaseId: "none",
     });
     setActiveTab("edit");
     setIsDialogOpen(true);
@@ -362,6 +378,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       content: lesson.content,
       isFree: lesson.isFree || false,
       moduleId: lesson.moduleId || "",
+      phaseId: lesson.phaseId || "none",
     });
     setActiveTab("edit");
     setIsDialogOpen(true);
@@ -374,6 +391,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       content: LESSON_TEMPLATE,
       isFree: false,
       moduleId: "",
+      phaseId: "none",
     });
     setActiveTab("edit");
     toast.success("Reset", { description: "Template restored." });
@@ -399,6 +417,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             title: moduleForm.title,
             order: moduleForm.order,
             description: moduleForm.description,
+            phaseId: moduleForm.phaseId === "none" ? null : moduleForm.phaseId,
           }),
         });
 
@@ -414,6 +433,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           title: "",
           order: modules.length + 1,
           description: "",
+          phaseId: "none",
         });
         setEditingModuleId(null);
         toast.success("Module updated", {
@@ -429,6 +449,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             title: moduleForm.title,
             order: moduleForm.order,
             description: moduleForm.description,
+            phaseId: moduleForm.phaseId === "none" ? null : moduleForm.phaseId,
           }),
         });
 
@@ -442,6 +463,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           title: "",
           order: modules.length + 2,
           description: "",
+          phaseId: "none",
         });
         toast.success("Module created", {
           description: `${newModule.title} has been added.`,
@@ -465,6 +487,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       title: moduleItem.title,
       order: moduleItem.order,
       description: moduleItem.description || "",
+      phaseId: moduleItem.phaseId || "none",
     });
   };
 
@@ -474,6 +497,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       title: "",
       order: modules.length + 1,
       description: "",
+      phaseId: "none",
     });
   };
 
@@ -653,6 +677,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             content: formData.content,
             isFree: formData.isFree,
             moduleId: formData.moduleId || null,
+            phaseId: formData.phaseId === "none" ? null : formData.phaseId,
           }),
         });
 
@@ -674,6 +699,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           content: "",
           isFree: false,
           moduleId: "",
+          phaseId: "none",
         });
       } else {
         const response = await fetch("/api/admin/lessons", {
@@ -686,6 +712,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             content: formData.content,
             isFree: formData.isFree,
             moduleId: formData.moduleId || null,
+            phaseId: formData.phaseId === "none" ? null : formData.phaseId,
           }),
         });
 
@@ -711,6 +738,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             content: LESSON_TEMPLATE,
             isFree: false,
             moduleId: selectedModuleId,
+            phaseId: formData.phaseId,
           });
           setShowAdvancedLessonFields(false);
           setActiveTab("edit");
@@ -731,6 +759,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             content: "",
             isFree: false,
             moduleId: "",
+            phaseId: "none",
           });
         }
       }
@@ -953,6 +982,40 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 }
                 className="h-10 rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
               />
+            </div>
+
+            <div className="col-span-12 lg:col-span-3 space-y-1.5">
+              <Label htmlFor="module-phase" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Phase Assignment
+              </Label>
+              <Select
+                value={moduleForm.phaseId || "none"}
+                onValueChange={(value) =>
+                  setModuleForm({
+                    ...moduleForm,
+                    phaseId: value === "none" ? "none" : value,
+                  })
+                }
+              >
+                <SelectTrigger
+                  id="module-phase"
+                  className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
+                >
+                  <SelectValue placeholder="Choose a phase" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="none" className="text-xs font-semibold">Unassigned</SelectItem>
+                  {phases.map((phase) => (
+                    <SelectItem
+                      key={phase.id}
+                      value={phase.id}
+                      className="text-xs font-semibold"
+                    >
+                      {phase.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="col-span-12 lg:col-span-3 space-y-1.5">
@@ -1366,6 +1429,41 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                               {moduleItem.title}
                             </SelectItem>
                           ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Phase */}
+                  <div className="col-span-12 lg:col-span-5 space-y-1.5">
+                    <Label htmlFor="lesson-phase" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Phase Assignment
+                    </Label>
+                    <Select
+                      value={formData.phaseId || "none"}
+                      onValueChange={(value) =>
+                        setFormData({
+                          ...formData,
+                          phaseId: value === "none" ? "none" : value,
+                        })
+                      }
+                    >
+                      <SelectTrigger
+                        id="lesson-phase"
+                        className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
+                      >
+                        <SelectValue placeholder="Choose a phase" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="none" className="text-xs font-semibold">Unassigned</SelectItem>
+                        {phases.map((phase) => (
+                          <SelectItem
+                            key={phase.id}
+                            value={phase.id}
+                            className="text-xs font-semibold"
+                          >
+                            {phase.title}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

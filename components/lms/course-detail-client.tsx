@@ -566,35 +566,182 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                 </div>
               </section>
 
-              {/* Course Phases */}
-              {course.phases && course.phases.length > 0 && (
-                <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                    Project Roadmap
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                    Implementation Phases
-                  </h2>
-                  <div className="mt-6 space-y-4">
-                    {course.phases.map((phase, index) => (
-                      <div key={index} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-muted/20 items-start">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636] font-bold text-sm">
-                          {index + 1}
-                        </div>
-                        <div>
-                          <h3 className="text-base font-bold text-foreground">{phase.title}</h3>
-                          {phase.description && (
-                            <p className="text-sm mt-1.5 text-muted-foreground">{phase.description}</p>
+              {/* Phases and Curriculum unified view */}
+              {(() => {
+                let parsedPhases: any[] = [];
+                if (Array.isArray(course.phases)) {
+                  parsedPhases = course.phases;
+                } else if (typeof course.phases === "string") {
+                  try {
+                    parsedPhases = JSON.parse(course.phases);
+                  } catch (e) {
+                    console.error("Failed to parse phases JSON", e);
+                  }
+                }
+                const normalizedPhases = parsedPhases.map((p, i) => ({ ...p, id: p.id || `phase-${i}` }));
+
+                return normalizedPhases.length > 0 ? (
+                  <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                          Curriculum
+                        </p>
+                        <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                          Implementation Phases
+                        </h2>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs font-bold text-muted-foreground">
+                        <span className="rounded-full border border-border bg-muted px-3.5 py-1.5 uppercase tracking-wider">
+                          {sortedLessons.length}{" "}
+                          {pluralize(sortedLessons.length, "lesson")}
+                        </span>
+                        <span className="rounded-full border border-border bg-muted px-3.5 py-1.5 uppercase tracking-wider">
+                          {moduleCount} {pluralize(moduleCount, "module")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 space-y-8">
+                      {normalizedPhases.map((phase, index) => {
+                      const phaseModules = orderedModules.filter(m => m.phaseId === phase.id);
+                      const phaseStandaloneLessons = unassignedLessons.filter(l => l.phaseId === phase.id);
+
+                      return (
+                        <div key={phase.id} className="space-y-4">
+                          <div className="flex gap-4 p-4 rounded-xl border border-border/50 bg-muted/20 items-center">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636] font-bold text-sm">
+                              {index + 1}
+                            </div>
+                            <div className="flex flex-col justify-center">
+                              <h3 className="text-base font-bold text-foreground leading-none">{phase.title}</h3>
+                              {phase.description && (
+                                <p className="text-sm mt-2 text-muted-foreground leading-snug">{phase.description}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {phaseStandaloneLessons.length > 0 && (
+                            <div className="grid gap-3 lg:pl-14">
+                              {phaseStandaloneLessons.map((lesson) => (
+                                <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                              ))}
+                            </div>
+                          )}
+
+                          {phaseModules.length > 0 && (
+                            <div className="lg:pl-14">
+                              <Accordion type="multiple" className="w-full space-y-3.5">
+                                {phaseModules.map((moduleItem) => (
+                                  <AccordionItem
+                                    key={moduleItem.id}
+                                    value={moduleItem.id}
+                                    className="border border-border rounded-xl overflow-hidden bg-muted/15 transition-all duration-300 hover:border-border/80"
+                                  >
+                                    <AccordionTrigger className="px-5 py-4.5 text-left hover:no-underline hover:bg-muted/40 transition-colors [&[data-state=open]]:bg-muted/30">
+                                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between w-full pr-4">
+                                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                                          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+                                            <Layers3 className="size-4.5" />
+                                          </span>
+                                          <div className="min-w-0 flex-1">
+                                            <p className="text-base font-bold text-foreground leading-snug break-words">
+                                              {moduleItem.title}
+                                            </p>
+                                            {moduleItem.description ? (
+                                              <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal break-words">
+                                                {moduleItem.description}
+                                              </p>
+                                            ) : null}
+                                          </div>
+                                        </div>
+                                        <span className="self-start sm:self-auto shrink-0 rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground shadow-2xs">
+                                          {moduleItem.lessons.length} {pluralize(moduleItem.lessons.length, "lesson")}
+                                        </span>
+                                      </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-5 pt-3 pb-5 border-t border-border/40 bg-card">
+                                      <div className="grid gap-3 mt-1">
+                                        {moduleItem.lessons.slice().sort((a, b) => a.order - b.order).map((lesson) => (
+                                          <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                        ))}
+                                      </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                ))}
+                              </Accordion>
+                            </div>
                           )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
+
+                    {(() => {
+                      const unassignedPhaseModules = orderedModules.filter(m => !m.phaseId || m.phaseId === "none");
+                      const unassignedPhaseLessons = unassignedLessons.filter(l => !l.phaseId || l.phaseId === "none");
+                      
+                      if (unassignedPhaseModules.length === 0 && unassignedPhaseLessons.length === 0) return null;
+
+                      return (
+                        <div className="space-y-4 pt-6 border-t border-border/50">
+                          <h3 className="text-sm font-bold text-foreground lg:pl-14">Other Curriculum</h3>
+                          {unassignedPhaseLessons.length > 0 && (
+                            <div className="grid gap-3 lg:pl-14">
+                              {unassignedPhaseLessons.map((lesson) => (
+                                <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                              ))}
+                            </div>
+                          )}
+
+                          {unassignedPhaseModules.length > 0 && (
+                            <div className="lg:pl-14">
+                              <Accordion type="multiple" className="w-full space-y-3.5">
+                                {unassignedPhaseModules.map((moduleItem) => (
+                                  <AccordionItem
+                                    key={moduleItem.id}
+                                    value={moduleItem.id}
+                                    className="border border-border rounded-xl overflow-hidden bg-muted/15 transition-all duration-300 hover:border-border/80"
+                                  >
+                                    <AccordionTrigger className="px-5 py-4.5 text-left hover:no-underline hover:bg-muted/40 transition-colors [&[data-state=open]]:bg-muted/30">
+                                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between w-full pr-4">
+                                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                                          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+                                            <Layers3 className="size-4.5" />
+                                          </span>
+                                          <div className="min-w-0 flex-1">
+                                            <p className="text-base font-bold text-foreground leading-snug break-words">
+                                              {moduleItem.title}
+                                            </p>
+                                            {moduleItem.description ? (
+                                              <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal break-words">
+                                                {moduleItem.description}
+                                              </p>
+                                            ) : null}
+                                          </div>
+                                        </div>
+                                        <span className="self-start sm:self-auto shrink-0 rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground shadow-2xs">
+                                          {moduleItem.lessons.length} {pluralize(moduleItem.lessons.length, "lesson")}
+                                        </span>
+                                      </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-5 pt-3 pb-5 border-t border-border/40 bg-card">
+                                      <div className="grid gap-3 mt-1">
+                                        {moduleItem.lessons.slice().sort((a, b) => a.order - b.order).map((lesson) => (
+                                          <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                        ))}
+                                      </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                ))}
+                              </Accordion>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </section>
-              )}
-
-              {/* Curriculum Breakdown */}
-              {sortedLessons.length > 0 ? (
+              ) : sortedLessons.length > 0 ? (
                 <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
                     <div>
@@ -690,7 +837,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     </div>
                   ) : null}
                 </section>
-              ) : null}
+              ) : null; })()}
 
               {/* Reviews Section */}
               <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-6">

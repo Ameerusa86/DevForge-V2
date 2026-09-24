@@ -10,7 +10,7 @@ export async function PATCH(
   try {
     const { lessonId } = await params;
     const body = await request.json();
-    const { title, content, order, isFree, moduleId } = body;
+    const { title, content, order, isFree, moduleId, phaseId } = body;
 
     const lesson = await prisma.lesson.update({
       where: { id: lessonId },
@@ -20,6 +20,7 @@ export async function PATCH(
         ...(order !== undefined && { order }),
         ...(isFree !== undefined && { isFree }),
         ...(moduleId !== undefined && { moduleId: moduleId || null }),
+        ...(phaseId !== undefined && { phaseId: phaseId || null }),
       },
     });
 

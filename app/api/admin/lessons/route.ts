@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { courseId, title, content, order, isFree, moduleId } = body;
+    const { courseId, title, content, order, isFree, moduleId, phaseId } = body;
 
     if (!courseId || !title || !content) {
       return NextResponse.json(
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         order: order || 0,
         isFree: isFree || false,
         moduleId: moduleId || null,
+        phaseId: phaseId || null,
       },
     });
 

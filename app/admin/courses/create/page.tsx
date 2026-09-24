@@ -37,7 +37,7 @@ export default function CreateCoursePage() {
   const [level, setLevel] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [phases, setPhases] = useState<{title: string, description: string}[]>([]);
+  const [phases, setPhases] = useState<{id: string, title: string, description: string}[]>([]);
   const [phaseTitleInput, setPhaseTitleInput] = useState("");
   const [phaseDescInput, setPhaseDescInput] = useState("");
   const [price, setPrice] = useState("");
@@ -98,7 +98,7 @@ export default function CreateCoursePage() {
     const titleTrimmed = phaseTitleInput.trim();
     const descTrimmed = phaseDescInput.trim();
     if (titleTrimmed) {
-      setPhases((prev) => [...prev, { title: titleTrimmed, description: descTrimmed }]);
+      setPhases((prev) => [...prev, { id: crypto.randomUUID(), title: titleTrimmed, description: descTrimmed }]);
       setPhaseTitleInput("");
       setPhaseDescInput("");
     }

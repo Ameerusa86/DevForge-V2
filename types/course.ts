@@ -20,7 +20,7 @@ export interface Course {
   category: string;
   level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
   tags: string[];
-  phases?: { title: string; description?: string }[] | null;
+  phases?: { id: string; title: string; description?: string }[] | null;
   price: number;
   durationMinutes?: number;
   imageUrl?: string;
@@ -51,6 +51,7 @@ export interface Lesson {
   order: number;
   content: string;
   isFree?: boolean;
+  phaseId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,6 +62,7 @@ export interface Module {
   title: string;
   order: number;
   description?: string | null;
+  phaseId?: string | null;
   lessons?: Lesson[];
   createdAt?: string;
   updatedAt?: string;

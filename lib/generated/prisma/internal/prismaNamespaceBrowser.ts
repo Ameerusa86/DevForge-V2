@@ -184,6 +184,7 @@ export const ModuleScalarFieldEnum = {
   title: 'title',
   order: 'order',
   description: 'description',
+  phaseId: 'phaseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -211,6 +212,7 @@ export const LessonScalarFieldEnum = {
   order: 'order',
   content: 'content',
   isFree: 'isFree',
+  phaseId: 'phaseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

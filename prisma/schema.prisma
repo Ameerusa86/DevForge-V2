@@ -122,6 +122,7 @@ model Module {
   title       String
   order       Int
   description String?
+  phaseId     String?
   lessons     Lesson[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -156,6 +157,7 @@ model Lesson {
   order     Int
   content   String
   isFree    Boolean          @default(false)
+  phaseId   String?
   progress  LessonProgress[]
   questions LessonQuestion[]
   createdAt DateTime         @default(now())

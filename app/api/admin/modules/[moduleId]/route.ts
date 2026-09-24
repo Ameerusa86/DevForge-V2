@@ -10,7 +10,7 @@ export async function PATCH(
   try {
     const { moduleId } = await params;
     const body = await request.json();
-    const { title, order, description } = body;
+    const { title, order, description, phaseId } = body;
 
     const moduleItem = await prisma.module.update({
       where: { id: moduleId },
@@ -18,6 +18,7 @@ export async function PATCH(
         ...(title && { title }),
         ...(order !== undefined && { order: Number(order) }),
         ...(description !== undefined && { description: description || null }),
+        ...(phaseId !== undefined && { phaseId: phaseId || null }),
       },
     });
 
