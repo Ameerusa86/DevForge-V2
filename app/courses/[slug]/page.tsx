@@ -26,6 +26,7 @@ async function getCourseBySlug(slug: string): Promise<CourseDetail | null> {
           order: true,
           isFree: true,
           moduleId: true,
+          phaseId: true,
         },
         orderBy: { order: "asc" },
       },
@@ -35,6 +36,7 @@ async function getCourseBySlug(slug: string): Promise<CourseDetail | null> {
           title: true,
           order: true,
           description: true,
+          phaseId: true,
           lessons: {
             select: {
               id: true,
@@ -42,6 +44,7 @@ async function getCourseBySlug(slug: string): Promise<CourseDetail | null> {
               order: true,
               isFree: true,
               moduleId: true,
+              phaseId: true,
             },
             orderBy: { order: "asc" },
           },
@@ -58,7 +61,7 @@ async function getCourseBySlug(slug: string): Promise<CourseDetail | null> {
 
   return {
     ...course,
-    phases: course.phases as { title: string; description?: string }[] | null,
+    phases: course.phases as { id: string; title: string; description?: string }[] | null,
     instructor: course.instructor.name,
     lessons: course.lessons,
     modules: course.modules,
