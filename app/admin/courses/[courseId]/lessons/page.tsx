@@ -1176,8 +1176,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       </Card>
 
       {/* Lessons Table Card */}
-      <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden mt-6">
-        <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center justify-between space-y-0">
+      <Card className="mt-6 border-none shadow-none bg-transparent">
+        <CardHeader className="px-6 py-4 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
             <PencilLine className="size-4.5 text-[#ff6636]" />
             Lesson Units ({lessons.length})
@@ -1232,7 +1232,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-muted/10">
+              <TableHeader className="bg-muted/10 [&_tr]:border-none">
                 <TableRow className="hover:bg-transparent border-none">
                   <TableHead className="w-12 px-6 py-3">
                     <Checkbox
