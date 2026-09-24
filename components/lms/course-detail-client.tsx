@@ -65,6 +65,7 @@ export interface CourseDetail {
   modules?: ModuleItem[];
   showUnassignedHeader?: boolean;
   enrollments: number;
+  phases?: { title: string; description?: string }[] | null;
 }
 
 function formatPrice(price: number) {
@@ -564,6 +565,33 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                   ))}
                 </div>
               </section>
+
+              {/* Course Phases */}
+              {course.phases && course.phases.length > 0 && (
+                <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Project Roadmap
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    Implementation Phases
+                  </h2>
+                  <div className="mt-6 space-y-4">
+                    {course.phases.map((phase, index) => (
+                      <div key={index} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-muted/20 items-start">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636] font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-foreground">{phase.title}</h3>
+                          {phase.description && (
+                            <p className="text-sm mt-1.5 text-muted-foreground">{phase.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Curriculum Breakdown */}
               {sortedLessons.length > 0 ? (

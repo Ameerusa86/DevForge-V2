@@ -37,6 +37,9 @@ export default function CreateCoursePage() {
   const [level, setLevel] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [phases, setPhases] = useState<{title: string, description: string}[]>([]);
+  const [phaseTitleInput, setPhaseTitleInput] = useState("");
+  const [phaseDescInput, setPhaseDescInput] = useState("");
   const [price, setPrice] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -89,6 +92,20 @@ export default function CreateCoursePage() {
 
   const handleRemoveTag = (index: number) => {
     setTags((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddPhase = () => {
+    const titleTrimmed = phaseTitleInput.trim();
+    const descTrimmed = phaseDescInput.trim();
+    if (titleTrimmed) {
+      setPhases((prev) => [...prev, { title: titleTrimmed, description: descTrimmed }]);
+      setPhaseTitleInput("");
+      setPhaseDescInput("");
+    }
+  };
+
+  const handleRemovePhase = (index: number) => {
+    setPhases((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleImageFile = (file: File) => {
@@ -160,6 +177,7 @@ export default function CreateCoursePage() {
           category,
           level,
           tags,
+          phases,
           status,
           price: parseFloat(price) || 0,
           durationMinutes: durationMinutes
@@ -390,6 +408,65 @@ export default function CreateCoursePage() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Course Phases */}
+              <div className="space-y-4 pt-2 border-t border-border/50">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Course Phases (Optional)</Label>
+                  <p className="text-[9px] text-muted-foreground">Add phases if this course is structured into distinct project stages.</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="grid gap-2">
+                    <Input
+                      placeholder="Phase Title (e.g. Phase 1: Static UI)"
+                      value={phaseTitleInput}
+                      onChange={(e) => setPhaseTitleInput(e.target.value)}
+                      className="h-9 rounded-lg border-border text-xs font-semibold placeholder:text-muted-foreground/60"
+                    />
+                    <Textarea
+                      placeholder="Phase Description (Optional)"
+                      value={phaseDescInput}
+                      onChange={(e) => setPhaseDescInput(e.target.value)}
+                      rows={2}
+                      className="min-h-16 rounded-lg border-border text-xs font-semibold placeholder:text-muted-foreground/60"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddPhase}
+                      disabled={!phaseTitleInput.trim()}
+                      className="w-full text-xs font-bold uppercase tracking-wider border-dashed hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all"
+                    >
+                      <Plus className="mr-1.5 size-3" /> Add Phase
+                    </Button>
+                  </div>
+                  
+                  {phases.length > 0 && (
+                    <div className="space-y-2 mt-4">
+                      {phases.map((phase, index) => (
+                        <div key={index} className="flex items-start justify-between gap-2 rounded-xl border border-border p-3 bg-muted/20 relative group">
+                          <div>
+                            <h4 className="text-xs font-bold text-foreground">{phase.title}</h4>
+                            {phase.description && (
+                              <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{phase.description}</p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhase(index)}
+                            className="text-muted-foreground hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 p-1"
+                            title="Remove Phase"
+                          >
+                            <X className="size-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
             </CardContent>

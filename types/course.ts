@@ -20,6 +20,7 @@ export interface Course {
   category: string;
   level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
   tags: string[];
+  phases?: { title: string; description?: string }[] | null;
   price: number;
   durationMinutes?: number;
   imageUrl?: string;

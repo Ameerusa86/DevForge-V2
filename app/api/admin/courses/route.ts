@@ -110,6 +110,7 @@ export async function POST(request: NextRequest) {
       durationMinutes,
       imageUrl,
       tags,
+      phases,
       status,
       instructorId,
     } = body;
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
         durationMinutes: durationMinutes ? parseInt(durationMinutes) : null,
         imageUrl: imageUrl || null,
         tags: tags || [],
+        phases: phases || null,
         status: status || "DRAFT",
         publishedAt: status === "PUBLISHED" ? new Date() : null,
         instructorId,

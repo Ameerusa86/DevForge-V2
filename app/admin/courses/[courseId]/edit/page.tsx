@@ -46,6 +46,9 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
   const [level, setLevel] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [phases, setPhases] = useState<{title: string, description: string}[]>([]);
+  const [phaseTitleInput, setPhaseTitleInput] = useState("");
+  const [phaseDescInput, setPhaseDescInput] = useState("");
   const [price, setPrice] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -92,6 +95,9 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         setCategory(course.category);
         setLevel(course.level);
         setTags(course.tags || []);
+        if (course.phases && Array.isArray(course.phases)) {
+          setPhases(course.phases);
+        }
         setPrice(course.price?.toString() || "");
         setDurationMinutes(course.durationMinutes?.toString() || "");
         setImageUrl(course.imageUrl || "");
@@ -123,6 +129,20 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
 
   const handleRemoveTag = (index: number) => {
     setTags(tags.filter((_, i) => i !== index));
+  };
+
+  const handleAddPhase = () => {
+    const titleTrimmed = phaseTitleInput.trim();
+    const descTrimmed = phaseDescInput.trim();
+    if (titleTrimmed) {
+      setPhases((prev) => [...prev, { title: titleTrimmed, description: descTrimmed }]);
+      setPhaseTitleInput("");
+      setPhaseDescInput("");
+    }
+  };
+
+  const handleRemovePhase = (index: number) => {
+    setPhases((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleImageInputChange = (file: File) => {
@@ -179,6 +199,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         category,
         level,
         tags,
+        phases,
         status,
         price: parseFloat(price) || 0,
         durationMinutes: durationMinutes
@@ -454,6 +475,62 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                       </button>
                     </Badge>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Course Phases */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Course Phases (Optional)</CardTitle>
+                <p className="text-sm text-muted-foreground">Add phases if this course is structured into distinct project stages.</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="grid gap-2">
+                    <Input
+                      placeholder="Phase Title (e.g. Phase 1: Static UI)"
+                      value={phaseTitleInput}
+                      onChange={(e) => setPhaseTitleInput(e.target.value)}
+                    />
+                    <Textarea
+                      placeholder="Phase Description (Optional)"
+                      value={phaseDescInput}
+                      onChange={(e) => setPhaseDescInput(e.target.value)}
+                      rows={2}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddPhase}
+                      disabled={!phaseTitleInput.trim()}
+                    >
+                      Add Phase
+                    </Button>
+                  </div>
+                  
+                  {phases.length > 0 && (
+                    <div className="space-y-2 mt-4">
+                      {phases.map((phase, index) => (
+                        <div key={index} className="flex items-start justify-between gap-2 rounded-xl border border-border p-3 bg-muted/20">
+                          <div>
+                            <h4 className="text-sm font-bold text-foreground">{phase.title}</h4>
+                            {phase.description && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{phase.description}</p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhase(index)}
+                            className="text-muted-foreground hover:text-destructive"
+                            title="Remove Phase"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

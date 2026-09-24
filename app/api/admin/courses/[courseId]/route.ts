@@ -78,6 +78,7 @@ export async function PATCH(
       durationMinutes,
       imageUrl,
       tags,
+      phases,
       status,
       publishedAt,
       showUnassignedHeader,
@@ -107,6 +108,7 @@ export async function PATCH(
         ...(durationMinutes && { durationMinutes: parseInt(durationMinutes) }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(tags && { tags }),
+        ...(phases !== undefined && { phases }),
         ...(status && { status }),
         ...(showUnassignedHeader !== undefined && { showUnassignedHeader }),
         ...(publishedAt !== undefined && {

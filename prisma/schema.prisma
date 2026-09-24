@@ -88,6 +88,7 @@ model Course {
   category             String
   level                CourseLevel    @default(BEGINNER)
   tags                 String[]       @default([])
+  phases               Json?
   price                Decimal        @default(0)
   durationMinutes      Int?
   imageUrl             String?

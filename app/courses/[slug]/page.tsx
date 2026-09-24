@@ -58,6 +58,7 @@ async function getCourseBySlug(slug: string): Promise<CourseDetail | null> {
 
   return {
     ...course,
+    phases: course.phases as { title: string; description?: string }[] | null,
     instructor: course.instructor.name,
     lessons: course.lessons,
     modules: course.modules,
