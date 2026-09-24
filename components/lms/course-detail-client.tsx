@@ -604,7 +604,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       </div>
                     </div>
 
-                    <div className="mt-8 space-y-8">
+                    <Accordion type="multiple" className="mt-8 space-y-6 w-full" defaultValue={normalizedPhases.map(p => p.id)}>
                       {normalizedPhases.map((phase, index) => {
                       const phaseModules = orderedModules.map(m => {
                         const isModuleInPhase = m.phaseId === phase.id;
@@ -619,26 +619,34 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       const phaseStandaloneLessons = unassignedLessons.filter(l => l.phaseId === phase.id);
 
                       return (
-                        <div key={phase.id} className="space-y-4">
-                          <div className="flex gap-4 p-4 rounded-xl border border-border/50 bg-muted/20 items-center">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636] font-bold text-sm">
-                              {index + 1}
+                        <AccordionItem
+                          key={phase.id}
+                          value={phase.id}
+                          className="border border-border rounded-2xl overflow-hidden bg-card transition-all duration-300 shadow-sm"
+                        >
+                          <AccordionTrigger className="px-6 py-5 hover:no-underline hover:bg-muted/40 transition-colors [&[data-state=open]]:bg-muted/20 group">
+                            <div className="flex items-center gap-5 text-left w-full pr-4">
+                              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636] font-bold text-base transition-colors group-hover:bg-[#ff6636]/20">
+                                {index + 1}
+                              </div>
+                              <div className="flex flex-col justify-center">
+                                <h3 className="text-xl font-bold text-foreground leading-snug">{phase.title}</h3>
+                                {phase.description && (
+                                  <p className="text-sm mt-1 text-muted-foreground leading-relaxed font-normal">{phase.description}</p>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex flex-col justify-center">
-                              <h3 className="text-base font-bold text-foreground leading-none">{phase.title}</h3>
-                              {phase.description && (
-                                <p className="text-sm mt-2 text-muted-foreground leading-snug">{phase.description}</p>
-                              )}
-                            </div>
-                          </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-6 pt-5 pb-7 border-t border-border/40 bg-card/50">
+                            <div className="space-y-6">
 
-                          {phaseStandaloneLessons.length > 0 && (
-                            <div className="grid gap-3 lg:pl-14">
-                              {phaseStandaloneLessons.map((lesson) => (
-                                <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
-                              ))}
-                            </div>
-                          )}
+                              {phaseStandaloneLessons.length > 0 && (
+                                <div className="grid gap-3">
+                                  {phaseStandaloneLessons.map((lesson) => (
+                                    <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                  ))}
+                                </div>
+                              )}
 
                           {phaseModules.length > 0 && (
                             <div className="lg:pl-14">
@@ -680,12 +688,15 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                                     </AccordionContent>
                                   </AccordionItem>
                                 ))}
-                              </Accordion>
+                                </Accordion>
+                              </div>
+                            )}
                             </div>
-                          )}
-                        </div>
+                          </AccordionContent>
+                        </AccordionItem>
                       );
                     })}
+                    </Accordion>
 
                     {(() => {
                       const unassignedPhaseModules = orderedModules.map(m => {
