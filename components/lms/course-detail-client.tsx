@@ -606,7 +606,16 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
                     <div className="mt-8 space-y-8">
                       {normalizedPhases.map((phase, index) => {
-                      const phaseModules = orderedModules.filter(m => m.phaseId === phase.id);
+                      const phaseModules = orderedModules.map(m => {
+                        const isModuleInPhase = m.phaseId === phase.id;
+                        const lessonsInThisPhase = m.lessons.filter(l => l.phaseId === phase.id || (!l.phaseId && isModuleInPhase));
+                        
+                        if (isModuleInPhase || lessonsInThisPhase.length > 0) {
+                          return { ...m, lessons: lessonsInThisPhase };
+                        }
+                        return null;
+                      }).filter(Boolean) as typeof orderedModules;
+
                       const phaseStandaloneLessons = unassignedLessons.filter(l => l.phaseId === phase.id);
 
                       return (
@@ -679,7 +688,19 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     })}
 
                     {(() => {
-                      const unassignedPhaseModules = orderedModules.filter(m => !m.phaseId || m.phaseId === "none");
+                      const unassignedPhaseModules = orderedModules.map(m => {
+                        const isModuleUnassigned = !m.phaseId || m.phaseId === "none";
+                        const unassignedModuleLessons = m.lessons.filter(l => {
+                          const isLessonUnassigned = !l.phaseId || l.phaseId === "none";
+                          return isLessonUnassigned && isModuleUnassigned;
+                        });
+                        
+                        if (isModuleUnassigned && (unassignedModuleLessons.length > 0 || m.lessons.length === 0)) {
+                          return { ...m, lessons: unassignedModuleLessons };
+                        }
+                        return null;
+                      }).filter(Boolean) as typeof orderedModules;
+
                       const unassignedPhaseLessons = unassignedLessons.filter(l => !l.phaseId || l.phaseId === "none");
                       
                       if (unassignedPhaseModules.length === 0 && unassignedPhaseLessons.length === 0) return null;
