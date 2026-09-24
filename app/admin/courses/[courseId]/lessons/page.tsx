@@ -182,6 +182,13 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     }, {});
   }, [modules]);
 
+  const phaseNameMap = useMemo(() => {
+    return phases.reduce<Record<string, string>>((acc, phaseItem) => {
+      acc[phaseItem.id] = phaseItem.title;
+      return acc;
+    }, {});
+  }, [phases]);
+
   const moveItem = <T extends { id: string }>(
     items: T[],
     fromId: string,
@@ -1226,7 +1233,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           ) : (
             <Table>
               <TableHeader className="bg-muted/10">
-                <TableRow className="hover:bg-transparent border-b border-border/40">
+                <TableRow className="hover:bg-transparent border-none">
                   <TableHead className="w-12 px-6 py-3">
                     <Checkbox
                       checked={
@@ -1241,6 +1248,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                   <TableHead className="w-12 text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">#</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">Unit Title</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">Module Block</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 py-3">Phase</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6 py-3 text-right" />
                 </TableRow>
               </TableHeader>
@@ -1272,7 +1280,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         setDraggingLessonId(null);
                       }}
                       onDragEnd={() => setDraggingLessonId(null)}
-                      className="hover:bg-muted/10 border-b border-border/30 last:border-b-0 cursor-grab active:cursor-grabbing"
+                      className="hover:bg-muted/10 border-none cursor-grab active:cursor-grabbing"
                     >
                       <TableCell className="px-6 py-4">
                         <Checkbox
@@ -1303,6 +1311,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border/40">
                           {lesson.moduleId
                             ? moduleNameMap[lesson.moduleId] || "Unknown"
+                            : "Unassigned"}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="px-4 py-4">
+                        <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border/40">
+                          {lesson.phaseId && lesson.phaseId !== "none"
+                            ? phaseNameMap[lesson.phaseId] || "Unknown"
                             : "Unassigned"}
                         </span>
                       </TableCell>
