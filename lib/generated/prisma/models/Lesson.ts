@@ -28,10 +28,12 @@ export type AggregateLesson = {
 
 export type LessonAvgAggregateOutputType = {
   order: number | null
+  durationSeconds: number | null
 }
 
 export type LessonSumAggregateOutputType = {
   order: number | null
+  durationSeconds: number | null
 }
 
 export type LessonMinAggregateOutputType = {
@@ -42,6 +44,8 @@ export type LessonMinAggregateOutputType = {
   order: number | null
   content: string | null
   isFree: boolean | null
+  videoUrl: string | null
+  durationSeconds: number | null
   phaseId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -55,6 +59,8 @@ export type LessonMaxAggregateOutputType = {
   order: number | null
   content: string | null
   isFree: boolean | null
+  videoUrl: string | null
+  durationSeconds: number | null
   phaseId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -68,6 +74,8 @@ export type LessonCountAggregateOutputType = {
   order: number
   content: number
   isFree: number
+  videoUrl: number
+  durationSeconds: number
   phaseId: number
   createdAt: number
   updatedAt: number
@@ -77,10 +85,12 @@ export type LessonCountAggregateOutputType = {
 
 export type LessonAvgAggregateInputType = {
   order?: true
+  durationSeconds?: true
 }
 
 export type LessonSumAggregateInputType = {
   order?: true
+  durationSeconds?: true
 }
 
 export type LessonMinAggregateInputType = {
@@ -91,6 +101,8 @@ export type LessonMinAggregateInputType = {
   order?: true
   content?: true
   isFree?: true
+  videoUrl?: true
+  durationSeconds?: true
   phaseId?: true
   createdAt?: true
   updatedAt?: true
@@ -104,6 +116,8 @@ export type LessonMaxAggregateInputType = {
   order?: true
   content?: true
   isFree?: true
+  videoUrl?: true
+  durationSeconds?: true
   phaseId?: true
   createdAt?: true
   updatedAt?: true
@@ -117,6 +131,8 @@ export type LessonCountAggregateInputType = {
   order?: true
   content?: true
   isFree?: true
+  videoUrl?: true
+  durationSeconds?: true
   phaseId?: true
   createdAt?: true
   updatedAt?: true
@@ -217,6 +233,8 @@ export type LessonGroupByOutputType = {
   order: number
   content: string
   isFree: boolean
+  videoUrl: string | null
+  durationSeconds: number | null
   phaseId: string | null
   createdAt: Date
   updatedAt: Date
@@ -253,6 +271,8 @@ export type LessonWhereInput = {
   order?: Prisma.IntFilter<"Lesson"> | number
   content?: Prisma.StringFilter<"Lesson"> | string
   isFree?: Prisma.BoolFilter<"Lesson"> | boolean
+  videoUrl?: Prisma.StringNullableFilter<"Lesson"> | string | null
+  durationSeconds?: Prisma.IntNullableFilter<"Lesson"> | number | null
   phaseId?: Prisma.StringNullableFilter<"Lesson"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
@@ -260,6 +280,7 @@ export type LessonWhereInput = {
   module?: Prisma.XOR<Prisma.ModuleNullableScalarRelationFilter, Prisma.ModuleWhereInput> | null
   progress?: Prisma.LessonProgressListRelationFilter
   questions?: Prisma.LessonQuestionListRelationFilter
+  quiz?: Prisma.XOR<Prisma.QuizNullableScalarRelationFilter, Prisma.QuizWhereInput> | null
 }
 
 export type LessonOrderByWithRelationInput = {
@@ -270,6 +291,8 @@ export type LessonOrderByWithRelationInput = {
   order?: Prisma.SortOrder
   content?: Prisma.SortOrder
   isFree?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
   phaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -277,6 +300,7 @@ export type LessonOrderByWithRelationInput = {
   module?: Prisma.ModuleOrderByWithRelationInput
   progress?: Prisma.LessonProgressOrderByRelationAggregateInput
   questions?: Prisma.LessonQuestionOrderByRelationAggregateInput
+  quiz?: Prisma.QuizOrderByWithRelationInput
 }
 
 export type LessonWhereUniqueInput = Prisma.AtLeast<{
@@ -290,6 +314,8 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<{
   order?: Prisma.IntFilter<"Lesson"> | number
   content?: Prisma.StringFilter<"Lesson"> | string
   isFree?: Prisma.BoolFilter<"Lesson"> | boolean
+  videoUrl?: Prisma.StringNullableFilter<"Lesson"> | string | null
+  durationSeconds?: Prisma.IntNullableFilter<"Lesson"> | number | null
   phaseId?: Prisma.StringNullableFilter<"Lesson"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
@@ -297,6 +323,7 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<{
   module?: Prisma.XOR<Prisma.ModuleNullableScalarRelationFilter, Prisma.ModuleWhereInput> | null
   progress?: Prisma.LessonProgressListRelationFilter
   questions?: Prisma.LessonQuestionListRelationFilter
+  quiz?: Prisma.XOR<Prisma.QuizNullableScalarRelationFilter, Prisma.QuizWhereInput> | null
 }, "id">
 
 export type LessonOrderByWithAggregationInput = {
@@ -307,6 +334,8 @@ export type LessonOrderByWithAggregationInput = {
   order?: Prisma.SortOrder
   content?: Prisma.SortOrder
   isFree?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
   phaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -328,6 +357,8 @@ export type LessonScalarWhereWithAggregatesInput = {
   order?: Prisma.IntWithAggregatesFilter<"Lesson"> | number
   content?: Prisma.StringWithAggregatesFilter<"Lesson"> | string
   isFree?: Prisma.BoolWithAggregatesFilter<"Lesson"> | boolean
+  videoUrl?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null
+  durationSeconds?: Prisma.IntNullableWithAggregatesFilter<"Lesson"> | number | null
   phaseId?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Lesson"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Lesson"> | Date | string
@@ -339,6 +370,8 @@ export type LessonCreateInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -346,6 +379,7 @@ export type LessonCreateInput = {
   module?: Prisma.ModuleCreateNestedOneWithoutLessonsInput
   progress?: Prisma.LessonProgressCreateNestedManyWithoutLessonInput
   questions?: Prisma.LessonQuestionCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLessonInput
 }
 
 export type LessonUncheckedCreateInput = {
@@ -356,11 +390,14 @@ export type LessonUncheckedCreateInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   progress?: Prisma.LessonProgressUncheckedCreateNestedManyWithoutLessonInput
   questions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLessonInput
 }
 
 export type LessonUpdateInput = {
@@ -369,6 +406,8 @@ export type LessonUpdateInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +415,7 @@ export type LessonUpdateInput = {
   module?: Prisma.ModuleUpdateOneWithoutLessonsNestedInput
   progress?: Prisma.LessonProgressUpdateManyWithoutLessonNestedInput
   questions?: Prisma.LessonQuestionUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateInput = {
@@ -386,11 +426,14 @@ export type LessonUncheckedUpdateInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   progress?: Prisma.LessonProgressUncheckedUpdateManyWithoutLessonNestedInput
   questions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonCreateManyInput = {
@@ -401,6 +444,8 @@ export type LessonCreateManyInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -412,6 +457,8 @@ export type LessonUpdateManyMutationInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,6 +472,8 @@ export type LessonUncheckedUpdateManyInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -448,6 +497,8 @@ export type LessonCountOrderByAggregateInput = {
   order?: Prisma.SortOrder
   content?: Prisma.SortOrder
   isFree?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
   phaseId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -455,6 +506,7 @@ export type LessonCountOrderByAggregateInput = {
 
 export type LessonAvgOrderByAggregateInput = {
   order?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
 }
 
 export type LessonMaxOrderByAggregateInput = {
@@ -465,6 +517,8 @@ export type LessonMaxOrderByAggregateInput = {
   order?: Prisma.SortOrder
   content?: Prisma.SortOrder
   isFree?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
   phaseId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -478,6 +532,8 @@ export type LessonMinOrderByAggregateInput = {
   order?: Prisma.SortOrder
   content?: Prisma.SortOrder
   isFree?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
   phaseId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -485,6 +541,7 @@ export type LessonMinOrderByAggregateInput = {
 
 export type LessonSumOrderByAggregateInput = {
   order?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
 }
 
 export type LessonScalarRelationFilter = {
@@ -604,18 +661,35 @@ export type LessonUpdateOneRequiredWithoutQuestionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LessonUpdateToOneWithWhereWithoutQuestionsInput, Prisma.LessonUpdateWithoutQuestionsInput>, Prisma.LessonUncheckedUpdateWithoutQuestionsInput>
 }
 
+export type LessonCreateNestedOneWithoutQuizInput = {
+  create?: Prisma.XOR<Prisma.LessonCreateWithoutQuizInput, Prisma.LessonUncheckedCreateWithoutQuizInput>
+  connectOrCreate?: Prisma.LessonCreateOrConnectWithoutQuizInput
+  connect?: Prisma.LessonWhereUniqueInput
+}
+
+export type LessonUpdateOneRequiredWithoutQuizNestedInput = {
+  create?: Prisma.XOR<Prisma.LessonCreateWithoutQuizInput, Prisma.LessonUncheckedCreateWithoutQuizInput>
+  connectOrCreate?: Prisma.LessonCreateOrConnectWithoutQuizInput
+  upsert?: Prisma.LessonUpsertWithoutQuizInput
+  connect?: Prisma.LessonWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LessonUpdateToOneWithWhereWithoutQuizInput, Prisma.LessonUpdateWithoutQuizInput>, Prisma.LessonUncheckedUpdateWithoutQuizInput>
+}
+
 export type LessonCreateWithoutCourseInput = {
   id?: string
   title: string
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   module?: Prisma.ModuleCreateNestedOneWithoutLessonsInput
   progress?: Prisma.LessonProgressCreateNestedManyWithoutLessonInput
   questions?: Prisma.LessonQuestionCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLessonInput
 }
 
 export type LessonUncheckedCreateWithoutCourseInput = {
@@ -625,11 +699,14 @@ export type LessonUncheckedCreateWithoutCourseInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   progress?: Prisma.LessonProgressUncheckedCreateNestedManyWithoutLessonInput
   questions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLessonInput
 }
 
 export type LessonCreateOrConnectWithoutCourseInput = {
@@ -669,6 +746,8 @@ export type LessonScalarWhereInput = {
   order?: Prisma.IntFilter<"Lesson"> | number
   content?: Prisma.StringFilter<"Lesson"> | string
   isFree?: Prisma.BoolFilter<"Lesson"> | boolean
+  videoUrl?: Prisma.StringNullableFilter<"Lesson"> | string | null
+  durationSeconds?: Prisma.IntNullableFilter<"Lesson"> | number | null
   phaseId?: Prisma.StringNullableFilter<"Lesson"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
@@ -680,12 +759,15 @@ export type LessonCreateWithoutModuleInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   progress?: Prisma.LessonProgressCreateNestedManyWithoutLessonInput
   questions?: Prisma.LessonQuestionCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLessonInput
 }
 
 export type LessonUncheckedCreateWithoutModuleInput = {
@@ -695,11 +777,14 @@ export type LessonUncheckedCreateWithoutModuleInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   progress?: Prisma.LessonProgressUncheckedCreateNestedManyWithoutLessonInput
   questions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLessonInput
 }
 
 export type LessonCreateOrConnectWithoutModuleInput = {
@@ -734,12 +819,15 @@ export type LessonCreateWithoutProgressInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   module?: Prisma.ModuleCreateNestedOneWithoutLessonsInput
   questions?: Prisma.LessonQuestionCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLessonInput
 }
 
 export type LessonUncheckedCreateWithoutProgressInput = {
@@ -750,10 +838,13 @@ export type LessonUncheckedCreateWithoutProgressInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   questions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLessonInput
 }
 
 export type LessonCreateOrConnectWithoutProgressInput = {
@@ -778,12 +869,15 @@ export type LessonUpdateWithoutProgressInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   module?: Prisma.ModuleUpdateOneWithoutLessonsNestedInput
   questions?: Prisma.LessonQuestionUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateWithoutProgressInput = {
@@ -794,10 +888,13 @@ export type LessonUncheckedUpdateWithoutProgressInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonCreateWithoutQuestionsInput = {
@@ -806,12 +903,15 @@ export type LessonCreateWithoutQuestionsInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   module?: Prisma.ModuleCreateNestedOneWithoutLessonsInput
   progress?: Prisma.LessonProgressCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLessonInput
 }
 
 export type LessonUncheckedCreateWithoutQuestionsInput = {
@@ -822,10 +922,13 @@ export type LessonUncheckedCreateWithoutQuestionsInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   progress?: Prisma.LessonProgressUncheckedCreateNestedManyWithoutLessonInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLessonInput
 }
 
 export type LessonCreateOrConnectWithoutQuestionsInput = {
@@ -850,12 +953,15 @@ export type LessonUpdateWithoutQuestionsInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   module?: Prisma.ModuleUpdateOneWithoutLessonsNestedInput
   progress?: Prisma.LessonProgressUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateWithoutQuestionsInput = {
@@ -866,10 +972,97 @@ export type LessonUncheckedUpdateWithoutQuestionsInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   progress?: Prisma.LessonProgressUncheckedUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLessonNestedInput
+}
+
+export type LessonCreateWithoutQuizInput = {
+  id?: string
+  title: string
+  order: number
+  content: string
+  isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
+  phaseId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  course: Prisma.CourseCreateNestedOneWithoutLessonsInput
+  module?: Prisma.ModuleCreateNestedOneWithoutLessonsInput
+  progress?: Prisma.LessonProgressCreateNestedManyWithoutLessonInput
+  questions?: Prisma.LessonQuestionCreateNestedManyWithoutLessonInput
+}
+
+export type LessonUncheckedCreateWithoutQuizInput = {
+  id?: string
+  courseId: string
+  moduleId?: string | null
+  title: string
+  order: number
+  content: string
+  isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
+  phaseId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  progress?: Prisma.LessonProgressUncheckedCreateNestedManyWithoutLessonInput
+  questions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutLessonInput
+}
+
+export type LessonCreateOrConnectWithoutQuizInput = {
+  where: Prisma.LessonWhereUniqueInput
+  create: Prisma.XOR<Prisma.LessonCreateWithoutQuizInput, Prisma.LessonUncheckedCreateWithoutQuizInput>
+}
+
+export type LessonUpsertWithoutQuizInput = {
+  update: Prisma.XOR<Prisma.LessonUpdateWithoutQuizInput, Prisma.LessonUncheckedUpdateWithoutQuizInput>
+  create: Prisma.XOR<Prisma.LessonCreateWithoutQuizInput, Prisma.LessonUncheckedCreateWithoutQuizInput>
+  where?: Prisma.LessonWhereInput
+}
+
+export type LessonUpdateToOneWithWhereWithoutQuizInput = {
+  where?: Prisma.LessonWhereInput
+  data: Prisma.XOR<Prisma.LessonUpdateWithoutQuizInput, Prisma.LessonUncheckedUpdateWithoutQuizInput>
+}
+
+export type LessonUpdateWithoutQuizInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
+  module?: Prisma.ModuleUpdateOneWithoutLessonsNestedInput
+  progress?: Prisma.LessonProgressUpdateManyWithoutLessonNestedInput
+  questions?: Prisma.LessonQuestionUpdateManyWithoutLessonNestedInput
+}
+
+export type LessonUncheckedUpdateWithoutQuizInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  moduleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  progress?: Prisma.LessonProgressUncheckedUpdateManyWithoutLessonNestedInput
+  questions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonCreateManyCourseInput = {
@@ -879,6 +1072,8 @@ export type LessonCreateManyCourseInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -890,12 +1085,15 @@ export type LessonUpdateWithoutCourseInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   module?: Prisma.ModuleUpdateOneWithoutLessonsNestedInput
   progress?: Prisma.LessonProgressUpdateManyWithoutLessonNestedInput
   questions?: Prisma.LessonQuestionUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateWithoutCourseInput = {
@@ -905,11 +1103,14 @@ export type LessonUncheckedUpdateWithoutCourseInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   progress?: Prisma.LessonProgressUncheckedUpdateManyWithoutLessonNestedInput
   questions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateManyWithoutCourseInput = {
@@ -919,6 +1120,8 @@ export type LessonUncheckedUpdateManyWithoutCourseInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -931,6 +1134,8 @@ export type LessonCreateManyModuleInput = {
   order: number
   content: string
   isFree?: boolean
+  videoUrl?: string | null
+  durationSeconds?: number | null
   phaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -942,12 +1147,15 @@ export type LessonUpdateWithoutModuleInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   progress?: Prisma.LessonProgressUpdateManyWithoutLessonNestedInput
   questions?: Prisma.LessonQuestionUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateWithoutModuleInput = {
@@ -957,11 +1165,14 @@ export type LessonUncheckedUpdateWithoutModuleInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   progress?: Prisma.LessonProgressUncheckedUpdateManyWithoutLessonNestedInput
   questions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutLessonNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateManyWithoutModuleInput = {
@@ -971,6 +1182,8 @@ export type LessonUncheckedUpdateManyWithoutModuleInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.StringFieldUpdateOperationsInput | string
   isFree?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1024,6 +1237,8 @@ export type LessonSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   order?: boolean
   content?: boolean
   isFree?: boolean
+  videoUrl?: boolean
+  durationSeconds?: boolean
   phaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1031,6 +1246,7 @@ export type LessonSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   module?: boolean | Prisma.Lesson$moduleArgs<ExtArgs>
   progress?: boolean | Prisma.Lesson$progressArgs<ExtArgs>
   questions?: boolean | Prisma.Lesson$questionsArgs<ExtArgs>
+  quiz?: boolean | Prisma.Lesson$quizArgs<ExtArgs>
   _count?: boolean | Prisma.LessonCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lesson"]>
 
@@ -1042,6 +1258,8 @@ export type LessonSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   order?: boolean
   content?: boolean
   isFree?: boolean
+  videoUrl?: boolean
+  durationSeconds?: boolean
   phaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1057,6 +1275,8 @@ export type LessonSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   order?: boolean
   content?: boolean
   isFree?: boolean
+  videoUrl?: boolean
+  durationSeconds?: boolean
   phaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1072,17 +1292,20 @@ export type LessonSelectScalar = {
   order?: boolean
   content?: boolean
   isFree?: boolean
+  videoUrl?: boolean
+  durationSeconds?: boolean
   phaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LessonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courseId" | "moduleId" | "title" | "order" | "content" | "isFree" | "phaseId" | "createdAt" | "updatedAt", ExtArgs["result"]["lesson"]>
+export type LessonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courseId" | "moduleId" | "title" | "order" | "content" | "isFree" | "videoUrl" | "durationSeconds" | "phaseId" | "createdAt" | "updatedAt", ExtArgs["result"]["lesson"]>
 export type LessonInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
   module?: boolean | Prisma.Lesson$moduleArgs<ExtArgs>
   progress?: boolean | Prisma.Lesson$progressArgs<ExtArgs>
   questions?: boolean | Prisma.Lesson$questionsArgs<ExtArgs>
+  quiz?: boolean | Prisma.Lesson$quizArgs<ExtArgs>
   _count?: boolean | Prisma.LessonCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LessonIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1101,6 +1324,7 @@ export type $LessonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     module: Prisma.$ModulePayload<ExtArgs> | null
     progress: Prisma.$LessonProgressPayload<ExtArgs>[]
     questions: Prisma.$LessonQuestionPayload<ExtArgs>[]
+    quiz: Prisma.$QuizPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1110,6 +1334,8 @@ export type $LessonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     order: number
     content: string
     isFree: boolean
+    videoUrl: string | null
+    durationSeconds: number | null
     phaseId: string | null
     createdAt: Date
     updatedAt: Date
@@ -1511,6 +1737,7 @@ export interface Prisma__LessonClient<T, Null = never, ExtArgs extends runtime.T
   module<T extends Prisma.Lesson$moduleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lesson$moduleArgs<ExtArgs>>): Prisma.Prisma__ModuleClient<runtime.Types.Result.GetResult<Prisma.$ModulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   progress<T extends Prisma.Lesson$progressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lesson$progressArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LessonProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   questions<T extends Prisma.Lesson$questionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lesson$questionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LessonQuestionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  quiz<T extends Prisma.Lesson$quizArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lesson$quizArgs<ExtArgs>>): Prisma.Prisma__QuizClient<runtime.Types.Result.GetResult<Prisma.$QuizPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1547,6 +1774,8 @@ export interface LessonFieldRefs {
   readonly order: Prisma.FieldRef<"Lesson", 'Int'>
   readonly content: Prisma.FieldRef<"Lesson", 'String'>
   readonly isFree: Prisma.FieldRef<"Lesson", 'Boolean'>
+  readonly videoUrl: Prisma.FieldRef<"Lesson", 'String'>
+  readonly durationSeconds: Prisma.FieldRef<"Lesson", 'Int'>
   readonly phaseId: Prisma.FieldRef<"Lesson", 'String'>
   readonly createdAt: Prisma.FieldRef<"Lesson", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Lesson", 'DateTime'>
@@ -2010,6 +2239,25 @@ export type Lesson$questionsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.LessonQuestionScalarFieldEnum | Prisma.LessonQuestionScalarFieldEnum[]
+}
+
+/**
+ * Lesson.quiz
+ */
+export type Lesson$quizArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Quiz
+   */
+  select?: Prisma.QuizSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Quiz
+   */
+  omit?: Prisma.QuizOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuizInclude<ExtArgs> | null
+  where?: Prisma.QuizWhereInput
 }
 
 /**

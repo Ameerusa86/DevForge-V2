@@ -231,6 +231,14 @@ export type UserWhereInput = {
   notifications?: Prisma.NotificationListRelationFilter
   lessonQuestions?: Prisma.LessonQuestionListRelationFilter
   lessonAnswers?: Prisma.LessonAnswerListRelationFilter
+  quizSubmissions?: Prisma.QuizSubmissionListRelationFilter
+  communityPosts?: Prisma.CommunityPostListRelationFilter
+  communityComments?: Prisma.CommunityCommentListRelationFilter
+  communityVotes?: Prisma.CommunityPostVoteListRelationFilter
+  instructedSessions?: Prisma.LiveSessionListRelationFilter
+  sessionRegistrations?: Prisma.SessionRegistrationListRelationFilter
+  conversations?: Prisma.ConversationListRelationFilter
+  sentMessages?: Prisma.DirectMessageListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -253,6 +261,14 @@ export type UserOrderByWithRelationInput = {
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   lessonQuestions?: Prisma.LessonQuestionOrderByRelationAggregateInput
   lessonAnswers?: Prisma.LessonAnswerOrderByRelationAggregateInput
+  quizSubmissions?: Prisma.QuizSubmissionOrderByRelationAggregateInput
+  communityPosts?: Prisma.CommunityPostOrderByRelationAggregateInput
+  communityComments?: Prisma.CommunityCommentOrderByRelationAggregateInput
+  communityVotes?: Prisma.CommunityPostVoteOrderByRelationAggregateInput
+  instructedSessions?: Prisma.LiveSessionOrderByRelationAggregateInput
+  sessionRegistrations?: Prisma.SessionRegistrationOrderByRelationAggregateInput
+  conversations?: Prisma.ConversationOrderByRelationAggregateInput
+  sentMessages?: Prisma.DirectMessageOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -278,6 +294,14 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   notifications?: Prisma.NotificationListRelationFilter
   lessonQuestions?: Prisma.LessonQuestionListRelationFilter
   lessonAnswers?: Prisma.LessonAnswerListRelationFilter
+  quizSubmissions?: Prisma.QuizSubmissionListRelationFilter
+  communityPosts?: Prisma.CommunityPostListRelationFilter
+  communityComments?: Prisma.CommunityCommentListRelationFilter
+  communityVotes?: Prisma.CommunityPostVoteListRelationFilter
+  instructedSessions?: Prisma.LiveSessionListRelationFilter
+  sessionRegistrations?: Prisma.SessionRegistrationListRelationFilter
+  conversations?: Prisma.ConversationListRelationFilter
+  sentMessages?: Prisma.DirectMessageListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -332,6 +356,14 @@ export type UserCreateInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -354,6 +386,14 @@ export type UserUncheckedCreateInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserUpdateInput = {
@@ -376,6 +416,14 @@ export type UserUpdateInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -398,6 +446,14 @@ export type UserUncheckedUpdateInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -640,6 +696,118 @@ export type UserUpdateOneRequiredWithoutLessonAnswersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLessonAnswersInput, Prisma.UserUpdateWithoutLessonAnswersInput>, Prisma.UserUncheckedUpdateWithoutLessonAnswersInput>
 }
 
+export type UserCreateNestedOneWithoutQuizSubmissionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutQuizSubmissionsInput, Prisma.UserUncheckedCreateWithoutQuizSubmissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutQuizSubmissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutQuizSubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutQuizSubmissionsInput, Prisma.UserUncheckedCreateWithoutQuizSubmissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutQuizSubmissionsInput
+  upsert?: Prisma.UserUpsertWithoutQuizSubmissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutQuizSubmissionsInput, Prisma.UserUpdateWithoutQuizSubmissionsInput>, Prisma.UserUncheckedUpdateWithoutQuizSubmissionsInput>
+}
+
+export type UserCreateNestedOneWithoutCommunityPostsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommunityPostsInput, Prisma.UserUncheckedCreateWithoutCommunityPostsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommunityPostsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCommunityPostsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommunityPostsInput, Prisma.UserUncheckedCreateWithoutCommunityPostsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommunityPostsInput
+  upsert?: Prisma.UserUpsertWithoutCommunityPostsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommunityPostsInput, Prisma.UserUpdateWithoutCommunityPostsInput>, Prisma.UserUncheckedUpdateWithoutCommunityPostsInput>
+}
+
+export type UserCreateNestedOneWithoutCommunityCommentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommunityCommentsInput, Prisma.UserUncheckedCreateWithoutCommunityCommentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommunityCommentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCommunityCommentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommunityCommentsInput, Prisma.UserUncheckedCreateWithoutCommunityCommentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommunityCommentsInput
+  upsert?: Prisma.UserUpsertWithoutCommunityCommentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommunityCommentsInput, Prisma.UserUpdateWithoutCommunityCommentsInput>, Prisma.UserUncheckedUpdateWithoutCommunityCommentsInput>
+}
+
+export type UserCreateNestedOneWithoutCommunityVotesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommunityVotesInput, Prisma.UserUncheckedCreateWithoutCommunityVotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommunityVotesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCommunityVotesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommunityVotesInput, Prisma.UserUncheckedCreateWithoutCommunityVotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommunityVotesInput
+  upsert?: Prisma.UserUpsertWithoutCommunityVotesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommunityVotesInput, Prisma.UserUpdateWithoutCommunityVotesInput>, Prisma.UserUncheckedUpdateWithoutCommunityVotesInput>
+}
+
+export type UserCreateNestedOneWithoutInstructedSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstructedSessionsInput, Prisma.UserUncheckedCreateWithoutInstructedSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstructedSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutInstructedSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstructedSessionsInput, Prisma.UserUncheckedCreateWithoutInstructedSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstructedSessionsInput
+  upsert?: Prisma.UserUpsertWithoutInstructedSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutInstructedSessionsInput, Prisma.UserUpdateWithoutInstructedSessionsInput>, Prisma.UserUncheckedUpdateWithoutInstructedSessionsInput>
+}
+
+export type UserCreateNestedOneWithoutSessionRegistrationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionRegistrationsInput, Prisma.UserUncheckedCreateWithoutSessionRegistrationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionRegistrationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSessionRegistrationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionRegistrationsInput, Prisma.UserUncheckedCreateWithoutSessionRegistrationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionRegistrationsInput
+  upsert?: Prisma.UserUpsertWithoutSessionRegistrationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionRegistrationsInput, Prisma.UserUpdateWithoutSessionRegistrationsInput>, Prisma.UserUncheckedUpdateWithoutSessionRegistrationsInput>
+}
+
+export type UserCreateNestedOneWithoutConversationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConversationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutConversationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConversationsInput
+  upsert?: Prisma.UserUpsertWithoutConversationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutConversationsInput, Prisma.UserUpdateWithoutConversationsInput>, Prisma.UserUncheckedUpdateWithoutConversationsInput>
+}
+
+export type UserCreateNestedOneWithoutSentMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSentMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  upsert?: Prisma.UserUpsertWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentMessagesInput, Prisma.UserUpdateWithoutSentMessagesInput>, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
 export type UserCreateWithoutSessionsInput = {
   id?: string
   name: string
@@ -659,6 +827,14 @@ export type UserCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -680,6 +856,14 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -717,6 +901,14 @@ export type UserUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -738,6 +930,14 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -759,6 +959,14 @@ export type UserCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -780,6 +988,14 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -817,6 +1033,14 @@ export type UserUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -838,6 +1062,14 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutInstructedCoursesInput = {
@@ -859,6 +1091,14 @@ export type UserCreateWithoutInstructedCoursesInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutInstructedCoursesInput = {
@@ -880,6 +1120,14 @@ export type UserUncheckedCreateWithoutInstructedCoursesInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutInstructedCoursesInput = {
@@ -906,6 +1154,14 @@ export type UserCreateWithoutCreatedCoursesInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCoursesInput = {
@@ -927,6 +1183,14 @@ export type UserUncheckedCreateWithoutCreatedCoursesInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCoursesInput = {
@@ -964,6 +1228,14 @@ export type UserUpdateWithoutInstructedCoursesInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInstructedCoursesInput = {
@@ -985,6 +1257,14 @@ export type UserUncheckedUpdateWithoutInstructedCoursesInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUpsertWithoutCreatedCoursesInput = {
@@ -1017,6 +1297,14 @@ export type UserUpdateWithoutCreatedCoursesInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCoursesInput = {
@@ -1038,6 +1326,14 @@ export type UserUncheckedUpdateWithoutCreatedCoursesInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutEnrollmentsInput = {
@@ -1059,6 +1355,14 @@ export type UserCreateWithoutEnrollmentsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -1080,6 +1384,14 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -1117,6 +1429,14 @@ export type UserUpdateWithoutEnrollmentsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -1138,6 +1458,14 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutReviewsInput = {
@@ -1159,6 +1487,14 @@ export type UserCreateWithoutReviewsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutReviewsInput = {
@@ -1180,6 +1516,14 @@ export type UserUncheckedCreateWithoutReviewsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutReviewsInput = {
@@ -1217,6 +1561,14 @@ export type UserUpdateWithoutReviewsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsInput = {
@@ -1238,6 +1590,14 @@ export type UserUncheckedUpdateWithoutReviewsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1259,6 +1619,14 @@ export type UserCreateWithoutNotificationsInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1280,6 +1648,14 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1317,6 +1693,14 @@ export type UserUpdateWithoutNotificationsInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1338,6 +1722,14 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutLessonQuestionsInput = {
@@ -1359,6 +1751,14 @@ export type UserCreateWithoutLessonQuestionsInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutLessonQuestionsInput = {
@@ -1380,6 +1780,14 @@ export type UserUncheckedCreateWithoutLessonQuestionsInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutLessonQuestionsInput = {
@@ -1417,6 +1825,14 @@ export type UserUpdateWithoutLessonQuestionsInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLessonQuestionsInput = {
@@ -1438,6 +1854,14 @@ export type UserUncheckedUpdateWithoutLessonQuestionsInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutLessonAnswersInput = {
@@ -1459,6 +1883,14 @@ export type UserCreateWithoutLessonAnswersInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutLessonAnswersInput = {
@@ -1480,6 +1912,14 @@ export type UserUncheckedCreateWithoutLessonAnswersInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutLessonAnswersInput = {
@@ -1517,6 +1957,14 @@ export type UserUpdateWithoutLessonAnswersInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLessonAnswersInput = {
@@ -1538,6 +1986,1070 @@ export type UserUncheckedUpdateWithoutLessonAnswersInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutQuizSubmissionsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutQuizSubmissionsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutQuizSubmissionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutQuizSubmissionsInput, Prisma.UserUncheckedCreateWithoutQuizSubmissionsInput>
+}
+
+export type UserUpsertWithoutQuizSubmissionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutQuizSubmissionsInput, Prisma.UserUncheckedUpdateWithoutQuizSubmissionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutQuizSubmissionsInput, Prisma.UserUncheckedCreateWithoutQuizSubmissionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutQuizSubmissionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutQuizSubmissionsInput, Prisma.UserUncheckedUpdateWithoutQuizSubmissionsInput>
+}
+
+export type UserUpdateWithoutQuizSubmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutQuizSubmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutCommunityPostsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutCommunityPostsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutCommunityPostsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommunityPostsInput, Prisma.UserUncheckedCreateWithoutCommunityPostsInput>
+}
+
+export type UserUpsertWithoutCommunityPostsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCommunityPostsInput, Prisma.UserUncheckedUpdateWithoutCommunityPostsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommunityPostsInput, Prisma.UserUncheckedCreateWithoutCommunityPostsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCommunityPostsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCommunityPostsInput, Prisma.UserUncheckedUpdateWithoutCommunityPostsInput>
+}
+
+export type UserUpdateWithoutCommunityPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCommunityPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutCommunityCommentsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutCommunityCommentsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutCommunityCommentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommunityCommentsInput, Prisma.UserUncheckedCreateWithoutCommunityCommentsInput>
+}
+
+export type UserUpsertWithoutCommunityCommentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCommunityCommentsInput, Prisma.UserUncheckedUpdateWithoutCommunityCommentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommunityCommentsInput, Prisma.UserUncheckedCreateWithoutCommunityCommentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCommunityCommentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCommunityCommentsInput, Prisma.UserUncheckedUpdateWithoutCommunityCommentsInput>
+}
+
+export type UserUpdateWithoutCommunityCommentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCommunityCommentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutCommunityVotesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutCommunityVotesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutCommunityVotesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommunityVotesInput, Prisma.UserUncheckedCreateWithoutCommunityVotesInput>
+}
+
+export type UserUpsertWithoutCommunityVotesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCommunityVotesInput, Prisma.UserUncheckedUpdateWithoutCommunityVotesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommunityVotesInput, Prisma.UserUncheckedCreateWithoutCommunityVotesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCommunityVotesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCommunityVotesInput, Prisma.UserUncheckedUpdateWithoutCommunityVotesInput>
+}
+
+export type UserUpdateWithoutCommunityVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCommunityVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutInstructedSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutInstructedSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutInstructedSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutInstructedSessionsInput, Prisma.UserUncheckedCreateWithoutInstructedSessionsInput>
+}
+
+export type UserUpsertWithoutInstructedSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutInstructedSessionsInput, Prisma.UserUncheckedUpdateWithoutInstructedSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutInstructedSessionsInput, Prisma.UserUncheckedCreateWithoutInstructedSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutInstructedSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutInstructedSessionsInput, Prisma.UserUncheckedUpdateWithoutInstructedSessionsInput>
+}
+
+export type UserUpdateWithoutInstructedSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutInstructedSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutSessionRegistrationsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutSessionRegistrationsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutSessionRegistrationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionRegistrationsInput, Prisma.UserUncheckedCreateWithoutSessionRegistrationsInput>
+}
+
+export type UserUpsertWithoutSessionRegistrationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSessionRegistrationsInput, Prisma.UserUncheckedUpdateWithoutSessionRegistrationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionRegistrationsInput, Prisma.UserUncheckedCreateWithoutSessionRegistrationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSessionRegistrationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSessionRegistrationsInput, Prisma.UserUncheckedUpdateWithoutSessionRegistrationsInput>
+}
+
+export type UserUpdateWithoutSessionRegistrationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSessionRegistrationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutConversationsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutConversationsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutConversationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
+}
+
+export type UserUpsertWithoutConversationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutConversationsInput, Prisma.UserUncheckedUpdateWithoutConversationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutConversationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutConversationsInput, Prisma.UserUncheckedUpdateWithoutConversationsInput>
+}
+
+export type UserUpdateWithoutConversationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutConversationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutSentMessagesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSentMessagesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  instructedCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutInstructorInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedCreateNestedManyWithoutUserInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedCreateNestedManyWithoutUserInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedCreateNestedManyWithoutUserInput
+  communityPosts?: Prisma.CommunityPostUncheckedCreateNestedManyWithoutAuthorInput
+  communityComments?: Prisma.CommunityCommentUncheckedCreateNestedManyWithoutAuthorInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedCreateNestedManyWithoutUserInput
+  instructedSessions?: Prisma.LiveSessionUncheckedCreateNestedManyWithoutInstructorInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedCreateNestedManyWithoutUserInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSentMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+}
+
+export type UserUpsertWithoutSentMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentMessagesInput, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentMessagesInput, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
+export type UserUpdateWithoutSentMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdCourses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  instructedCourses?: Prisma.CourseUncheckedUpdateManyWithoutInstructorNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  lessonQuestions?: Prisma.LessonQuestionUncheckedUpdateManyWithoutUserNestedInput
+  lessonAnswers?: Prisma.LessonAnswerUncheckedUpdateManyWithoutUserNestedInput
+  quizSubmissions?: Prisma.QuizSubmissionUncheckedUpdateManyWithoutUserNestedInput
+  communityPosts?: Prisma.CommunityPostUncheckedUpdateManyWithoutAuthorNestedInput
+  communityComments?: Prisma.CommunityCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  communityVotes?: Prisma.CommunityPostVoteUncheckedUpdateManyWithoutUserNestedInput
+  instructedSessions?: Prisma.LiveSessionUncheckedUpdateManyWithoutInstructorNestedInput
+  sessionRegistrations?: Prisma.SessionRegistrationUncheckedUpdateManyWithoutUserNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1555,6 +3067,14 @@ export type UserCountOutputType = {
   notifications: number
   lessonQuestions: number
   lessonAnswers: number
+  quizSubmissions: number
+  communityPosts: number
+  communityComments: number
+  communityVotes: number
+  instructedSessions: number
+  sessionRegistrations: number
+  conversations: number
+  sentMessages: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1567,6 +3087,14 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   lessonQuestions?: boolean | UserCountOutputTypeCountLessonQuestionsArgs
   lessonAnswers?: boolean | UserCountOutputTypeCountLessonAnswersArgs
+  quizSubmissions?: boolean | UserCountOutputTypeCountQuizSubmissionsArgs
+  communityPosts?: boolean | UserCountOutputTypeCountCommunityPostsArgs
+  communityComments?: boolean | UserCountOutputTypeCountCommunityCommentsArgs
+  communityVotes?: boolean | UserCountOutputTypeCountCommunityVotesArgs
+  instructedSessions?: boolean | UserCountOutputTypeCountInstructedSessionsArgs
+  sessionRegistrations?: boolean | UserCountOutputTypeCountSessionRegistrationsArgs
+  conversations?: boolean | UserCountOutputTypeCountConversationsArgs
+  sentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
 }
 
 /**
@@ -1642,6 +3170,62 @@ export type UserCountOutputTypeCountLessonAnswersArgs<ExtArgs extends runtime.Ty
   where?: Prisma.LessonAnswerWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountQuizSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QuizSubmissionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCommunityPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommunityPostWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCommunityCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommunityCommentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCommunityVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommunityPostVoteWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountInstructedSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LiveSessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSessionRegistrationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SessionRegistrationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountConversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ConversationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DirectMessageWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1663,6 +3247,14 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   lessonQuestions?: boolean | Prisma.User$lessonQuestionsArgs<ExtArgs>
   lessonAnswers?: boolean | Prisma.User$lessonAnswersArgs<ExtArgs>
+  quizSubmissions?: boolean | Prisma.User$quizSubmissionsArgs<ExtArgs>
+  communityPosts?: boolean | Prisma.User$communityPostsArgs<ExtArgs>
+  communityComments?: boolean | Prisma.User$communityCommentsArgs<ExtArgs>
+  communityVotes?: boolean | Prisma.User$communityVotesArgs<ExtArgs>
+  instructedSessions?: boolean | Prisma.User$instructedSessionsArgs<ExtArgs>
+  sessionRegistrations?: boolean | Prisma.User$sessionRegistrationsArgs<ExtArgs>
+  conversations?: boolean | Prisma.User$conversationsArgs<ExtArgs>
+  sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1716,6 +3308,14 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   lessonQuestions?: boolean | Prisma.User$lessonQuestionsArgs<ExtArgs>
   lessonAnswers?: boolean | Prisma.User$lessonAnswersArgs<ExtArgs>
+  quizSubmissions?: boolean | Prisma.User$quizSubmissionsArgs<ExtArgs>
+  communityPosts?: boolean | Prisma.User$communityPostsArgs<ExtArgs>
+  communityComments?: boolean | Prisma.User$communityCommentsArgs<ExtArgs>
+  communityVotes?: boolean | Prisma.User$communityVotesArgs<ExtArgs>
+  instructedSessions?: boolean | Prisma.User$instructedSessionsArgs<ExtArgs>
+  sessionRegistrations?: boolean | Prisma.User$sessionRegistrationsArgs<ExtArgs>
+  conversations?: boolean | Prisma.User$conversationsArgs<ExtArgs>
+  sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1733,6 +3333,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     lessonQuestions: Prisma.$LessonQuestionPayload<ExtArgs>[]
     lessonAnswers: Prisma.$LessonAnswerPayload<ExtArgs>[]
+    quizSubmissions: Prisma.$QuizSubmissionPayload<ExtArgs>[]
+    communityPosts: Prisma.$CommunityPostPayload<ExtArgs>[]
+    communityComments: Prisma.$CommunityCommentPayload<ExtArgs>[]
+    communityVotes: Prisma.$CommunityPostVotePayload<ExtArgs>[]
+    instructedSessions: Prisma.$LiveSessionPayload<ExtArgs>[]
+    sessionRegistrations: Prisma.$SessionRegistrationPayload<ExtArgs>[]
+    conversations: Prisma.$ConversationPayload<ExtArgs>[]
+    sentMessages: Prisma.$DirectMessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2148,6 +3756,14 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   lessonQuestions<T extends Prisma.User$lessonQuestionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$lessonQuestionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LessonQuestionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   lessonAnswers<T extends Prisma.User$lessonAnswersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$lessonAnswersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LessonAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  quizSubmissions<T extends Prisma.User$quizSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$quizSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuizSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  communityPosts<T extends Prisma.User$communityPostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$communityPostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommunityPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  communityComments<T extends Prisma.User$communityCommentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$communityCommentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommunityCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  communityVotes<T extends Prisma.User$communityVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$communityVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommunityPostVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  instructedSessions<T extends Prisma.User$instructedSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$instructedSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessionRegistrations<T extends Prisma.User$sessionRegistrationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionRegistrationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionRegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  conversations<T extends Prisma.User$conversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentMessages<T extends Prisma.User$sentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2788,6 +4404,198 @@ export type User$lessonAnswersArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.LessonAnswerScalarFieldEnum | Prisma.LessonAnswerScalarFieldEnum[]
+}
+
+/**
+ * User.quizSubmissions
+ */
+export type User$quizSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuizSubmission
+   */
+  select?: Prisma.QuizSubmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QuizSubmission
+   */
+  omit?: Prisma.QuizSubmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuizSubmissionInclude<ExtArgs> | null
+  where?: Prisma.QuizSubmissionWhereInput
+  orderBy?: Prisma.QuizSubmissionOrderByWithRelationInput | Prisma.QuizSubmissionOrderByWithRelationInput[]
+  cursor?: Prisma.QuizSubmissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QuizSubmissionScalarFieldEnum | Prisma.QuizSubmissionScalarFieldEnum[]
+}
+
+/**
+ * User.communityPosts
+ */
+export type User$communityPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommunityPost
+   */
+  select?: Prisma.CommunityPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommunityPost
+   */
+  omit?: Prisma.CommunityPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommunityPostInclude<ExtArgs> | null
+  where?: Prisma.CommunityPostWhereInput
+  orderBy?: Prisma.CommunityPostOrderByWithRelationInput | Prisma.CommunityPostOrderByWithRelationInput[]
+  cursor?: Prisma.CommunityPostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommunityPostScalarFieldEnum | Prisma.CommunityPostScalarFieldEnum[]
+}
+
+/**
+ * User.communityComments
+ */
+export type User$communityCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommunityComment
+   */
+  select?: Prisma.CommunityCommentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommunityComment
+   */
+  omit?: Prisma.CommunityCommentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommunityCommentInclude<ExtArgs> | null
+  where?: Prisma.CommunityCommentWhereInput
+  orderBy?: Prisma.CommunityCommentOrderByWithRelationInput | Prisma.CommunityCommentOrderByWithRelationInput[]
+  cursor?: Prisma.CommunityCommentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommunityCommentScalarFieldEnum | Prisma.CommunityCommentScalarFieldEnum[]
+}
+
+/**
+ * User.communityVotes
+ */
+export type User$communityVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommunityPostVote
+   */
+  select?: Prisma.CommunityPostVoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommunityPostVote
+   */
+  omit?: Prisma.CommunityPostVoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommunityPostVoteInclude<ExtArgs> | null
+  where?: Prisma.CommunityPostVoteWhereInput
+  orderBy?: Prisma.CommunityPostVoteOrderByWithRelationInput | Prisma.CommunityPostVoteOrderByWithRelationInput[]
+  cursor?: Prisma.CommunityPostVoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommunityPostVoteScalarFieldEnum | Prisma.CommunityPostVoteScalarFieldEnum[]
+}
+
+/**
+ * User.instructedSessions
+ */
+export type User$instructedSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LiveSession
+   */
+  select?: Prisma.LiveSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LiveSession
+   */
+  omit?: Prisma.LiveSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LiveSessionInclude<ExtArgs> | null
+  where?: Prisma.LiveSessionWhereInput
+  orderBy?: Prisma.LiveSessionOrderByWithRelationInput | Prisma.LiveSessionOrderByWithRelationInput[]
+  cursor?: Prisma.LiveSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LiveSessionScalarFieldEnum | Prisma.LiveSessionScalarFieldEnum[]
+}
+
+/**
+ * User.sessionRegistrations
+ */
+export type User$sessionRegistrationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SessionRegistration
+   */
+  select?: Prisma.SessionRegistrationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SessionRegistration
+   */
+  omit?: Prisma.SessionRegistrationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SessionRegistrationInclude<ExtArgs> | null
+  where?: Prisma.SessionRegistrationWhereInput
+  orderBy?: Prisma.SessionRegistrationOrderByWithRelationInput | Prisma.SessionRegistrationOrderByWithRelationInput[]
+  cursor?: Prisma.SessionRegistrationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SessionRegistrationScalarFieldEnum | Prisma.SessionRegistrationScalarFieldEnum[]
+}
+
+/**
+ * User.conversations
+ */
+export type User$conversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Conversation
+   */
+  select?: Prisma.ConversationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Conversation
+   */
+  omit?: Prisma.ConversationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversationInclude<ExtArgs> | null
+  where?: Prisma.ConversationWhereInput
+  orderBy?: Prisma.ConversationOrderByWithRelationInput | Prisma.ConversationOrderByWithRelationInput[]
+  cursor?: Prisma.ConversationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ConversationScalarFieldEnum | Prisma.ConversationScalarFieldEnum[]
+}
+
+/**
+ * User.sentMessages
+ */
+export type User$sentMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DirectMessage
+   */
+  select?: Prisma.DirectMessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DirectMessage
+   */
+  omit?: Prisma.DirectMessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DirectMessageInclude<ExtArgs> | null
+  where?: Prisma.DirectMessageWhereInput
+  orderBy?: Prisma.DirectMessageOrderByWithRelationInput | Prisma.DirectMessageOrderByWithRelationInput[]
+  cursor?: Prisma.DirectMessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DirectMessageScalarFieldEnum | Prisma.DirectMessageScalarFieldEnum[]
 }
 
 /**

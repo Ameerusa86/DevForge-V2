@@ -1,70 +1,224 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
-  ArrowRight,
-  Flame,
   MessageSquare,
-  Trophy,
   Users,
-  Zap,
-  Sparkles,
   Search,
   MessageCircle,
-  Clock,
-  ChevronRight,
-  CheckCircle2,
+  ThumbsUp,
+  Plus,
+  Send,
 } from "lucide-react";
-
+import { toast } from "sonner";
 import {
   MarketingPublicFooter,
   MarketingPublicHeader,
 } from "@/components/marketing/public-chrome";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
-const trendingTopics = [
-  "React Patterns",
-  "Next.js Routing",
+interface Author {
+  id: string;
+  name: string;
+  image?: string | null;
+  role: string;
+}
+
+interface Comment {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    image?: string | null;
+  };
+}
+
+interface CommunityPost {
+  id: string;
+  title: string;
+  content: string;
+  tag: string;
+  upvotes: number;
+  createdAt: string;
+  author: Author;
+  _count: {
+    comments: number;
+  };
+  comments?: Comment[];
+}
+
+const communityTags = [
+  "All",
+  "React",
+  "Next.js",
+  "Backend",
   "System Design",
-  "Career Advice",
-  "Open Source",
-  "Interview Prep",
-];
-
-const featuredDiscussions = [
-  {
-    title: "Showcase Saturday: What did you ship this week?",
-    author: "Maya",
-    tag: "Showcase",
-    tagColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    replies: 42,
-    minutesAgo: 15,
-  },
-  {
-    title: "How I went from tutorial hell to building real projects",
-    author: "Sam",
-    tag: "Learning",
-    tagColor: "bg-violet-500/10 text-violet-600 border-violet-500/20",
-    replies: 31,
-    minutesAgo: 32,
-  },
-  {
-    title: "Best way to structure API routes in growing apps",
-    author: "Alex",
-    tag: "Backend",
-    tagColor: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-    replies: 18,
-    minutesAgo: 54,
-  },
-];
-
-const leaderboard = [
-  { name: "Rina", points: 1820, rankColor: "text-amber-500 bg-amber-500/10", avatarBg: "bg-amber-100 text-amber-700" },
-  { name: "Omar", points: 1695, rankColor: "text-slate-400 bg-slate-500/10", avatarBg: "bg-slate-100 text-slate-700" },
-  { name: "Leo", points: 1602, rankColor: "text-amber-700 bg-amber-700/10", avatarBg: "bg-amber-50 text-amber-900" },
-  { name: "Nora", points: 1494, rankColor: "text-muted-foreground bg-muted", avatarBg: "bg-muted text-muted-foreground" },
+  "Showcase",
+  "Career",
 ];
 
 export default function CommunityPage() {
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTag, setSelectedTag] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // New Post Form State
+  const [newTitle, setNewTitle] = useState("");
+  const [newContent, setNewContent] = useState("");
+  const [newTag, setNewTag] = useState("React");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Expanded replies state
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
+  const [commenting, setCommenting] = useState(false);
+
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedTag && selectedTag !== "All") params.set("tag", selectedTag);
+      if (searchQuery) params.set("q", searchQuery);
+
+      const res = await fetch(`/api/community/posts?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch community posts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [selectedTag, searchQuery]);
+
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newContent.trim()) {
+      toast.error("Please fill in both title and content.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/community/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTitle.trim(),
+          content: newContent.trim(),
+          tag: newTag,
+        }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error("Please log in to start a discussion.");
+          return;
+        }
+        throw new Error("Failed to create post");
+      }
+
+      const created = await res.json();
+      setPosts((prev) => [created, ...prev]);
+      setIsDialogOpen(false);
+      setNewTitle("");
+      setNewContent("");
+      toast.success("Discussion started! 🚀");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to publish your discussion.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleVote = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/community/posts/${postId}/vote`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error("Please log in to upvote.");
+          return;
+        }
+        throw new Error("Vote failed");
+      }
+
+      const data = await res.json();
+      setPosts((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, upvotes: data.upvotes } : p))
+      );
+      toast.success(data.voted ? "Upvoted!" : "Vote removed");
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not register vote.");
+    }
+  };
+
+  const handleAddComment = async (postId: string) => {
+    if (!commentText.trim()) return;
+
+    setCommenting(true);
+    try {
+      const res = await fetch(`/api/community/posts/${postId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: commentText.trim() }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error("Please sign in to reply.");
+          return;
+        }
+        throw new Error("Failed to post comment");
+      }
+
+      const newComment = await res.json();
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? {
+                ...p,
+                _count: { comments: p._count.comments + 1 },
+                comments: [newComment, ...(p.comments || [])],
+              }
+            : p
+        )
+      );
+      setCommentText("");
+      toast.success("Reply added!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to post reply.");
+    } finally {
+      setCommenting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <MarketingPublicHeader activePath="/community" />
@@ -74,260 +228,288 @@ export default function CommunityPage() {
         <section className="relative overflow-hidden border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-16 lg:py-20">
           <div className="pointer-events-none absolute -top-40 right-0 size-[500px] rounded-full bg-[#ff6636]/5 blur-3xl" />
           <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
-            <div className="max-w-3xl space-y-5 text-left">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#ff6636]">
-                <Users className="size-3.5" /> DevForge Community
-              </span>
-              <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-                Build with people,<br />
-                <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
-                  not in isolation.
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="max-w-2xl space-y-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#ff6636]">
+                  <Users className="size-3.5" /> DevForge Community
                 </span>
-              </h1>
-              <p className="max-w-xl text-base text-muted-foreground font-semibold leading-relaxed">
-                Join discussions, share progress, ask for help, and learn from developers shipping real-world projects every day.
-              </p>
+                <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                  Build with peers,<br />
+                  <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
+                    learn in production.
+                  </span>
+                </h1>
+                <p className="text-base text-muted-foreground font-semibold leading-relaxed">
+                  Ask architecture questions, discuss courses, share real code, and connect with developers worldwide.
+                </p>
+              </div>
 
-              <div className="pt-2 flex flex-wrap gap-3">
-                <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6636] px-6 py-3.5 text-xs font-extrabold uppercase tracking-widest text-white shadow-md hover:shadow-lg shadow-[#ff6636]/10 hover:bg-[#e95a2b] transition-all duration-200"
-                >
-                  Join the Community <ArrowRight className="size-3.5" />
-                </Link>
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-6 py-3.5 text-xs font-extrabold uppercase tracking-widest text-foreground hover:border-[#ff6636]/50 hover:bg-[#ff6636]/5 hover:text-[#ff6636] transition-all duration-200"
-                >
-                  Explore Courses
-                </Link>
+              {/* Start Discussion Dialog */}
+              <div>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white font-extrabold text-xs px-6 py-5 shadow-lg shadow-[#ff6636]/20 gap-2 uppercase tracking-wider">
+                      <Plus className="size-4" /> Start Discussion
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[540px] rounded-2xl bg-card border-border">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold">New Discussion</DialogTitle>
+                      <DialogDescription className="text-xs text-muted-foreground">
+                        Share a project, ask an architecture question, or start a discussion.
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleCreatePost} className="space-y-4 py-2">
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Topic / Category
+                        </label>
+                        <select
+                          value={newTag}
+                          onChange={(e) => setNewTag(e.target.value)}
+                          className="w-full h-10 rounded-xl border border-border bg-background px-3 text-xs font-semibold focus:outline-none focus:border-[#ff6636]"
+                        >
+                          {communityTags.filter((t) => t !== "All").map((tag) => (
+                            <option key={tag} value={tag}>
+                              {tag}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Discussion Title
+                        </label>
+                        <Input
+                          placeholder="e.g. Best patterns for Server Actions in Next.js 16"
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          className="h-10 rounded-xl text-xs font-semibold"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Details & Context
+                        </label>
+                        <Textarea
+                          placeholder="Provide enough context or code snippets so others can help or discuss..."
+                          value={newContent}
+                          onChange={(e) => setNewContent(e.target.value)}
+                          rows={5}
+                          className="rounded-xl text-xs font-medium"
+                          required
+                        />
+                      </div>
+
+                      <DialogFooter className="pt-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setIsDialogOpen(false)}
+                          className="rounded-xl text-xs"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={submitting}
+                          className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white font-bold text-xs"
+                        >
+                          {submitting ? "Publishing..." : "Post Discussion"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
-            {/* Stat Cards Strip */}
-            <div className="mt-12 grid gap-4 sm:grid-cols-3">
-              {[
-                {
-                  label: "Active members",
-                  value: "12.4k",
-                  icon: Users,
-                  color: "text-violet-500",
-                  bg: "bg-violet-500/10",
-                  desc: "Developers learning together",
-                },
-                {
-                  label: "Discussions this month",
-                  value: "3.1k",
-                  icon: MessageSquare,
-                  color: "text-[#ff6636]",
-                  bg: "bg-[#ff6636]/10",
-                  desc: "Q&A, shares, and feedback",
-                },
-                {
-                  label: "Projects shared weekly",
-                  value: "240+",
-                  icon: Zap,
-                  color: "text-emerald-500",
-                  bg: "bg-emerald-500/10",
-                  desc: "Active builds & shipping logs",
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.label} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition-shadow">
-                    <div className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${item.bg} ${item.color}`}>
-                      <Icon className="size-5" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-extrabold tracking-tight text-foreground">
-                        {item.value}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        {item.label}
-                      </p>
-                      <p className="text-[10px] font-semibold text-muted-foreground/75 mt-0.5">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Filter Bar */}
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/60 pt-6">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                {communityTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={cn(
+                      "rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border",
+                      selectedTag === tag
+                        ? "bg-[#ff6636] text-white border-[#ff6636] shadow-sm"
+                        : "bg-card text-muted-foreground hover:text-foreground border-border"
+                    )}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  placeholder="Search discussions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9 pl-9 rounded-xl text-xs bg-background"
+                />
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── Main content grid ──────────────────────────────────────── */}
-        <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20 bg-background">
-          <div className="mx-auto grid max-w-[1320px] gap-8 lg:grid-cols-[1fr_340px]">
-            
-            {/* Left Column: Threads and Topics */}
-            <div className="space-y-8">
-              
-              {/* Featured Discussions */}
-              <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-                <div className="flex items-center gap-3.5 mb-6 border-b border-border/50 pb-5">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
-                    <Flame className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                      Hottest threads
-                    </p>
-                    <h2 className="text-lg font-extrabold text-foreground mt-0.5">
-                      Featured Discussions
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {featuredDiscussions.map((item) => (
-                    <article
-                      key={item.title}
-                      className="group relative flex flex-col gap-4 rounded-xl border border-border bg-muted/20 p-5 transition-all duration-300 hover:border-[#ff6636]/40 hover:bg-muted/40"
-                    >
-                      <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${item.tagColor}`}>
-                          {item.tag}
-                        </span>
-                        <span className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-                          <Clock className="size-3" />
-                          {item.minutesAgo}m ago
-                        </span>
-                      </div>
-
-                      <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-[#ff6636] transition-colors duration-200">
-                        <Link href="/register" className="focus:outline-none">
-                          {item.title}
-                        </Link>
-                      </h3>
-
-                      <div className="flex items-center justify-between pt-3 border-t border-border/50 flex-wrap gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex size-5 items-center justify-center rounded-full bg-[#ff6636]/10 text-[#ff6636] font-bold text-[9px]">
-                            {item.author.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="text-[11px] font-semibold text-muted-foreground">
-                            by {item.author}
-                          </span>
-                        </div>
-
-                        <span className="flex items-center gap-1.5 text-[11px] font-bold text-foreground">
-                          <MessageCircle className="size-3.5 text-[#ff6636]" />
-                          {item.replies} replies
-                        </span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-              {/* Popular Topics */}
-              <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-                <div className="mb-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                    Trending now
+        <section className="px-4 py-12 sm:px-6 lg:px-8 bg-background">
+          <div className="mx-auto max-w-[1320px]">
+            {loading ? (
+              <div className="py-20 text-center space-y-3">
+                <div className="size-8 rounded-full border-2 border-[#ff6636] border-t-transparent animate-spin mx-auto" />
+                <p className="text-xs text-muted-foreground font-semibold">Loading discussions from database...</p>
+              </div>
+            ) : posts.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-border bg-card/40 p-12 text-center max-w-lg mx-auto space-y-4">
+                <MessageSquare className="size-10 text-muted-foreground mx-auto opacity-50" />
+                <div className="space-y-1">
+                  <h3 className="font-bold text-base text-foreground">No discussions found</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Be the first to start a conversation in this category!
                   </p>
-                  <h2 className="text-lg font-extrabold text-foreground mt-0.5">Popular Topics</h2>
                 </div>
-
-                <div className="flex flex-wrap gap-2.5">
-                  {trendingTopics.map((topic) => (
-                    <span
-                      key={topic}
-                      className="inline-flex rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-xs font-bold text-muted-foreground hover:border-[#ff6636]/40 hover:text-foreground transition-all duration-200 cursor-pointer"
+                <Button
+                  onClick={() => setIsDialogOpen(true)}
+                  className="rounded-xl bg-[#ff6636] text-white font-bold text-xs"
+                >
+                  Start Discussion
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {posts.map((post) => {
+                  const isExpanded = expandedPostId === post.id;
+                  return (
+                    <article
+                      key={post.id}
+                      className="rounded-2xl border border-border bg-card p-6 shadow-xs hover:border-[#ff6636]/40 transition-all space-y-4"
                     >
-                      # {topic}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="flex size-7 items-center justify-center rounded-full bg-[#ff6636]/15 text-[#ff6636] font-extrabold text-xs">
+                            {post.author.name?.charAt(0) || "U"}
+                          </span>
+                          <div>
+                            <span className="text-xs font-bold text-foreground">
+                              {post.author.name}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground ml-2">
+                              {new Date(post.createdAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+                        </div>
 
-            {/* Right Column: Leaderboard and CTA */}
-            <aside className="space-y-8">
-              
-              {/* Leaderboard */}
-              <section className="rounded-2xl border border-border bg-card p-6">
-                <div className="flex items-center gap-3 mb-6 border-b border-border/50 pb-5">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500">
-                    <Trophy className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                      Top contributors
-                    </p>
-                    <h2 className="text-lg font-extrabold text-foreground mt-0.5">
-                      Weekly Leaderboard
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {leaderboard.map((member, index) => (
-                    <div
-                      key={member.name}
-                      className="flex items-center justify-between rounded-xl border border-border bg-muted/10 p-3.5 hover:bg-muted/30 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        {/* Rank Badge */}
-                        <span className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-black ${member.rankColor}`}>
-                          {index + 1}
+                        <span className="rounded-full bg-[#ff6636]/10 text-[#ff6636] border border-[#ff6636]/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider">
+                          {post.tag}
                         </span>
-                        
-                        {/* User Avatar Initials */}
-                        <div className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${member.avatarBg}`}>
-                          {member.name.charAt(0).toUpperCase()}
-                        </div>
-
-                        <div>
-                          <p className="text-xs font-extrabold text-foreground leading-none">
-                            {member.name}
-                          </p>
-                          <p className="text-[9px] font-bold text-muted-foreground mt-1">
-                            Rank #{index + 1} Member
-                          </p>
-                        </div>
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-xs font-extrabold text-[#ff6636]">
-                          {member.points}
-                        </p>
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
-                          XP
+                      <div className="space-y-2">
+                        <h3 className="text-base font-bold text-foreground hover:text-[#ff6636] transition-colors">
+                          {post.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground font-medium leading-relaxed whitespace-pre-wrap">
+                          {post.content}
                         </p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
 
-              {/* Start Posting Box */}
-              <section className="relative overflow-hidden rounded-2xl border border-border bg-[#ff6636]/5 dark:bg-[#ff6636]/5 p-6 space-y-4">
-                <div className="pointer-events-none absolute -bottom-32 -right-32 size-60 rounded-full bg-[#ff6636]/10 blur-2xl" />
-                
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ff6636]/15 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#ff6636]">
-                  <Sparkles className="size-3" /> Share Your Build
-                </span>
-                
-                <h2 className="text-base font-extrabold text-foreground leading-snug">
-                  Ask questions, share updates, gather feedback.
-                </h2>
-                
-                <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
-                  Post a question, share a lesson learned, or showcase your latest project to get fast feedback from the community.
-                </p>
-                
-                <div className="pt-2">
-                  <Link
-                    href="/register"
-                    className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] py-3 text-xs font-black uppercase tracking-widest text-white shadow-md hover:shadow-lg shadow-[#ff6636]/10 transition-all duration-200"
-                  >
-                    Join to Post <ChevronRight className="size-3.5" />
-                  </Link>
-                </div>
-              </section>
-            </aside>
+                      <div className="flex items-center justify-between pt-3 border-t border-border/50 text-xs">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handleVote(post.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-background hover:border-[#ff6636] text-muted-foreground hover:text-foreground font-bold text-xs transition-colors"
+                          >
+                            <ThumbsUp className="size-3.5 text-[#ff6636]" />
+                            <span>{post.upvotes}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedPostId(isExpanded ? null : post.id)
+                            }
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground font-semibold text-xs transition-colors"
+                          >
+                            <MessageCircle className="size-3.5 text-[#ff6636]" />
+                            <span>{post._count.comments} replies</span>
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setExpandedPostId(isExpanded ? null : post.id)}
+                          className="text-[11px] font-bold text-[#ff6636] hover:underline"
+                        >
+                          {isExpanded ? "Hide Replies" : "Reply / View"}
+                        </button>
+                      </div>
+
+                      {/* Expanded Comments Thread */}
+                      {isExpanded && (
+                        <div className="mt-4 pt-4 border-t border-border space-y-4 bg-muted/20 p-4 rounded-xl">
+                          <div className="space-y-3">
+                            {(post.comments || []).length > 0 ? (
+                              (post.comments || []).map((c) => (
+                                <div
+                                  key={c.id}
+                                  className="rounded-xl border border-border/60 bg-background p-3.5 text-xs space-y-1.5"
+                                >
+                                  <div className="flex items-center justify-between text-[11px]">
+                                    <span className="font-bold text-foreground">
+                                      {c.author.name}
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                      {new Date(c.createdAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-muted-foreground leading-relaxed">
+                                    {c.content}
+                                  </p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-[11px] text-muted-foreground italic">
+                                No replies yet. Start the conversation below!
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Write a constructive reply..."
+                              value={commentText}
+                              onChange={(e) => setCommentText(e.target.value)}
+                              className="h-9 text-xs rounded-xl"
+                            />
+                            <Button
+                              onClick={() => handleAddComment(post.id)}
+                              disabled={commenting}
+                              size="sm"
+                              className="rounded-xl bg-[#ff6636] text-white font-bold text-xs px-4 shrink-0"
+                            >
+                              <Send className="size-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </section>
       </main>

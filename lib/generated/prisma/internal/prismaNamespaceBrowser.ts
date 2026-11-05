@@ -74,7 +74,20 @@ export const ModelName = {
   PricingPlan: 'PricingPlan',
   PricingFeature: 'PricingFeature',
   LessonQuestion: 'LessonQuestion',
-  LessonAnswer: 'LessonAnswer'
+  LessonAnswer: 'LessonAnswer',
+  CourseAuditEvent: 'CourseAuditEvent',
+  PlatformSetting: 'PlatformSetting',
+  Quiz: 'Quiz',
+  QuizQuestion: 'QuizQuestion',
+  QuizOption: 'QuizOption',
+  QuizSubmission: 'QuizSubmission',
+  CommunityPost: 'CommunityPost',
+  CommunityComment: 'CommunityComment',
+  CommunityPostVote: 'CommunityPostVote',
+  LiveSession: 'LiveSession',
+  SessionRegistration: 'SessionRegistration',
+  Conversation: 'Conversation',
+  DirectMessage: 'DirectMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -212,6 +225,8 @@ export const LessonScalarFieldEnum = {
   order: 'order',
   content: 'content',
   isFree: 'isFree',
+  videoUrl: 'videoUrl',
+  durationSeconds: 'durationSeconds',
   phaseId: 'phaseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -450,6 +465,166 @@ export const LessonAnswerScalarFieldEnum = {
 export type LessonAnswerScalarFieldEnum = (typeof LessonAnswerScalarFieldEnum)[keyof typeof LessonAnswerScalarFieldEnum]
 
 
+export const CourseAuditEventScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  title: 'title',
+  description: 'description',
+  type: 'type',
+  actionUrl: 'actionUrl',
+  occurredAt: 'occurredAt'
+} as const
+
+export type CourseAuditEventScalarFieldEnum = (typeof CourseAuditEventScalarFieldEnum)[keyof typeof CourseAuditEventScalarFieldEnum]
+
+
+export const PlatformSettingScalarFieldEnum = {
+  id: 'id',
+  settings: 'settings',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlatformSettingScalarFieldEnum = (typeof PlatformSettingScalarFieldEnum)[keyof typeof PlatformSettingScalarFieldEnum]
+
+
+export const QuizScalarFieldEnum = {
+  id: 'id',
+  lessonId: 'lessonId',
+  title: 'title',
+  description: 'description',
+  passingScore: 'passingScore',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type QuizScalarFieldEnum = (typeof QuizScalarFieldEnum)[keyof typeof QuizScalarFieldEnum]
+
+
+export const QuizQuestionScalarFieldEnum = {
+  id: 'id',
+  quizId: 'quizId',
+  question: 'question',
+  order: 'order',
+  explanation: 'explanation'
+} as const
+
+export type QuizQuestionScalarFieldEnum = (typeof QuizQuestionScalarFieldEnum)[keyof typeof QuizQuestionScalarFieldEnum]
+
+
+export const QuizOptionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  text: 'text',
+  isCorrect: 'isCorrect',
+  order: 'order'
+} as const
+
+export type QuizOptionScalarFieldEnum = (typeof QuizOptionScalarFieldEnum)[keyof typeof QuizOptionScalarFieldEnum]
+
+
+export const QuizSubmissionScalarFieldEnum = {
+  id: 'id',
+  quizId: 'quizId',
+  userId: 'userId',
+  score: 'score',
+  passed: 'passed',
+  answers: 'answers',
+  createdAt: 'createdAt'
+} as const
+
+export type QuizSubmissionScalarFieldEnum = (typeof QuizSubmissionScalarFieldEnum)[keyof typeof QuizSubmissionScalarFieldEnum]
+
+
+export const CommunityPostScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  tag: 'tag',
+  authorId: 'authorId',
+  upvotes: 'upvotes',
+  views: 'views',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommunityPostScalarFieldEnum = (typeof CommunityPostScalarFieldEnum)[keyof typeof CommunityPostScalarFieldEnum]
+
+
+export const CommunityCommentScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  authorId: 'authorId',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommunityCommentScalarFieldEnum = (typeof CommunityCommentScalarFieldEnum)[keyof typeof CommunityCommentScalarFieldEnum]
+
+
+export const CommunityPostVoteScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type CommunityPostVoteScalarFieldEnum = (typeof CommunityPostVoteScalarFieldEnum)[keyof typeof CommunityPostVoteScalarFieldEnum]
+
+
+export const LiveSessionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  instructorId: 'instructorId',
+  scheduledAt: 'scheduledAt',
+  durationMinutes: 'durationMinutes',
+  category: 'category',
+  status: 'status',
+  maxAttendees: 'maxAttendees',
+  streamUrl: 'streamUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LiveSessionScalarFieldEnum = (typeof LiveSessionScalarFieldEnum)[keyof typeof LiveSessionScalarFieldEnum]
+
+
+export const SessionRegistrationScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  registeredAt: 'registeredAt'
+} as const
+
+export type SessionRegistrationScalarFieldEnum = (typeof SessionRegistrationScalarFieldEnum)[keyof typeof SessionRegistrationScalarFieldEnum]
+
+
+export const ConversationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  subject: 'subject',
+  lastMessageAt: 'lastMessageAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
+
+
+export const DirectMessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  senderId: 'senderId',
+  senderRole: 'senderRole',
+  text: 'text',
+  read: 'read',
+  createdAt: 'createdAt'
+} as const
+
+export type DirectMessageScalarFieldEnum = (typeof DirectMessageScalarFieldEnum)[keyof typeof DirectMessageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -464,6 +639,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

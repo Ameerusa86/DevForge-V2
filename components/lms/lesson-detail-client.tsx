@@ -22,7 +22,10 @@ import {
 import { RichTextRenderer } from "@/components/editor/RichTextRenderer";
 import { ThemeToggle } from "@/components/themeToggle";
 import { toast } from "sonner";
+import { YouTubePlayer } from "@/components/lms/youtube-player";
+import { LessonQuiz, type QuizData } from "@/components/lms/lesson-quiz";
 import {
+  Video,
   ArrowLeft,
   CheckCircle2,
   ChevronLeft,
@@ -45,6 +48,8 @@ export interface LessonOutlineItem {
   order: number;
   isFree?: boolean;
   moduleId?: string | null;
+  videoUrl?: string | null;
+  durationSeconds?: number | null;
 }
 
 export interface LessonOutlineModule {
@@ -72,6 +77,9 @@ export interface LessonDetailState {
   isFree?: boolean;
   isLocked?: boolean;
   message?: string;
+  videoUrl?: string | null;
+  durationSeconds?: number | null;
+  quiz?: QuizData | null;
 }
 
 export interface LessonProgressData {
@@ -130,8 +138,9 @@ function OutlineLessonLink({
       </span>
 
       <div className="min-w-0 flex-1 leading-snug break-words">
-        <p className={cn("text-xs", isActive ? "text-foreground font-bold" : "text-foreground/90")}>
-          {lesson.title}
+        <p className={cn("text-xs flex items-center gap-1.5", isActive ? "text-foreground font-bold" : "text-foreground/90")}>
+          {lesson.videoUrl && <Video className="size-3 text-red-500 shrink-0" />}
+          <span>{lesson.title}</span>
         </p>
       </div>
 
@@ -592,7 +601,16 @@ export function LessonDetailClient({
                 </div>
               </div>
             ) : (
-              <article
+              <>
+              {currentLesson.videoUrl && !currentLesson.isLocked && (
+              <div className="mb-6">
+                <YouTubePlayer
+                  urlOrId={currentLesson.videoUrl}
+                  title={currentLesson.title}
+                />
+              </div>
+            )}
+            <article
                 className="
                   lesson-content prose prose-neutral dark:prose-invert max-w-none w-full
                   prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
@@ -631,6 +649,20 @@ export function LessonDetailClient({
                   }
                 })()}
               </article>
+
+                {currentLesson.quiz && (
+                  <LessonQuiz
+                    quiz={currentLesson.quiz}
+                    lessonId={currentLesson.id}
+                    isCompleted={isLessonComplete}
+                    onQuizPassed={async () => {
+                      if (!isLessonComplete) {
+                        await handleMarkComplete();
+                      }
+                    }}
+                  />
+                )}
+              </>
             )}
 
             {/* Sticky Bottom Navigation Controls */}

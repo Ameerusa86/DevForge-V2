@@ -137,3 +137,68 @@ export type LessonQuestion = Prisma.LessonQuestionModel
  * 
  */
 export type LessonAnswer = Prisma.LessonAnswerModel
+/**
+ * Model CourseAuditEvent
+ * 
+ */
+export type CourseAuditEvent = Prisma.CourseAuditEventModel
+/**
+ * Model PlatformSetting
+ * 
+ */
+export type PlatformSetting = Prisma.PlatformSettingModel
+/**
+ * Model Quiz
+ * 
+ */
+export type Quiz = Prisma.QuizModel
+/**
+ * Model QuizQuestion
+ * 
+ */
+export type QuizQuestion = Prisma.QuizQuestionModel
+/**
+ * Model QuizOption
+ * 
+ */
+export type QuizOption = Prisma.QuizOptionModel
+/**
+ * Model QuizSubmission
+ * 
+ */
+export type QuizSubmission = Prisma.QuizSubmissionModel
+/**
+ * Model CommunityPost
+ * 
+ */
+export type CommunityPost = Prisma.CommunityPostModel
+/**
+ * Model CommunityComment
+ * 
+ */
+export type CommunityComment = Prisma.CommunityCommentModel
+/**
+ * Model CommunityPostVote
+ * 
+ */
+export type CommunityPostVote = Prisma.CommunityPostVoteModel
+/**
+ * Model LiveSession
+ * 
+ */
+export type LiveSession = Prisma.LiveSessionModel
+/**
+ * Model SessionRegistration
+ * 
+ */
+export type SessionRegistration = Prisma.SessionRegistrationModel
+/**
+ * Model Conversation
+ * 
+ */
+export type Conversation = Prisma.ConversationModel
+/**
+ * Model DirectMessage
+ * 
+ */
+export type DirectMessage = Prisma.DirectMessageModel

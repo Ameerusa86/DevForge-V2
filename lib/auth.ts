@@ -4,6 +4,7 @@ import { APIError } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./db";
 import { getAuthEnv } from "./env";
+import { sendWelcomeEmail } from "./email";
 
 const normalizeUrl = (value: string) => value.trim().replace(/\/+$/, "");
 
@@ -121,6 +122,21 @@ export function getAuth() {
       },
     },
     databaseHooks: {
+      user: {
+        create: {
+          after: async (user) => {
+            const email = (user as { email?: string }).email;
+            const name = (user as { name?: string }).name;
+            if (email) {
+              try {
+                await sendWelcomeEmail({ email, name });
+              } catch (err) {
+                console.error("Failed to send welcome email:", err);
+              }
+            }
+          },
+        },
+      },
       session: {
         create: {
           before: async (session) => {

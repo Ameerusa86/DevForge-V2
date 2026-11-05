@@ -51,7 +51,10 @@ export interface Lesson {
   order: number;
   content: string;
   isFree?: boolean;
+  videoUrl?: string | null;
+  durationSeconds?: number | null;
   phaseId?: string | null;
+  quiz?: any;
   createdAt: string;
   updatedAt: string;
 }

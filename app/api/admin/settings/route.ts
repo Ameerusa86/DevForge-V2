@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 
-// Settings schema - you could create a Settings model in Prisma or use JSON storage
+// Settings schema
 interface PlatformSettings {
   general: {
     platformName: string;
@@ -64,14 +64,14 @@ const defaultSettings: PlatformSettings = {
     weeklyReports: false,
   },
   security: {
-    twoFactorAuth: true,
+    twoFactorAuth: false,
     passwordRequirements: true,
     sessionTimeout: true,
     sessionDuration: 30,
   },
   appearance: {
-    defaultTheme: "system",
-    primaryColor: "#6366f1",
+    defaultTheme: "dark",
+    primaryColor: "#ff6636",
     customBranding: true,
   },
   email: {
@@ -83,25 +83,48 @@ const defaultSettings: PlatformSettings = {
   },
 };
 
-// For now, we'll store settings in a simple JSON file or environment
-// In production, you'd want to use a database table or Redis
-let cachedSettings: PlatformSettings = defaultSettings;
-
-// GET /api/admin/settings - Get all settings
+// GET /api/admin/settings - Get all settings (from DB)
 export async function GET() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // TODO: Add proper admin role checking when role field is added to User model
-    // For now, any authenticated user can access settings
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
 
-    return NextResponse.json(cachedSettings);
+    if (user?.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden: Admin privileges required" },
+        { status: 403 }
+      );
+    }
+
+    const record = await prisma.platformSetting.findUnique({
+      where: { id: "default" },
+    });
+
+    if (!record) {
+      return NextResponse.json(defaultSettings);
+    }
+
+    const dbSettings = record.settings as Record<string, any>;
+    const merged: PlatformSettings = {
+      general: { ...defaultSettings.general, ...(dbSettings.general || {}) },
+      features: { ...defaultSettings.features, ...(dbSettings.features || {}) },
+      notifications: { ...defaultSettings.notifications, ...(dbSettings.notifications || {}) },
+      security: { ...defaultSettings.security, ...(dbSettings.security || {}) },
+      appearance: { ...defaultSettings.appearance, ...(dbSettings.appearance || {}) },
+      email: { ...defaultSettings.email, ...(dbSettings.email || {}) },
+    };
+
+    return NextResponse.json(merged);
   } catch (error) {
     console.error("Error fetching settings:", error);
     return NextResponse.json(
@@ -111,93 +134,65 @@ export async function GET() {
   }
 }
 
-// PATCH /api/admin/settings - Update settings
+// PATCH /api/admin/settings - Update settings (persist to DB)
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // TODO: Add proper admin role checking when role field is added to User model
-
-    const body = await req.json();
-
-    // Merge with existing settings
-    cachedSettings = {
-      ...cachedSettings,
-      ...body,
-      general: { ...cachedSettings.general, ...(body.general || {}) },
-      features: { ...cachedSettings.features, ...(body.features || {}) },
-      notifications: {
-        ...cachedSettings.notifications,
-        ...(body.notifications || {}),
-      },
-      security: { ...cachedSettings.security, ...(body.security || {}) },
-      appearance: { ...cachedSettings.appearance, ...(body.appearance || {}) },
-      email: { ...cachedSettings.email, ...(body.email || {}) },
-    };
-
-    // In production, save to database here
-    // await prisma.settings.upsert({ ... })
-
-    return NextResponse.json({
-      message: "Settings updated successfully",
-      settings: cachedSettings,
-    });
-  } catch (error) {
-    console.error("Error updating settings:", error);
-    return NextResponse.json(
-      { error: "Failed to update settings" },
-      { status: 500 },
-    );
-  }
-}
-
-// POST /api/admin/settings/test-email - Test email configuration
-export async function POST(req: NextRequest) {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true, email: true },
+      select: { role: true },
     });
 
     if (user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const body = await req.json();
-    const { smtpHost, smtpPort, smtpUsername } = body;
-
-    // Here you would actually test the SMTP connection
-    // For now, we'll simulate it
-    if (!smtpHost || !smtpPort || !smtpUsername) {
       return NextResponse.json(
-        { error: "Missing required SMTP configuration" },
-        { status: 400 },
+        { error: "Forbidden: Admin privileges required" },
+        { status: 403 }
       );
     }
 
-    // Simulate email test
+    const body = await req.json();
+
+    // Fetch existing or fallback to default
+    const existingRecord = await prisma.platformSetting.findUnique({
+      where: { id: "default" },
+    });
+    const current = (existingRecord?.settings as Record<string, any>) || defaultSettings;
+
+    const updatedSettings: PlatformSettings = {
+      general: { ...current.general, ...(body.general || {}) },
+      features: { ...current.features, ...(body.features || {}) },
+      notifications: { ...current.notifications, ...(body.notifications || {}) },
+      security: { ...current.security, ...(body.security || {}) },
+      appearance: { ...current.appearance, ...(body.appearance || {}) },
+      email: { ...current.email, ...(body.email || {}) },
+    };
+
+    await prisma.platformSetting.upsert({
+      where: { id: "default" },
+      create: {
+        id: "default",
+        settings: updatedSettings as any,
+      },
+      update: {
+        settings: updatedSettings as any,
+      },
+    });
+
     return NextResponse.json({
-      success: true,
-      message: `Test email sent successfully to ${user.email}`,
+      message: "Settings updated successfully",
+      settings: updatedSettings,
     });
   } catch (error) {
-    console.error("Error testing email:", error);
+    console.error("Error updating settings:", error);
     return NextResponse.json(
-      { error: "Failed to send test email" },
+      { error: "Failed to update settings" },
       { status: 500 },
     );
   }

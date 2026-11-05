@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LessonEditor } from "@/components/editor/LessonEditor";
+import { QuizBuilderModal } from "@/components/admin/quiz-builder-modal";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -52,6 +53,8 @@ import { RichTextRenderer } from "@/components/editor/RichTextRenderer";
 
 import {
   ArrowLeft,
+  Video,
+  Award,
   Plus,
   Edit2,
   Trash2,
@@ -122,6 +125,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const [isDeleteModuleDialogOpen, setIsDeleteModuleDialogOpen] =
     useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [quizLesson, setQuizLesson] = useState<{ id: string; title: string } | null>(null);
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [changingModuleLessonId, setChangingModuleLessonId] = useState<
     string | null
@@ -155,6 +160,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     isFree: false,
     moduleId: "",
     phaseId: "none",
+    videoUrl: "",
+    durationMinutes: "",
   });
 
   const [moduleForm, setModuleForm] = useState({
@@ -188,6 +195,34 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       return acc;
     }, {});
   }, [phases]);
+
+  const getPhaseName = (phaseId?: string | null) => {
+    if (!phaseId || phaseId === "none") return null;
+    if (phaseNameMap[phaseId]) return phaseNameMap[phaseId];
+    const match = phases.find((p) => p.id === phaseId || p.title === phaseId);
+    if (match) return match.title;
+    if (typeof phaseId === "string" && phaseId.startsWith("phase-")) {
+      const idx = parseInt(phaseId.replace("phase-", ""), 10);
+      if (!isNaN(idx) && phases[idx]) return phases[idx].title;
+    }
+    const numIdx = parseInt(String(phaseId), 10);
+    if (!isNaN(numIdx) && phases[numIdx]) return phases[numIdx].title;
+    return null;
+  };
+
+  const getPhaseIdValue = (phaseId?: string | null) => {
+    if (!phaseId || phaseId === "none") return "none";
+    if (phases.some((p) => p.id === phaseId)) return phaseId;
+    const matchByTitle = phases.find((p) => p.title === phaseId);
+    if (matchByTitle) return matchByTitle.id;
+    if (typeof phaseId === "string" && phaseId.startsWith("phase-")) {
+      const idx = parseInt(phaseId.replace("phase-", ""), 10);
+      if (!isNaN(idx) && phases[idx]) return phases[idx].id;
+    }
+    const numIdx = parseInt(String(phaseId), 10);
+    if (!isNaN(numIdx) && phases[numIdx]) return phases[numIdx].id;
+    return "none";
+  };
 
   const moveItem = <T extends { id: string }>(
     items: T[],
@@ -323,7 +358,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         const data = await response.json();
         setShowUnassignedHeader(data.showUnassignedHeader ?? true);
         
-        let parsedPhases: any[] = [];
+        let parsedPhases: Array<{ id?: string; title: string; description?: string }> = [];
         if (Array.isArray(data.phases)) {
           parsedPhases = data.phases;
         } else if (typeof data.phases === "string") {
@@ -361,6 +396,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     return () => window.clearTimeout(timeoutId);
   }, [isDialogOpen, editingId]);
 
+  const openQuizDialog = (lesson: Lesson) => {
+    setQuizLesson({ id: lesson.id, title: lesson.title });
+    setQuizModalOpen(true);
+  };
+
   const openCreate = () => {
     setEditingId(null);
     setShowAdvancedLessonFields(false);
@@ -371,6 +411,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       isFree: false,
       moduleId: "",
       phaseId: "none",
+      videoUrl: "",
+      durationMinutes: "",
     });
     setActiveTab("edit");
     setIsDialogOpen(true);
@@ -385,7 +427,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       content: lesson.content,
       isFree: lesson.isFree || false,
       moduleId: lesson.moduleId || "",
-      phaseId: lesson.phaseId || "none",
+      phaseId: getPhaseIdValue(lesson.phaseId),
+      videoUrl: lesson.videoUrl || "",
+      durationMinutes: lesson.durationSeconds ? String(Math.round(lesson.durationSeconds / 60)) : "",
     });
     setActiveTab("edit");
     setIsDialogOpen(true);
@@ -399,6 +443,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       isFree: false,
       moduleId: "",
       phaseId: "none",
+      videoUrl: "",
+      durationMinutes: "",
     });
     setActiveTab("edit");
     toast.success("Reset", { description: "Template restored." });
@@ -494,7 +540,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       title: moduleItem.title,
       order: moduleItem.order,
       description: moduleItem.description || "",
-      phaseId: moduleItem.phaseId || "none",
+      phaseId: getPhaseIdValue(moduleItem.phaseId),
     });
   };
 
@@ -685,6 +731,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             isFree: formData.isFree,
             moduleId: formData.moduleId || null,
             phaseId: formData.phaseId === "none" ? null : formData.phaseId,
+            videoUrl: formData.videoUrl ? formData.videoUrl.trim() : null,
+            durationSeconds: formData.durationMinutes ? parseInt(formData.durationMinutes, 10) * 60 : null,
           }),
         });
 
@@ -707,6 +755,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           isFree: false,
           moduleId: "",
           phaseId: "none",
+          videoUrl: "",
+          durationMinutes: "",
         });
       } else {
         const response = await fetch("/api/admin/lessons", {
@@ -720,6 +770,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             isFree: formData.isFree,
             moduleId: formData.moduleId || null,
             phaseId: formData.phaseId === "none" ? null : formData.phaseId,
+            videoUrl: formData.videoUrl ? formData.videoUrl.trim() : null,
+            durationSeconds: formData.durationMinutes ? parseInt(formData.durationMinutes, 10) * 60 : null,
           }),
         });
 
@@ -746,6 +798,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             isFree: false,
             moduleId: selectedModuleId,
             phaseId: formData.phaseId,
+            videoUrl: "",
+            durationMinutes: "",
           });
           setShowAdvancedLessonFields(false);
           setActiveTab("edit");
@@ -767,6 +821,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             isFree: false,
             moduleId: "",
             phaseId: "none",
+            videoUrl: "",
+            durationMinutes: "",
           });
         }
       }
@@ -1110,62 +1166,78 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               {modules
                 .slice()
                 .sort((a, b) => a.order - b.order)
-                .map((moduleItem) => (
-                  <div
-                    key={moduleItem.id}
-                    className={cn(
-                      "flex items-start justify-between rounded-xl border p-4 transition-all cursor-grab active:cursor-grabbing",
-                      editingModuleId === moduleItem.id
-                        ? "bg-[#ff6636]/5 border-[#ff6636]"
-                        : "bg-background hover:bg-muted/15 border-border/60"
-                    )}
-                    draggable
-                    onDragStart={() => setDraggingModuleId(moduleItem.id)}
-                    onDragOver={(event) => event.preventDefault()}
-                    onDrop={async () => {
-                      if (!draggingModuleId) return;
-                      if (draggingModuleId === moduleItem.id) return;
+                .map((moduleItem) => {
+                  const phaseName = getPhaseName(moduleItem.phaseId);
 
-                      const reordered = moveItem(
-                        modules.slice().sort((a, b) => a.order - b.order),
-                        draggingModuleId,
-                        moduleItem.id,
-                      );
+                  return (
+                    <div
+                      key={moduleItem.id}
+                      className={cn(
+                        "flex items-center justify-between gap-4 rounded-xl border p-4 transition-all cursor-grab active:cursor-grabbing",
+                        editingModuleId === moduleItem.id
+                          ? "bg-[#ff6636]/5 border-[#ff6636]"
+                          : "bg-background hover:bg-muted/15 border-border/60"
+                      )}
+                      draggable
+                      onDragStart={() => setDraggingModuleId(moduleItem.id)}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={async () => {
+                        if (!draggingModuleId) return;
+                        if (draggingModuleId === moduleItem.id) return;
 
-                      await persistModuleOrder(reordered);
-                      setDraggingModuleId(null);
-                    }}
-                    onDragEnd={() => setDraggingModuleId(null)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground w-8 mt-0.5">
-                        m-{moduleItem.order}
-                      </span>
-                      <div>
-                        <span className="text-xs font-bold text-foreground">{moduleItem.title}</span>
-                        {moduleItem.description ? (
-                          <p className="text-[10px] font-semibold text-muted-foreground/80 mt-0.5">
-                            {moduleItem.description}
-                          </p>
-                        ) : null}
+                        const reordered = moveItem(
+                          modules.slice().sort((a, b) => a.order - b.order),
+                          draggingModuleId,
+                          moduleItem.id,
+                        );
+
+                        await persistModuleOrder(reordered);
+                        setDraggingModuleId(null);
+                      }}
+                      onDragEnd={() => setDraggingModuleId(null)}
+                    >
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <span className="text-[10px] font-black uppercase text-muted-foreground w-8 mt-0.5 shrink-0">
+                          m-{moduleItem.order}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <span className="text-xs font-bold text-foreground">{moduleItem.title}</span>
+                            <span
+                              className={cn(
+                                "rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider shrink-0",
+                                phaseName
+                                  ? "bg-[#ff6636]/10 text-[#ff6636] border-[#ff6636]/25"
+                                  : "bg-muted text-muted-foreground border-border/40"
+                              )}
+                            >
+                              {phaseName || "Unassigned"}
+                            </span>
+                          </div>
+                          {moduleItem.description ? (
+                            <p className="text-[10px] font-semibold text-muted-foreground/80 mt-0.5">
+                              {moduleItem.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleEditModule(moduleItem)}
+                          className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/10 transition-colors"
+                          onClick={() => openDeleteModuleDialog(moduleItem.id)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => handleEditModule(moduleItem)}
-                        className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/10 transition-colors"
-                        onClick={() => openDeleteModuleDialog(moduleItem.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           ) : (
             <p className="text-xs font-semibold text-muted-foreground/80 py-4 text-center">
@@ -1316,10 +1388,15 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       </TableCell>
 
                       <TableCell className="px-4 py-4">
-                        <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border/40">
-                          {lesson.phaseId && lesson.phaseId !== "none"
-                            ? phaseNameMap[lesson.phaseId] || "Unknown"
-                            : "Unassigned"}
+                        <span
+                          className={cn(
+                            "rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider",
+                            getPhaseName(lesson.phaseId)
+                              ? "bg-[#ff6636]/10 text-[#ff6636] border-[#ff6636]/25"
+                              : "bg-muted text-muted-foreground border-border/40"
+                          )}
+                        >
+                          {getPhaseName(lesson.phaseId) || "Unassigned"}
                         </span>
                       </TableCell>
 
@@ -1341,6 +1418,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                             <DropdownMenuItem onClick={() => openEdit(lesson)} className="text-xs font-semibold px-3.5 py-2 cursor-pointer gap-2">
                               <Edit2 className="size-3.5" />
                               Edit Unit
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              onClick={() => openQuizDialog(lesson)}
+                              className="text-xs font-semibold px-3.5 py-2 cursor-pointer gap-2"
+                            >
+                              <Award className="size-3.5 text-[#ff6636]" />
+                              {lesson.quiz ? "Edit Knowledge Quiz" : "Add Knowledge Quiz"}
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
@@ -1436,20 +1521,50 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         {modules
                           .slice()
                           .sort((a, b) => a.order - b.order)
-                          .map((moduleItem) => (
-                            <SelectItem
-                              key={moduleItem.id}
-                              value={moduleItem.id}
-                              className="text-xs font-semibold"
-                            >
-                              {moduleItem.title}
-                            </SelectItem>
-                          ))}
+                          .map((moduleItem) => {
+                            const pName = getPhaseName(moduleItem.phaseId);
+                            return (
+                              <SelectItem
+                                key={moduleItem.id}
+                                value={moduleItem.id}
+                                className="text-xs font-semibold"
+                              >
+                                {moduleItem.title} {pName ? `(${pName})` : ""}
+                              </SelectItem>
+                            );
+                          })}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* Phase */}
+                  {/* YouTube Video URL & Duration */}
+                  <div className="col-span-12 sm:col-span-8 space-y-1.5">
+                    <Label htmlFor="lesson-video" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <Video className="size-3 text-red-500" /> YouTube Video Source
+                    </Label>
+                    <Input
+                      id="lesson-video"
+                      placeholder="https://www.youtube.com/watch?v=... or Video ID"
+                      value={formData.videoUrl}
+                      onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                      className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
+                    />
+                  </div>
+                  <div className="col-span-12 sm:col-span-4 space-y-1.5">
+                    <Label htmlFor="lesson-duration" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Duration (Mins)
+                    </Label>
+                    <Input
+                      id="lesson-duration"
+                      type="number"
+                      placeholder="e.g. 15"
+                      value={formData.durationMinutes}
+                      onChange={(e) => setFormData({ ...formData, durationMinutes: e.target.value })}
+                      className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
+                    />
+                  </div>
+
+                                    {/* Phase */}
                   <div className="col-span-12 lg:col-span-5 space-y-1.5">
                     <Label htmlFor="lesson-phase" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       Phase Assignment
@@ -1703,11 +1818,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 {modules
                   .slice()
                   .sort((a, b) => a.order - b.order)
-                  .map((moduleItem) => (
-                    <SelectItem key={moduleItem.id} value={moduleItem.id} className="text-xs font-semibold">
-                      {moduleItem.title}
-                    </SelectItem>
-                  ))}
+                  .map((moduleItem) => {
+                    const pName = getPhaseName(moduleItem.phaseId);
+                    return (
+                      <SelectItem key={moduleItem.id} value={moduleItem.id} className="text-xs font-semibold">
+                        {moduleItem.title} {pName ? `(${pName})` : ""}
+                      </SelectItem>
+                    );
+                  })}
               </SelectContent>
             </Select>
           </div>
@@ -1830,11 +1948,14 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 {modules
                   .slice()
                   .sort((a, b) => a.order - b.order)
-                  .map((moduleItem) => (
-                    <SelectItem key={moduleItem.id} value={moduleItem.id} className="text-xs font-semibold">
-                      {moduleItem.title}
-                    </SelectItem>
-                  ))}
+                  .map((moduleItem) => {
+                    const pName = getPhaseName(moduleItem.phaseId);
+                    return (
+                      <SelectItem key={moduleItem.id} value={moduleItem.id} className="text-xs font-semibold">
+                        {moduleItem.title} {pName ? `(${pName})` : ""}
+                      </SelectItem>
+                    );
+                  })}
               </SelectContent>
             </Select>
           </div>
@@ -1858,6 +1979,25 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           </div>
         </DialogContent>
       </Dialog>
+          {/* Knowledge Check Quiz Builder Modal */}
+      {quizLesson && (
+        <QuizBuilderModal
+          isOpen={quizModalOpen}
+          onClose={() => {
+            setQuizModalOpen(false);
+            setQuizLesson(null);
+          }}
+          lessonId={quizLesson.id}
+          lessonTitle={quizLesson.title}
+          onQuizSaved={async () => {
+            const res = await fetch(`/api/admin/lessons?courseId=${courseId}`);
+            if (res.ok) {
+              const data = await res.json();
+              setLessons(data);
+            }
+          }}
+        />
+      )}
     </AdminPage>
   );
 }

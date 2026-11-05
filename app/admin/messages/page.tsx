@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { AdminPage, AdminPageHeader } from "@/components/admin/admin-page";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Send, Search, CheckCheck, MessageSquarePlus, UserCheck, ShieldAlert } from "lucide-react";
+import { Send, Search, CheckCheck, UserCheck } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -30,443 +30,295 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
-  // Conversation List State
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: "c-1",
-      user: "Sarah Johnson",
-      email: "sarah.j@devforge.com",
-      lastMessage: "Thank you for the help! I succeeded with the API route.",
-      time: "5m ago",
-      unread: 2,
-      active: true,
-      avatarFallback: "SJ",
-    },
-    {
-      id: "c-2",
-      user: "Michael Chen",
-      email: "m.chen@devforge.com",
-      lastMessage: "Can you review my course submission for unit 4?",
-      time: "1h ago",
-      unread: 0,
-      active: true,
-      avatarFallback: "MC",
-    },
-    {
-      id: "c-3",
-      user: "Emma Wilson",
-      email: "emma.w@devforge.com",
-      lastMessage: "I have a question about the Enterprise pricing plan.",
-      time: "3h ago",
-      unread: 1,
-      active: false,
-      avatarFallback: "EW",
-    },
-    {
-      id: "c-4",
-      user: "Ethan Hunt",
-      email: "ethan@devforge.com",
-      lastMessage: "Is there a downloadable blueprint for ASP.NET?",
-      time: "1d ago",
-      unread: 0,
-      active: false,
-      avatarFallback: "EH",
-    },
-  ]);
-
-  // Selected Conversation ID
-  const [selectedConvId, setSelectedConvId] = useState<string>("c-1");
-  
-  // Search query filter
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConvId, setSelectedConvId] = useState<string>("");
+  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Input message state
   const [messageInput, setMessageInput] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
 
-  // Map of conversation histories
-  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>({
-    "c-1": [
-      {
-        id: "m1-1",
-        sender: "student",
-        text: "Hi! I'm having trouble accessing the course materials for the React Bootcamp.",
-        time: "10:30 AM",
-      },
-      {
-        id: "m1-2",
-        sender: "admin",
-        text: "Hi Sarah! I can certainly check that. Which module is giving you the access issue?",
-        time: "10:32 AM",
-      },
-      {
-        id: "m1-3",
-        sender: "student",
-        text: "It is the Next.js App Router sub-module. The video player shows a loading spinner.",
-        time: "10:33 AM",
-      },
-      {
-        id: "m1-4",
-        sender: "admin",
-        text: "Got it. I've cleared the session locks on your subscription. Try refreshing the browser tab now.",
-        time: "10:35 AM",
-      },
-      {
-        id: "m1-5",
-        sender: "student",
-        text: "Thank you for the help! I succeeded with the API route.",
-        time: "10:37 AM",
-      },
-    ],
-    "c-2": [
-      {
-        id: "m2-1",
-        sender: "student",
-        text: "Hi instructor! I completed the final project for CSS layout module.",
-        time: "Yesterday",
-      },
-      {
-        id: "m2-2",
-        sender: "admin",
-        text: "Excellent! I'll pull up the code on GitHub and review it today.",
-        time: "Yesterday",
-      },
-      {
-        id: "m2-3",
-        sender: "student",
-        text: "Can you review my course submission for unit 4?",
-        time: "1h ago",
-      },
-    ],
-    "c-3": [
-      {
-        id: "m3-1",
-        sender: "student",
-        text: "Hello! Our business team wants to enroll 10 developers.",
-        time: "2h ago",
-      },
-      {
-        id: "m3-2",
-        sender: "student",
-        text: "I have a question about the Enterprise pricing plan.",
-        time: "1h ago",
-      },
-    ],
-    "c-4": [
-      {
-        id: "m4-1",
-        sender: "admin",
-        text: "Hi Ethan, let me know if you finished the C# modules.",
-        time: "2d ago",
-      },
-      {
-        id: "m4-2",
-        sender: "student",
-        text: "Is there a downloadable blueprint for ASP.NET?",
-        time: "1d ago",
-      },
-    ],
-  });
-
-  // Scroll to bottom helper
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   const scrollToBottom = () => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const fetchConversations = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/admin/messages");
+      if (res.ok) {
+        const data: Conversation[] = await res.json();
+        setConversations(data);
+        if (data.length > 0 && !selectedConvId) {
+          setSelectedConvId(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load conversations:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedConvId]);
+
+  const fetchThread = useCallback(async (convId: string) => {
+    if (!convId) return;
+    try {
+      const res = await fetch(`/api/admin/messages/${convId}`);
+      if (res.ok) {
+        const msgs: Message[] = await res.json();
+        setMessagesMap((prev) => ({ ...prev, [convId]: msgs }));
+
+        // Mark as read in DB and locally
+        await fetch(`/api/admin/messages/${convId}`, { method: "PATCH" });
+        setConversations((prev) =>
+          prev.map((c) => (c.id === convId ? { ...c, unread: 0 } : c))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to load thread:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  useEffect(() => {
+    if (selectedConvId) {
+      fetchThread(selectedConvId);
+    }
+  }, [selectedConvId, fetchThread]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messagesMap, selectedConvId]);
 
-  // Mark selected conversation as read
-  useEffect(() => {
-    setConversations((prev) =>
-      prev.map((c) => (c.id === selectedConvId ? { ...c, unread: 0 } : c))
-    );
-  }, [selectedConvId]);
+  const activeConv = conversations.find((c) => c.id === selectedConvId);
+  const activeMessages = selectedConvId ? messagesMap[selectedConvId] || [] : [];
 
-  const activeConv = conversations.find((c) => c.id === selectedConvId) || conversations[0];
-  const activeMessages = messagesMap[selectedConvId] || [];
+  const handleSelectConv = (convId: string) => {
+    setSelectedConvId(convId);
+  };
 
-  const handleSendMessage = (e?: React.FormEvent) => {
+  const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!messageInput.trim()) return;
+    if (!messageInput.trim() || !selectedConvId) return;
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      sender: "admin",
-      text: messageInput.trim(),
-      time: new Date().toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-    };
-
-    // Add message to state history
-    setMessagesMap((prev) => ({
-      ...prev,
-      [selectedConvId]: [...(prev[selectedConvId] || []), newMessage],
-    }));
-
-    // Update conversation lastMessage text
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === selectedConvId
-          ? {
-              ...c,
-              lastMessage: messageInput.trim(),
-              time: "Just now",
-            }
-          : c
-      )
-    );
-
+    const textToSend = messageInput.trim();
     setMessageInput("");
+    setSending(true);
 
-    // Trigger mock response after 1.5s
-    setTimeout(() => {
-      const responses = [
-        "Got it! Thanks for checking on this.",
-        "Perfect, that makes absolute sense. I'll test it out now.",
-        "Okay, I will review the changes and submit the next assignment.",
-        "Understood, thank you for the speedy response!",
-      ];
-      const randomReply = responses[Math.floor(Math.random() * responses.length)];
-      
-      const mockReply: Message = {
-        id: `msg-${Date.now() + 1}`,
-        sender: "student",
-        text: randomReply,
-        time: new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-        }),
-      };
+    try {
+      const res = await fetch(`/api/admin/messages/${selectedConvId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: textToSend }),
+      });
+
+      if (!res.ok) throw new Error("Failed to send reply");
+
+      const newMsg: Message = await res.json();
 
       setMessagesMap((prev) => ({
         ...prev,
-        [selectedConvId]: [...(prev[selectedConvId] || []), mockReply],
+        [selectedConvId]: [...(prev[selectedConvId] || []), newMsg],
       }));
 
       setConversations((prev) =>
         prev.map((c) =>
           c.id === selectedConvId
-            ? {
-                ...c,
-                lastMessage: randomReply,
-                time: "Just now",
-              }
+            ? { ...c, lastMessage: textToSend, time: newMsg.time }
             : c
         )
       );
-
-      toast.info(`New message from ${activeConv.user}`);
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send message.");
+    } finally {
+      setSending(false);
+    }
   };
 
-  const filteredConversations = conversations.filter((c) =>
-    c.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredConversations = conversations.filter(
+    (c) =>
+      c.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Learner Support & Communications"
-        title="Inbox"
-        description="Interact directly with active developers, review submissions, and manage support tickets."
+        title="Student Support & Direct Messages"
+        description="Communicate with enrolled students, provide technical assistance, and review feedback in real time."
       />
 
-      {/* Messages Interface Layout */}
-      <div className="grid gap-6 lg:grid-cols-3 mt-6 items-start">
-        
-        {/* Left Side: Conversations List */}
-        <Card className="lg:col-span-1 rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col h-[600px]">
-          <CardHeader className="border-b border-border/50 p-4 shrink-0">
-            <div className="flex items-center justify-between mb-3">
-              <CardTitle className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
-                <UserCheck className="size-4 text-[#ff6636]" />
-                Direct Messages
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px] max-h-[80vh] items-stretch">
+        {/* Left Column: Conversations List */}
+        <Card className="lg:col-span-4 flex flex-col h-full rounded-2xl border-border/60 bg-card overflow-hidden">
+          <CardHeader className="p-4 border-b border-border/50 shrink-0 space-y-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-extrabold flex items-center gap-2">
+                Conversations
+                <Badge variant="secondary" className="rounded-full px-2 py-0 text-[10px] font-bold">
+                  {conversations.length}
+                </Badge>
               </CardTitle>
-              <button
-                onClick={() => toast.success("Create new message thread")}
-                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                title="New Chat"
-              >
-                <MessageSquarePlus className="size-4" />
-              </button>
             </div>
-            
-            {/* Search messages */}
+
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Search className="size-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
-                type="text"
-                placeholder="Search students, keywords..."
+                placeholder="Search students..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 rounded-xl border-border bg-background text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
+                className="h-8 pl-8 text-xs rounded-xl bg-background border-border/70"
               />
             </div>
           </CardHeader>
 
-          <ScrollArea className="flex-1 p-2 bg-muted/5">
-            <div className="space-y-1">
-              {filteredConversations.length > 0 ? (
-                filteredConversations.map((conv) => {
-                  const isSelected = conv.id === selectedConvId;
-                  return (
-                    <div
-                      key={conv.id}
-                      onClick={() => setSelectedConvId(conv.id)}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-all duration-150 select-none",
-                        isSelected
-                          ? "border-[#ff6636]/40 bg-[#ff6636]/5"
-                          : "border-transparent hover:bg-muted/40"
-                      )}
-                    >
-                      <div className="relative">
-                        <Avatar className="size-9 border border-border/80">
-                          <AvatarFallback className={cn("bg-muted text-xs font-black text-foreground", isSelected && "bg-[#ff6636]/10 text-[#ff6636]")}>
-                            {conv.avatarFallback}
-                          </AvatarFallback>
-                        </Avatar>
-                        {/* Status light */}
-                        <span className={cn(
-                          "absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-card",
-                          conv.active ? "bg-emerald-500" : "bg-muted-foreground/40"
-                        )} />
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <p className="text-xs font-bold text-foreground truncate">{conv.user}</p>
-                          <span className="text-[9px] font-semibold text-muted-foreground/75 whitespace-nowrap">{conv.time}</span>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground truncate font-medium">
-                          {conv.lastMessage}
-                        </p>
-                      </div>
+          {/* Conversation List Items */}
+          <ScrollArea className="flex-1 overflow-y-auto divide-y divide-border/30">
+            {loading ? (
+              <div className="p-8 text-center text-xs text-muted-foreground font-semibold">
+                Loading conversations...
+              </div>
+            ) : filteredConversations.length > 0 ? (
+              filteredConversations.map((conv) => (
+                <button
+                  type="button"
+                  key={conv.id}
+                  onClick={() => handleSelectConv(conv.id)}
+                  className={cn(
+                    "w-full text-left p-4 transition-all flex items-start gap-3 hover:bg-muted/40",
+                    selectedConvId === conv.id
+                      ? "bg-[#ff6636]/10 border-l-4 border-[#ff6636]"
+                      : "bg-transparent"
+                  )}
+                >
+                  <Avatar className="size-9 shrink-0 border border-border">
+                    <AvatarFallback className="bg-muted text-xs font-black text-foreground">
+                      {conv.avatarFallback}
+                    </AvatarFallback>
+                  </Avatar>
 
-                      {conv.unread > 0 && (
-                        <Badge
-                          variant="destructive"
-                          className="size-5 p-0 flex items-center justify-center text-[9px] font-black rounded-full shrink-0 bg-[#ff6636] hover:bg-[#ff6636] text-white"
-                        >
-                          {conv.unread}
-                        </Badge>
-                      )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs font-bold text-foreground truncate">{conv.user}</p>
+                      <span className="text-[10px] text-muted-foreground shrink-0">{conv.time}</span>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="py-12 text-center text-xs font-semibold text-muted-foreground">
-                  No active chats found.
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </Card>
 
-        {/* Right Side: Active Message Thread Area */}
-        <Card className="lg:col-span-2 rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col h-[600px]">
-          {/* Header */}
-          <CardHeader className="border-b border-border/50 p-4 shrink-0 flex flex-row items-center justify-between bg-[#ff6636]/5">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Avatar className="size-10 border border-border/60">
-                  <AvatarFallback className="bg-[#ff6636]/10 text-xs font-black text-[#ff6636]">
-                    {activeConv.avatarFallback}
-                  </AvatarFallback>
-                </Avatar>
-                <span className={cn(
-                  "absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-card",
-                  activeConv.active ? "bg-emerald-500" : "bg-muted-foreground/40"
-                )} />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-extrabold text-foreground">{activeConv.user}</CardTitle>
-                <p className="text-[10px] font-semibold text-muted-foreground">
-                  {activeConv.active ? "Active now" : "Offline"} • {activeConv.email}
-                </p>
-              </div>
-            </div>
-            
-            <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground gap-1 flex items-center bg-card">
-              <CheckCheck className="size-3 text-emerald-500" />
-              verified account
-            </Badge>
-          </CardHeader>
-
-          {/* Messages content area */}
-          <ScrollArea className="flex-1 p-4 bg-muted/5">
-            <div className="space-y-4">
-              
-              <div className="flex justify-center my-2">
-                <span className="inline-block text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 border border-border bg-card px-2.5 py-0.5 rounded-full">
-                  Secure Workspace Conversation
-                </span>
-              </div>
-
-              {activeMessages.map((msg) => {
-                const isAdmin = msg.sender === "admin";
-                return (
-                  <div
-                    key={msg.id}
-                    className={cn(
-                      "flex gap-2 max-w-[75%]",
-                      isAdmin ? "ml-auto flex-row-reverse" : "mr-auto"
-                    )}
-                  >
-                    {!isAdmin && (
-                      <Avatar className="size-7 border border-border/80 shrink-0 mt-0.5">
-                        <AvatarFallback className="bg-muted text-[8px] font-black">
-                          {activeConv.avatarFallback}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div className="space-y-1">
-                      <div
-                        className={cn(
-                          "rounded-2xl p-3 text-xs font-medium leading-relaxed shadow-sm",
-                          isAdmin
-                            ? "bg-[#ff6636] text-white rounded-tr-none"
-                            : "bg-card border border-border/80 text-foreground rounded-tl-none"
-                        )}
-                      >
-                        <p>{msg.text}</p>
-                      </div>
-                      <p className={cn("text-[8px] font-bold text-muted-foreground/80 leading-none", isAdmin && "text-right")}>
-                        {msg.time}
-                      </p>
-                    </div>
+                    <p className="text-[11px] text-muted-foreground truncate leading-snug">
+                      {conv.lastMessage}
+                    </p>
                   </div>
-                );
-              })}
-              <div ref={scrollRef} />
-            </div>
-          </ScrollArea>
 
-          {/* Message Input Control Box */}
-          <form onSubmit={handleSendMessage} className="border-t border-border/50 p-4 shrink-0 bg-background/50 flex gap-2">
-            <Input
-              type="text"
-              placeholder={`Send message to ${activeConv.user}...`}
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              className="flex-1 h-10 rounded-xl border-border bg-background text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80"
-            />
-            <button
-              type="submit"
-              className="flex size-10 items-center justify-center rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white transition-colors shadow-md shadow-[#ff6636]/10 shrink-0"
-              title="Send message"
-            >
-              <Send className="size-4" />
-            </button>
-          </form>
+                  {conv.unread > 0 && (
+                    <Badge className="size-5 p-0 rounded-full flex items-center justify-center bg-[#ff6636] text-white text-[10px] font-bold shrink-0">
+                      {conv.unread}
+                    </Badge>
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="p-8 text-center text-xs text-muted-foreground">
+                No active conversations found.
+              </div>
+            )}
+          </ScrollArea>
         </Card>
 
+        {/* Right Column: Chat Window */}
+        <Card className="lg:col-span-8 flex flex-col h-full rounded-2xl border-border/60 bg-card overflow-hidden">
+          {activeConv ? (
+            <>
+              {/* Chat Header */}
+              <div className="p-4 border-b border-border/50 bg-muted/20 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <Avatar className="size-9 border border-border">
+                    <AvatarFallback className="bg-muted text-xs font-bold">
+                      {activeConv.avatarFallback}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-bold text-foreground">{activeConv.user}</h4>
+                      <Badge variant="outline" className="text-[9px] py-0 px-1.5 font-bold uppercase text-emerald-600 border-emerald-500/30">
+                        Student
+                      </Badge>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{activeConv.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <UserCheck className="size-3.5 text-emerald-500" />
+                  <span>Enrolled Student</span>
+                </div>
+              </div>
+
+              {/* Message Feed */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-muted/5">
+                {activeMessages.length > 0 ? (
+                  activeMessages.map((msg) => {
+                    const isAdmin = msg.sender === "admin";
+                    return (
+                      <div
+                        key={msg.id}
+                        className={cn("flex flex-col max-w-[80%]", isAdmin ? "ml-auto items-end" : "mr-auto items-start")}
+                      >
+                        <div
+                          className={cn(
+                            "rounded-2xl px-4 py-2.5 text-xs font-medium leading-relaxed shadow-xs",
+                            isAdmin
+                              ? "bg-[#ff6636] text-white rounded-br-xs"
+                              : "bg-muted text-foreground border border-border/60 rounded-bl-xs"
+                          )}
+                        >
+                          <p>{msg.text}</p>
+                        </div>
+                        <span className="text-[9px] text-muted-foreground mt-1 flex items-center gap-1 px-1">
+                          {msg.time}
+                          {isAdmin && <CheckCheck className="size-3 text-[#ff6636]" />}
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-center text-xs text-muted-foreground">
+                    <p className="font-semibold text-foreground mb-1">No message history</p>
+                    <p className="text-[11px]">Send a reply below to initiate conversation with {activeConv.user}.</p>
+                  </div>
+                )}
+                <div ref={scrollRef} />
+              </div>
+
+              {/* Chat Input Bar */}
+              <form onSubmit={handleSendMessage} className="p-3 border-t border-border/50 bg-card flex items-center gap-2">
+                <Input
+                  placeholder={`Reply to ${activeConv.user}...`}
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  className="h-10 text-xs rounded-xl bg-background border-border/70"
+                />
+                <button
+                  type="submit"
+                  disabled={sending || !messageInput.trim()}
+                  className="size-10 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white flex items-center justify-center disabled:opacity-50 transition-colors shrink-0"
+                >
+                  <Send className="size-4" />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center text-xs text-muted-foreground">
+              <p className="font-semibold text-foreground text-sm mb-1">Select a conversation</p>
+              <p className="max-w-xs text-[11px]">Choose a student from the sidebar to view their message thread or send a direct reply.</p>
+            </div>
+          )}
+        </Card>
       </div>
     </AdminPage>
   );

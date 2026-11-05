@@ -10,17 +10,32 @@ export async function PATCH(
   try {
     const { lessonId } = await params;
     const body = await request.json();
-    const { title, content, order, isFree, moduleId, phaseId } = body;
+    const { title, content, order, isFree, moduleId, phaseId, videoUrl, durationSeconds } = body;
 
     const lesson = await prisma.lesson.update({
       where: { id: lessonId },
       data: {
-        ...(title && { title }),
-        ...(content && { content }),
+        ...(title !== undefined && { title }),
+        ...(content !== undefined && { content }),
         ...(order !== undefined && { order }),
         ...(isFree !== undefined && { isFree }),
         ...(moduleId !== undefined && { moduleId: moduleId || null }),
         ...(phaseId !== undefined && { phaseId: phaseId || null }),
+        ...(videoUrl !== undefined && { videoUrl: videoUrl ? String(videoUrl).trim() : null }),
+        ...(durationSeconds !== undefined && {
+          durationSeconds: durationSeconds ? parseInt(String(durationSeconds), 10) : null,
+        }),
+      },
+      include: {
+        quiz: {
+          include: {
+            questions: {
+              include: {
+                options: true,
+              },
+            },
+          },
+        },
       },
     });
 

@@ -31,6 +31,8 @@ async function getLessonPageData(slug: string, lessonId: string) {
             order: true,
             isFree: true,
             moduleId: true,
+            videoUrl: true,
+            durationSeconds: true,
           },
           orderBy: { order: "asc" },
         },
@@ -47,6 +49,8 @@ async function getLessonPageData(slug: string, lessonId: string) {
                 order: true,
                 isFree: true,
                 moduleId: true,
+                videoUrl: true,
+                durationSeconds: true,
               },
               orderBy: { order: "asc" },
             },
@@ -64,6 +68,20 @@ async function getLessonPageData(slug: string, lessonId: string) {
         order: true,
         isFree: true,
         courseId: true,
+        videoUrl: true,
+        durationSeconds: true,
+        quiz: {
+          include: {
+            questions: {
+              orderBy: { order: "asc" },
+              include: {
+                options: {
+                  orderBy: { order: "asc" },
+                },
+              },
+            },
+          },
+        },
       },
     }),
   ]);
@@ -148,6 +166,9 @@ async function getLessonPageData(slug: string, lessonId: string) {
     order: lesson.order,
     isFree: lesson.isFree,
     isLocked,
+    videoUrl: isLocked ? null : lesson.videoUrl,
+    durationSeconds: lesson.durationSeconds,
+    quiz: isLocked ? null : lesson.quiz,
     message: isLocked
       ? "This lesson requires enrollment. Please enroll in the course to access this content."
       : undefined,

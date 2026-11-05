@@ -27,6 +27,14 @@ model User {
   notifications      Notification[]
   lessonQuestions    LessonQuestion[]
   lessonAnswers      LessonAnswer[]
+  quizSubmissions    QuizSubmission[]
+  communityPosts     CommunityPost[]
+  communityComments  CommunityComment[]
+  communityVotes     CommunityPostVote[]
+  instructedSessions LiveSession[]
+  sessionRegistrations SessionRegistration[]
+  conversations      Conversation[]   @relation("UserConversations")
+  sentMessages       DirectMessage[]
 
   @@unique([email])
   @@map("user")
@@ -156,10 +164,13 @@ model Lesson {
   title     String
   order     Int
   content   String
-  isFree    Boolean          @default(false)
-  phaseId   String?
+  isFree          Boolean          @default(false)
+  videoUrl        String?
+  durationSeconds Int?
+  phaseId         String?
   progress  LessonProgress[]
   questions LessonQuestion[]
+  quiz      Quiz?
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
@@ -487,4 +498,200 @@ model LessonAnswer {
   @@index([questionId])
   @@index([userId])
   @@map("lesson_answer")
+}
+
+// Course Audit Event (aligns with course_audit_event table)
+model CourseAuditEvent {
+  id          String   @id @default(uuid())
+  courseId    String   @map("course_id")
+  title       String
+  description String
+  type        String
+  actionUrl   String?  @map("action_url")
+  occurredAt  DateTime @default(now()) @map("occurred_at")
+
+  @@index([courseId, occurredAt(sort: Desc)], map: "course_audit_event_course_id_occurred_at_idx")
+  @@map("course_audit_event")
+}
+
+// Platform Settings (Persistent)
+model PlatformSetting {
+  id        String   @id @default("default")
+  settings  Json
+  updatedAt DateTime @updatedAt
+
+  @@map("platform_setting")
+}
+
+// Quizzes & Knowledge Checks
+model Quiz {
+  id           String           @id @default(uuid())
+  lessonId     String           @unique
+  lesson       Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  passingScore Int              @default(70)
+  questions    QuizQuestion[]
+  submissions  QuizSubmission[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@map("quiz")
+}
+
+model QuizQuestion {
+  id          String       @id @default(uuid())
+  quizId      String
+  quiz        Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question    String
+  order       Int          @default(0)
+  explanation String?
+  options     QuizOption[]
+
+  @@index([quizId])
+  @@map("quiz_question")
+}
+
+model QuizOption {
+  id         String       @id @default(uuid())
+  questionId String
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean      @default(false)
+  order      Int          @default(0)
+
+  @@index([questionId])
+  @@map("quiz_option")
+}
+
+model QuizSubmission {
+  id        String   @id @default(uuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int
+  passed    Boolean
+  answers   Json?
+  createdAt DateTime @default(now())
+
+  @@index([quizId])
+  @@index([userId])
+  @@map("quiz_submission")
+}
+
+// Community Forum
+model CommunityPost {
+  id        String              @id @default(uuid())
+  title     String
+  content   String
+  tag       String              @default("General")
+  authorId  String
+  author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  upvotes   Int                 @default(0)
+  views     Int                 @default(0)
+  comments  CommunityComment[]
+  votes     CommunityPostVote[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([authorId])
+  @@index([tag])
+  @@index([createdAt])
+  @@map("community_post")
+}
+
+model CommunityComment {
+  id        String        @id @default(uuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([postId])
+  @@index([authorId])
+  @@map("community_comment")
+}
+
+model CommunityPostVote {
+  id        String        @id @default(uuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@unique([postId, userId])
+  @@map("community_post_vote")
+}
+
+// Live Sessions & Schedule
+model LiveSession {
+  id              String                @id @default(uuid())
+  title           String
+  description     String?
+  instructorId    String
+  instructor      User                  @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+  scheduledAt     DateTime
+  durationMinutes Int                   @default(60)
+  category        String                @default("workshop")
+  status          String                @default("upcoming")
+  maxAttendees    Int                   @default(100)
+  streamUrl       String?
+  registrations   SessionRegistration[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([instructorId])
+  @@map("live_session")
+}
+
+model SessionRegistration {
+  id           String      @id @default(uuid())
+  sessionId    String
+  session      LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registeredAt DateTime    @default(now())
+
+  @@unique([sessionId, userId])
+  @@index([userId])
+  @@map("session_registration")
+}
+
+// Direct Messages & Support Chat
+model Conversation {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
+  subject       String?
+  lastMessageAt DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  messages      DirectMessage[]
+
+  @@index([userId])
+  @@index([lastMessageAt])
+  @@map("conversation")
+}
+
+model DirectMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole     UserRole     @default(STUDENT)
+  text           String
+  read           Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("direct_message")
 }

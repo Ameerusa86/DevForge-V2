@@ -6,6 +6,7 @@ import {
   notifyUserEnrolled,
   createNotification,
 } from "@/lib/notification-utils";
+import { sendEnrollmentReceiptEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 
 // POST /api/enrollments - Enroll in a course
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
             id: true,
             title: true,
             slug: true,
+            price: true,
             instructorId: true,
           },
         },
@@ -75,11 +77,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Notify student about enrollment
+    // Notify student about enrollment (in-app)
     try {
       await notifyUserEnrolled(session.user.id, enrollment.course.title);
     } catch (err) {
       console.warn("Failed to notify student about enrollment:", err);
+    }
+
+    // Send email confirmation with receipt
+    if (enrollment.user.email) {
+      try {
+        await sendEnrollmentReceiptEmail(
+          { email: enrollment.user.email, name: enrollment.user.name },
+          {
+            title: enrollment.course.title,
+            price: Number(enrollment.course.price),
+            slug: enrollment.course.slug,
+          }
+        );
+      } catch (err) {
+        console.warn("Failed to send enrollment email receipt:", err);
+      }
     }
 
     // Notify instructor about new enrollment

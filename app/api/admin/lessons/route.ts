@@ -16,6 +16,17 @@ export async function GET(request: NextRequest) {
 
     const lessons = await prisma.lesson.findMany({
       where: { courseId },
+      include: {
+        quiz: {
+          include: {
+            questions: {
+              include: {
+                options: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { order: "asc" },
     });
 
@@ -33,7 +44,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { courseId, title, content, order, isFree, moduleId, phaseId } = body;
+    const { courseId, title, content, order, isFree, moduleId, phaseId, videoUrl, durationSeconds } = body;
 
     if (!courseId || !title || !content) {
       return NextResponse.json(
@@ -51,6 +62,11 @@ export async function POST(request: NextRequest) {
         isFree: isFree || false,
         moduleId: moduleId || null,
         phaseId: phaseId || null,
+        videoUrl: videoUrl ? String(videoUrl).trim() : null,
+        durationSeconds: durationSeconds ? parseInt(String(durationSeconds), 10) : null,
+      },
+      include: {
+        quiz: true,
       },
     });
 
