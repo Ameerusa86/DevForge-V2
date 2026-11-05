@@ -2,6 +2,7 @@ import { Resend } from "resend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const fromEmail = process.env.RESEND_FROM_EMAIL || "DevForge <onboarding@resend.dev>";
+const devEmailOverride = process.env.DEV_EMAIL_OVERRIDE || process.env.ADMIN_EMAIL;
 
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
@@ -11,21 +12,46 @@ interface EmailRecipient {
 }
 
 /**
+ * Resolves the destination email. In development/testing, if ADMIN_EMAIL or DEV_EMAIL_OVERRIDE
+ * is set, all emails route to your own personal inbox to comply with Resend's free tier.
+ */
+function resolveRecipient(targetEmail: string): { to: string; isOverridden: boolean } {
+  if (devEmailOverride && devEmailOverride.trim()) {
+    return { to: devEmailOverride.trim(), isOverridden: true };
+  }
+  return { to: targetEmail, isOverridden: false };
+}
+
+function getDevBanner(originalEmail: string, isOverridden: boolean): string {
+  if (!isOverridden) return "";
+  return `
+    <div style="background-color: #ff6636; color: #ffffff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-bottom: 16px; text-align: center;">
+      Dev Sandbox: Forwarded to your Gmail (Original recipient: ${originalEmail})
+    </div>
+  `;
+}
+
+/**
  * 1. Welcome Email upon Sign-Up
  */
 export async function sendWelcomeEmail(recipient: EmailRecipient) {
   const name = recipient.name || "Developer";
+  const { to, isOverridden } = resolveRecipient(recipient.email);
 
   if (!resend) {
     console.log(`[Email Mock] Welcome email to ${recipient.email} (Key not configured)`);
     return { success: true, mocked: true };
   }
 
+  const subject = isOverridden && to !== recipient.email
+    ? `Welcome to DevForge! 🚀 [For: ${recipient.email}]`
+    : "Welcome to DevForge! 🚀";
+
   try {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
-      to: recipient.email,
-      subject: "Welcome to DevForge! 🚀",
+      to,
+      subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -44,6 +70,7 @@ export async function sendWelcomeEmail(recipient: EmailRecipient) {
         </head>
         <body>
           <div class="container">
+            ${getDevBanner(recipient.email, isOverridden && to !== recipient.email)}
             <div class="brand">DevForge</div>
             <h1>Welcome to DevForge, ${name}!</h1>
             <p>We're thrilled to have you here. DevForge is built for engineers and creators ready to learn real-world architecture, modern frameworks, and production-ready code.</p>
@@ -92,17 +119,22 @@ export async function sendEnrollmentReceiptEmail(
   const name = recipient.name || "Student";
   const formattedPrice = Number(course.price) === 0 ? "Free" : `$${Number(course.price).toFixed(2)}`;
   const courseUrl = `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/courses/${course.slug}`;
+  const { to, isOverridden } = resolveRecipient(recipient.email);
 
   if (!resend) {
     console.log(`[Email Mock] Enrollment receipt sent to ${recipient.email} for ${course.title}`);
     return { success: true, mocked: true };
   }
 
+  const subject = isOverridden && to !== recipient.email
+    ? `Enrollment Confirmed: ${course.title} 🎓 [For: ${recipient.email}]`
+    : `Enrollment Confirmed: ${course.title} 🎓`;
+
   try {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
-      to: recipient.email,
-      subject: `Enrollment Confirmed: ${course.title} 🎓`,
+      to,
+      subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -123,6 +155,7 @@ export async function sendEnrollmentReceiptEmail(
         </head>
         <body>
           <div class="container">
+            ${getDevBanner(recipient.email, isOverridden && to !== recipient.email)}
             <div class="brand">DevForge</div>
             <h1>You're Enrolled!</h1>
             <p>Hi ${name}, congratulations on starting <strong>${course.title}</strong>. Your enrollment has been confirmed.</p>
@@ -179,6 +212,7 @@ export async function sendWeeklyDigestEmail(
 ) {
   const name = recipient.name || "Builder";
   const dashboardUrl = `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/dashboard`;
+  const { to, isOverridden } = resolveRecipient(recipient.email);
 
   if (!resend) {
     console.log(`[Email Mock] Weekly digest to ${recipient.email} (Streak: ${digest.streakDays}d)`);
@@ -199,11 +233,15 @@ export async function sendWeeklyDigestEmail(
     `).join("")
     : `<p style="color: #9ca3af; font-size: 14px;">No active courses this week. Time to jump back in!</p>`;
 
+  const subject = isOverridden && to !== recipient.email
+    ? `Your Weekly DevForge Progress (${digest.streakDays}-Day Streak 🔥) [For: ${recipient.email}]`
+    : `Your Weekly DevForge Progress (${digest.streakDays}-Day Streak 🔥)`;
+
   try {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
-      to: recipient.email,
-      subject: `Your Weekly DevForge Progress (${digest.streakDays}-Day Streak 🔥)`,
+      to,
+      subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -225,6 +263,7 @@ export async function sendWeeklyDigestEmail(
         </head>
         <body>
           <div class="container">
+            ${getDevBanner(recipient.email, isOverridden && to !== recipient.email)}
             <div class="brand">DevForge</div>
             <h1>Weekly Momentum Report</h1>
             <p>Hey ${name}, here is a snapshot of your learning streak and achievements across DevForge over the past week.</p>
@@ -264,6 +303,91 @@ export async function sendWeeklyDigestEmail(
     return { success: true, data };
   } catch (err) {
     console.error("[Email Exception] Weekly digest failed:", err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * 4. Contact Form Inbound Support Notification
+ */
+export async function sendContactFormEmail(
+  toEmail: string,
+  submission: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+  }
+) {
+  const { to } = resolveRecipient(toEmail);
+
+  if (!resend) {
+    console.log(
+      `[Email Mock] Contact form message from ${submission.name} (${submission.email}) to ${to}: ${submission.subject}`
+    );
+    return { success: true, mocked: true };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to,
+      replyTo: submission.email,
+      subject: `[DevForge Support] ${submission.subject}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0c0e; color: #f3f4f6; margin: 0; padding: 40px 20px; }
+            .container { max-width: 580px; margin: 0 auto; background-color: #121418; border: 1px solid #23272f; border-radius: 12px; padding: 32px; }
+            .brand { color: #ff6636; font-size: 20px; font-weight: 800; margin-bottom: 20px; display: inline-block; }
+            h1 { font-size: 20px; font-weight: 700; color: #ffffff; margin-top: 0; }
+            .field { margin-bottom: 16px; }
+            .label { font-size: 11px; text-transform: uppercase; color: #9ca3af; font-weight: 700; }
+            .value { font-size: 14px; color: #ffffff; margin-top: 2px; }
+            .message-box { background-color: #181b21; border: 1px solid #2d323d; border-radius: 8px; padding: 16px; margin-top: 8px; font-size: 14px; color: #e5e7eb; line-height: 1.6; white-space: pre-wrap; }
+            .footer { margin-top: 28px; font-size: 12px; color: #6b7280; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="brand">DevForge Support Ticket</div>
+            <h1>New message from ${submission.name}</h1>
+            
+            <div class="field">
+              <div class="label">From</div>
+              <div class="value">${submission.name} &lt;${submission.email}&gt;</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Subject</div>
+              <div class="value">${submission.subject}</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Message</div>
+              <div class="message-box">${submission.message}</div>
+            </div>
+
+            <div class="footer">
+              Hit "Reply" in your email client to respond directly to ${submission.name} (${submission.email}).
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    if (error) {
+      console.error("[Email Error] Failed to send contact email:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("[Email Exception] Contact email failed:", err);
     return { success: false, error: err };
   }
 }

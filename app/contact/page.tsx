@@ -200,15 +200,34 @@ export default function ContactPage() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          subject: subject.trim(),
+          message: message.trim(),
+        }),
+      });
 
-      toast.success("Message sent successfully. We’ll get back to you soon.");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to submit message");
+      }
+
+      toast.success("Message sent successfully! We'll get back to you soon.");
       setName("");
       setEmail("");
       setSubject("");
       setMessage("");
-    } catch {
-      toast.error("Failed to send message. Please try again.");
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to send message. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
