@@ -84,6 +84,11 @@ const browseMenuItems = [
     description: "See progress, recommendations, and recent activity",
   },
   {
+    label: "Certificates",
+    href: "/certificates",
+    description: "View, download, and share your completion certificates",
+  },
+  {
     label: "Pricing",
     href: "/pricing",
     description: "Compare plans and choose what fits your goals",

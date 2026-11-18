@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 // GET /api/certificates/[enrollmentId] - Get certificate data
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ enrollmentId: string }> }
+  { params }: { params: Promise<{ enrollmentId: string }> },
 ) {
   try {
     const session = await auth.api.getSession({
@@ -17,13 +17,12 @@ export async function GET(
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const { enrollmentId } = await params;
 
-    // Get enrollment with course details
     const enrollment = await prisma.enrollment.findUnique({
       where: { id: enrollmentId },
       include: {
@@ -35,7 +34,11 @@ export async function GET(
         course: {
           select: {
             id: true,
+            slug: true,
             title: true,
+            category: true,
+            level: true,
+            durationMinutes: true,
             instructor: {
               select: {
                 name: true,
@@ -54,28 +57,18 @@ export async function GET(
     if (!enrollment) {
       return NextResponse.json(
         { error: "Enrollment not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Verify user owns this enrollment
     if (enrollment.userId !== session.user.id) {
       return NextResponse.json(
         { error: "Not authorized to view this certificate" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // Check if course is complete
-    if (enrollment.progress !== 100) {
-      return NextResponse.json(
-        { error: "Course not yet complete" },
-        { status: 400 }
-      );
-    }
-
-    // Calculate completion date based on last lesson completion
-    const lastCompletedLesson = await prisma.lessonProgress.findFirst({
+    const completedLessons = await prisma.lessonProgress.findMany({
       where: {
         userId: session.user.id,
         lesson: {
@@ -86,16 +79,39 @@ export async function GET(
       orderBy: {
         completedAt: "desc",
       },
+      select: {
+        lessonId: true,
+        completedAt: true,
+      },
     });
 
-    const completedAt = lastCompletedLesson?.completedAt || new Date();
+    const totalLessons = enrollment.course.lessons.length;
+    const actualProgress =
+      totalLessons > 0
+        ? Math.round((completedLessons.length / totalLessons) * 100)
+        : enrollment.progress;
+
+    if (actualProgress < 100 && enrollment.progress !== 100) {
+      return NextResponse.json(
+        { error: "Course not yet complete" },
+        { status: 400 },
+      );
+    }
+
+    const completedAt =
+      completedLessons[0]?.completedAt || enrollment.updatedAt || new Date();
     const certificateId = `CERT-${enrollmentId
       .substring(0, 8)
       .toUpperCase()}-${new Date(completedAt).getFullYear()}`;
 
     return NextResponse.json({
       enrollmentId,
+      courseSlug: enrollment.course.slug,
       courseTitle: enrollment.course.title,
+      courseCategory: enrollment.course.category,
+      courseLevel: enrollment.course.level,
+      durationMinutes: enrollment.course.durationMinutes,
+      totalLessons,
       userName: enrollment.user.name,
       completedAt,
       instructorName: enrollment.course.instructor.name,
@@ -107,7 +123,7 @@ export async function GET(
       error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { error: `Failed to fetch certificate: ${errorMessage}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

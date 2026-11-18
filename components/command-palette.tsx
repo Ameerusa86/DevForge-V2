@@ -8,6 +8,7 @@ import {
   BookOpen,
   LayoutDashboard,
   Compass,
+  Award,
   User,
   Bell,
   Sparkles,
@@ -87,11 +88,19 @@ export function CommandPalette({
       {
         id: "nav-my-courses",
         title: "My Courses",
-        description: "Continue in-progress courses and certificates",
+        description: "Continue in-progress courses and track lessons",
         category: "Navigation",
         icon: BookOpen,
         action: () => router.push("/my-courses"),
         badge: "G C",
+      },
+      {
+        id: "nav-certificates",
+        title: "Certificates",
+        description: "View, download, and share earned completion certificates",
+        category: "Navigation",
+        icon: Award,
+        action: () => router.push("/certificates"),
       },
       {
         id: "nav-catalog",

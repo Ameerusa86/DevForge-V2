@@ -1,27 +1,46 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { toast } from "sonner";
-import { ArrowLeft, Download, Share2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Award,
+  Check,
+  CheckCircle2,
+  Download,
+  Loader2,
+  Printer,
+  Share2,
+  ShieldCheck,
+} from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { toast } from "sonner";
+
+import {
+  LearnerPageShell,
+  LearnerWorkspaceNav,
+} from "@/components/lms/learner-workspace-nav";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDuration } from "@/lib/learner-ui";
 
 interface CertificateData {
   enrollmentId: string;
+  courseSlug?: string;
   courseTitle: string;
+  courseCategory?: string;
+  courseLevel?: string;
+  durationMinutes?: number | null;
+  totalLessons?: number;
   userName: string;
   completedAt: string;
   instructorName: string;
   certificateId: string;
 }
 
-export default function CertificatePage() {
+export default function CertificateDetailPage() {
   const params = useParams();
   const router = useRouter();
   const enrollmentId = params?.enrollmentId as string;
@@ -29,6 +48,7 @@ export default function CertificatePage() {
   const [certificate, setCertificate] = useState<CertificateData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchCertificate = async () => {
@@ -39,21 +59,24 @@ export default function CertificatePage() {
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
           const errorMsg = errorData?.error || `HTTP ${res.status}`;
-          console.error(`Certificate fetch failed: ${errorMsg}`);
 
+          if (res.status === 401) {
+            router.replace("/login");
+            return;
+          }
           if (res.status === 404) {
             toast.error("Certificate not found");
-            router.push("/my-courses");
+            router.push("/certificates");
             return;
           }
           if (res.status === 400) {
             toast.error("Course must be 100% complete to generate certificate");
-            router.push(`/courses`);
+            router.push("/my-courses");
             return;
           }
           if (res.status === 403) {
             toast.error("Not authorized to view this certificate");
-            router.push("/dashboard");
+            router.push("/certificates");
             return;
           }
           throw new Error(errorMsg);
@@ -71,7 +94,7 @@ export default function CertificatePage() {
     };
 
     if (enrollmentId) {
-      fetchCertificate();
+      void fetchCertificate();
     }
   }, [enrollmentId, router]);
 
@@ -84,6 +107,7 @@ export default function CertificatePage() {
       const canvas = await html2canvas(certificateElement, {
         backgroundColor: "#ffffff",
         scale: 2,
+        useCORS: true,
       });
 
       const pdf = new jsPDF({
@@ -94,169 +118,389 @@ export default function CertificatePage() {
 
       const imgData = canvas.toDataURL("image/png");
       pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
-      pdf.save(
-        `${certificate?.courseTitle.replace(/\s+/g, "-")}-certificate.pdf`
-      );
+      const safeFilename = (certificate?.courseTitle || "devforge")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      pdf.save(`${safeFilename}-certificate.pdf`);
 
       toast.success("Certificate downloaded successfully!");
     } catch (error) {
       console.error("Error downloading certificate:", error);
-      toast.error("Failed to download certificate");
+      toast.error("Failed to download PDF certificate.");
     } finally {
       setIsDownloading(false);
     }
   };
 
+  const handleShare = async () => {
+    if (!certificate) return;
+    const shareUrl = window.location.href;
+    const shareTitle = `${certificate.courseTitle} — DevForge Certificate`;
+    const shareText = `I earned a DevForge Certificate of Completion for "${certificate.courseTitle}" (${certificate.certificateId})!`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        if ((err as Error)?.name === "AbortError") return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success("Certificate verification link copied!");
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      toast.error("Failed to copy link.");
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-1 max-w-4xl mx-auto px-4 py-10 space-y-6">
-          <Skeleton className="h-10 w-40" />
-          <Skeleton className="h-96 w-full" />
-        </div>
-        <Footer />
-      </div>
+      <LearnerPageShell activePath="/certificates">
+        <section className="border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-10">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 space-y-6">
+            <Skeleton className="h-11 w-full max-w-xl rounded-2xl" />
+            <Skeleton className="h-10 w-72 rounded-xl" />
+          </div>
+        </section>
+        <section className="mx-auto max-w-5xl px-4 py-10">
+          <Skeleton className="h-[460px] w-full rounded-3xl" />
+        </section>
+      </LearnerPageShell>
     );
   }
 
   if (!certificate) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-1 max-w-3xl mx-auto px-4 py-16 text-center space-y-4">
-          <p className="text-lg font-semibold">Certificate not found</p>
-          <Button onClick={() => router.push("/my-courses")}>
-            Back to My Courses
+      <LearnerPageShell activePath="/certificates">
+        <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 text-center space-y-4">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-[#ff6636]/10 text-[#ff6636]">
+            <Award className="size-7" />
+          </div>
+          <h1 className="text-xl font-extrabold text-foreground">
+            Certificate not found
+          </h1>
+          <p className="text-sm font-semibold text-muted-foreground">
+            This credential may not exist or belongs to another account.
+          </p>
+          <Button
+            onClick={() => router.push("/certificates")}
+            className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white font-bold"
+          >
+            Back to Certificates
           </Button>
         </div>
-        <Footer />
-      </div>
+      </LearnerPageShell>
     );
   }
 
-  const completedDate = new Date(certificate.completedAt);
-  const formattedDate = completedDate.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = new Date(certificate.completedAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    },
+  );
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex-1 bg-gradient-to-br from-primary/5 via-background to-accent/5 py-10">
-        <div className="container mx-auto px-6 sm:px-8 lg:px-12 space-y-8">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/my-courses")}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-3xl font-bold">
-              Course Completion Certificate
-            </h1>
-            <div />
+    <LearnerPageShell activePath="/certificates">
+      {/* ── Hero Header ─────────────────────────────────────────────────────── */}
+      <section className="print:hidden relative overflow-hidden border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-8 lg:py-12">
+        <div className="pointer-events-none absolute -top-40 right-0 size-[460px] rounded-full bg-[#ff6636]/5 blur-3xl" />
+
+        <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative space-y-6">
+          <LearnerWorkspaceNav activePath="/certificates" />
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Link
+                  href="/certificates"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
+                >
+                  <ArrowLeft className="size-3.5" /> All Certificates
+                </Link>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <ShieldCheck className="size-3.5" /> {certificate.certificateId}
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+                Certificate of{" "}
+                <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
+                  Completion
+                </span>
+              </h1>
+              <p className="text-sm font-semibold text-muted-foreground">
+                Awarded to{" "}
+                <span className="text-foreground font-bold">
+                  {certificate.userName}
+                </span>{" "}
+                for completing{" "}
+                <span className="text-foreground font-bold">
+                  {certificate.courseTitle}
+                </span>
+                .
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Button
+                onClick={handleDownload}
+                disabled={isDownloading}
+                className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white font-bold text-xs px-5 h-10 gap-2 shadow-md shadow-[#ff6636]/20"
+              >
+                {isDownloading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Download className="size-4" />
+                )}
+                {isDownloading ? "Generating PDF…" : "Download PDF"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handlePrint}
+                className="rounded-xl border-border bg-card font-bold text-xs px-4 h-10 gap-2"
+              >
+                <Printer className="size-4" />
+                Print
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleShare}
+                className="rounded-xl border-border bg-card font-bold text-xs px-4 h-10 gap-2"
+              >
+                {copied ? (
+                  <Check className="size-4 text-emerald-500" />
+                ) : (
+                  <Share2 className="size-4" />
+                )}
+                {copied ? "Copied" : "Share"}
+              </Button>
+            </div>
           </div>
+        </div>
+      </section>
 
-          {/* Certificate Display */}
-          <Card className="shadow-xl overflow-hidden">
+      {/* ── Certificate Canvas ──────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-[1120px] px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-8">
+        <div className="rounded-3xl border border-border bg-card p-2 sm:p-3 shadow-xl">
+          {/*
+            Override Tailwind v4 oklch CSS vars inside #certificate-content with hex
+            so html2canvas v1.4.1 renders without oklch color parsing errors.
+          */}
+          <div
+            id="certificate-content"
+            style={
+              {
+                backgroundColor: "#ffffff",
+                color: "#1d2026",
+                borderColor: "#f0e2da",
+                "--background": "#ffffff",
+                "--foreground": "#1d2026",
+                "--card": "#ffffff",
+                "--card-foreground": "#1d2026",
+                "--border": "#e9eaf0",
+                "--ring": "#ff6636",
+                "--primary": "#ff6636",
+                "--muted-foreground": "#6e7485",
+              } as React.CSSProperties
+            }
+            className="relative overflow-hidden rounded-2xl border-2 p-8 sm:p-12 md:p-16 text-center"
+          >
+            {/* Inner ornamental frame */}
             <div
-              id="certificate-content"
-              className="bg-white p-12 text-center space-y-6 relative overflow-hidden"
-            >
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-accent/5 rounded-full -ml-20 -mb-20" />
+              className="pointer-events-none absolute inset-3 sm:inset-5 rounded-xl border"
+              style={{ borderColor: "#f6d5c6" }}
+            />
+            <div
+              className="pointer-events-none absolute -top-24 -right-24 size-64 rounded-full"
+              style={{ backgroundColor: "rgba(255, 102, 54, 0.08)" }}
+            />
+            <div
+              className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full"
+              style={{ backgroundColor: "rgba(86, 79, 253, 0.06)" }}
+            />
 
-              <div className="relative z-10">
-                {/* Header */}
-                <div className="space-y-2 mb-8">
-                  <p className="text-sm tracking-widest text-muted-foreground uppercase">
-                    Certificate of Completion
+            <div className="relative z-10 space-y-8">
+              {/* Top Brand & Seal */}
+              <div className="flex flex-col items-center space-y-3">
+                <div
+                  className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.22em]"
+                  style={{
+                    backgroundColor: "#fff1eb",
+                    color: "#ff6636",
+                    border: "1px solid #ffd5c2",
+                  }}
+                >
+                  <Award className="size-4" style={{ color: "#ff6636" }} />
+                  DevForge Academy
+                </div>
+                <p
+                  className="text-xs font-bold uppercase tracking-[0.28em]"
+                  style={{ color: "#6e7485" }}
+                >
+                  Certificate of Completion
+                </p>
+                <div
+                  className="h-1 w-20 rounded-full"
+                  style={{ backgroundColor: "#ff6636" }}
+                />
+              </div>
+
+              {/* Recipient & Course */}
+              <div className="space-y-5">
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "#6e7485" }}
+                >
+                  This certifies that
+                </p>
+                <h2
+                  className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight"
+                  style={{ color: "#1d2026" }}
+                >
+                  {certificate.userName}
+                </h2>
+
+                <p
+                  className="text-sm font-medium pt-2"
+                  style={{ color: "#6e7485" }}
+                >
+                  has successfully completed all lessons and requirements of
+                </p>
+
+                <p
+                  className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug max-w-2xl mx-auto"
+                  style={{ color: "#ff6636" }}
+                >
+                  {certificate.courseTitle}
+                </p>
+
+                {(certificate.totalLessons || certificate.durationMinutes) && (
+                  <p
+                    className="text-xs font-semibold"
+                    style={{ color: "#6e7485" }}
+                  >
+                    {certificate.totalLessons
+                      ? `${certificate.totalLessons} Lessons Completed`
+                      : ""}
+                    {certificate.totalLessons && certificate.durationMinutes
+                      ? " · "
+                      : ""}
+                    {certificate.durationMinutes
+                      ? `${formatDuration(certificate.durationMinutes)} Curriculum`
+                      : ""}
                   </p>
-                  <div className="h-1 w-16 bg-primary mx-auto rounded-full" />
+                )}
+              </div>
+
+              {/* Footer Signatures & Metadata */}
+              <div
+                className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 mt-8 border-t text-center"
+                style={{ borderColor: "#e9eaf0" }}
+              >
+                <div className="space-y-1">
+                  <p
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                    style={{ color: "#8c94a3" }}
+                  >
+                    Instructor
+                  </p>
+                  <p
+                    className="text-sm font-extrabold"
+                    style={{ color: "#1d2026" }}
+                  >
+                    {certificate.instructorName}
+                  </p>
                 </div>
 
-                {/* Main content */}
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-muted-foreground mb-2">
-                      This is to certify that
-                    </p>
-                    <p className="text-3xl font-bold text-foreground">
-                      {certificate.userName}
-                    </p>
+                <div className="flex flex-col items-center justify-center">
+                  <div
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold"
+                    style={{
+                      backgroundColor: "#ecfdf5",
+                      color: "#059669",
+                      border: "1px solid #a7f3d0",
+                    }}
+                  >
+                    <CheckCircle2 className="size-3.5" /> Verified Credential
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <p className="text-muted-foreground">
-                      has successfully completed the course
-                    </p>
-                    <p className="text-2xl font-semibold text-primary">
-                      {certificate.courseTitle}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-8 pt-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Instructor
-                      </p>
-                      <p className="text-sm font-semibold">
-                        {certificate.instructorName}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Date</p>
-                      <p className="text-sm font-semibold">{formattedDate}</p>
-                    </div>
-                  </div>
-
-                  {/* Certificate ID */}
-                  <div className="pt-6 border-t border-muted">
-                    <p className="text-xs text-muted-foreground">
-                      Certificate ID: {certificate.certificateId}
-                    </p>
-                  </div>
+                <div className="space-y-1">
+                  <p
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                    style={{ color: "#8c94a3" }}
+                  >
+                    Date Issued
+                  </p>
+                  <p
+                    className="text-sm font-extrabold"
+                    style={{ color: "#1d2026" }}
+                  >
+                    {formattedDate}
+                  </p>
                 </div>
               </div>
+
+              <div className="pt-2">
+                <p
+                  className="text-[11px] font-mono font-semibold"
+                  style={{ color: "#8c94a3" }}
+                >
+                  Credential ID: {certificate.certificateId}
+                </p>
+              </div>
             </div>
-          </Card>
-
-          {/* Actions */}
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              size="lg"
-              onClick={handleDownload}
-              disabled={isDownloading}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              {isDownloading ? "Downloading..." : "Download Certificate"}
-            </Button>
-            <Button size="lg" variant="outline" className="gap-2">
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
           </div>
-
-          {/* Info */}
-          <Card className="bg-muted/50">
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">
-                This certificate verifies that you have successfully completed
-                all lessons in the {certificate.courseTitle} course. Your
-                completion is recorded in your learning profile.
-              </p>
-            </CardContent>
-          </Card>
         </div>
-      </div>
-      <Footer />
-    </div>
+
+        {/* Info Footer Card */}
+        <div className="print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border bg-card p-6">
+          <div className="space-y-1">
+            <h3 className="text-sm font-extrabold text-foreground">
+              Credential Verification
+            </h3>
+            <p className="text-xs font-medium text-muted-foreground leading-relaxed max-w-2xl">
+              This certificate verifies 100% completion of{" "}
+              <span className="font-bold text-foreground">
+                {certificate.courseTitle}
+              </span>{" "}
+              and is permanently recorded on your DevForge learning profile.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2.5 shrink-0">
+            {certificate.courseSlug && (
+              <Link
+                href={`/courses/${certificate.courseSlug}`}
+                className="inline-flex items-center rounded-xl border border-border bg-background px-4 py-2 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
+              >
+                View Course
+              </Link>
+            )}
+            <Link
+              href="/my-courses"
+              className="inline-flex items-center rounded-xl bg-muted px-4 py-2 text-xs font-bold text-foreground hover:bg-muted/80 transition-colors"
+            >
+              My Courses
+            </Link>
+          </div>
+        </div>
+      </section>
+    </LearnerPageShell>
   );
 }

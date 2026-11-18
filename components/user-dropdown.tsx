@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Award,
   Bell,
   BookOpen,
   LogOut,
   User,
   LayoutDashboard,
 } from "lucide-react";
+import { getProxiedImageUrl } from "@/lib/s3-utils";
 
 interface UserDropdownProps {
   user: {
@@ -59,15 +61,19 @@ export function UserDropdown({ user }: UserDropdownProps) {
     }
   };
 
+  const avatarSrc = user.image ? getProxiedImageUrl(user.image) : undefined;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-10 w-10 border border-border/60">
             {/* Display user image if available */}
-            <AvatarImage src={user.image} alt={user.name} />
+            <AvatarImage src={avatarSrc} alt={user.name} className="object-cover" />
             {/* Fallback to initials if no image */}
-            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            <AvatarFallback className="bg-[#ff6636]/10 text-xs font-bold text-[#ff6636]">
+              {getInitials(user.name)}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -98,6 +104,15 @@ export function UserDropdown({ user }: UserDropdownProps) {
         >
           <BookOpen className="mr-2 h-4 w-4" />
           <span>My Courses</span>
+        </DropdownMenuItem>
+
+        {/* Certificates Link */}
+        <DropdownMenuItem
+          onClick={() => router.push("/certificates")}
+          className="cursor-pointer"
+        >
+          <Award className="mr-2 h-4 w-4" />
+          <span>Certificates</span>
         </DropdownMenuItem>
 
         {/* Profile Link */}
