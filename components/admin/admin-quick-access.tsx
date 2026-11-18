@@ -17,17 +17,17 @@ export function AdminQuickAccess() {
     // Check if user is admin
     const checkAdminStatus = async () => {
       try {
-        const response = await fetch("/api/auth/session");
+        const response = await fetch("/api/profile", { cache: "no-store" });
         if (response.ok) {
-          const session = await response.json();
-          setIsAdmin(session?.user?.role === "Admin");
+          const data = await response.json();
+          setIsAdmin(data?.user?.role?.toUpperCase() === "ADMIN");
         }
       } catch (error) {
         console.error("Failed to check admin status:", error);
       }
     };
 
-    checkAdminStatus();
+    void checkAdminStatus();
   }, []);
 
   const handleActivateUser = async (e: React.FormEvent) => {

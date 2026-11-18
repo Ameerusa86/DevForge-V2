@@ -1,17 +1,22 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  Award,
+  Bell,
   BookOpen,
   ChevronDown,
+  Compass,
   Heart,
   LayoutDashboard,
   Menu,
   Search,
   ShoppingCart,
+  Sparkles,
+  UserRound,
 } from "lucide-react";
 import {
   FaFacebookF,
@@ -28,6 +33,7 @@ import {
   socialLinks,
   topNavLinks,
 } from "@/components/marketing/home-data";
+import { CommandPalette } from "@/components/command-palette";
 import { ThemeToggle } from "@/components/themeToggle";
 import { NotificationBell } from "@/components/notification-bell";
 import {
@@ -116,10 +122,8 @@ const browseMenuItems = [
 ];
 
 function MarketingBrand({
-  dark = false,
   size = "nav",
 }: {
-  dark?: boolean;
   size?: "nav" | "footer";
 }) {
   const imageClassName =
@@ -130,7 +134,7 @@ function MarketingBrand({
   return (
     <Link href="/" className="inline-flex items-center gap-3 group">
       <Image
-        src="/images/DevForge.png"
+        src="/images/devforge.png"
         alt="DevForge logo"
         width={96}
         height={96}
@@ -155,6 +159,7 @@ export function MarketingPublicHeader({
   compact?: boolean;
   showSearch?: boolean;
 }) {
+  const [commandOpen, setCommandOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -179,6 +184,7 @@ export function MarketingPublicHeader({
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md transition-all duration-200">
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
       <div className="mx-auto flex h-[4.5rem] max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         
         {/* Left Side: Brand Logo */}
@@ -187,6 +193,7 @@ export function MarketingPublicHeader({
         </div>
 
         {/* Center: Search & Browse */}
+        {showSearch && !compact ? (
         <div className="hidden flex-1 items-center justify-center gap-4 lg:flex">
           <div className="flex w-full max-w-[620px] items-center gap-3">
             {/* Browse Catalog Dropdown Button */}
@@ -254,12 +261,18 @@ export function MarketingPublicHeader({
                 placeholder="Search courses..."
                 className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
               />
-              <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-0.5 rounded border border-border bg-card px-1.5 font-mono text-[9px] font-bold text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => setCommandOpen(true)}
+                title="Open Quick Command Palette (Ctrl+K)"
+                className="hidden sm:inline-flex h-5 select-none items-center gap-0.5 rounded border border-border bg-card px-1.5 font-mono text-[9px] font-bold text-muted-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
+              >
                 ⌘K
-              </kbd>
+              </button>
             </form>
           </div>
         </div>
+        ) : null}
 
         {/* Right Side: Navigation Links, Auth, and Toggles */}
         <div className="flex items-center gap-3">
@@ -400,6 +413,35 @@ export function MarketingPublicHeader({
                 )}
 
                 <div className="flex flex-col gap-2">
+                  {session?.user
+                    ? [
+                        { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+                        { href: "/certificates", label: "Certificates", icon: Award },
+                        { href: "/profile", label: "Profile & Settings", icon: UserRound },
+                        { href: "/notifications", label: "Notifications", icon: Bell },
+                      ].map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <SheetClose asChild key={item.href}>
+                            <Link
+                              href={item.href}
+                              className={cn(
+                                "flex items-center justify-between rounded-xl border border-border/40 bg-card/50 px-4 py-3 text-sm font-semibold transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5",
+                                isActive(item.href) &&
+                                  "border-[#ff6636]/30 bg-[#ff6636]/10 text-foreground",
+                              )}
+                            >
+                              <span className="flex items-center gap-3">
+                                <Icon className="h-4.5 w-4.5 text-[#ff6636]" />
+                                {item.label}
+                              </span>
+                              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                            </Link>
+                          </SheetClose>
+                        );
+                      })
+                    : null}
+
                   {topNavLinks.map((item) => {
                     return (
                       <SheetClose asChild key={item.href}>
@@ -480,7 +522,7 @@ export function MarketingPublicFooter() {
 
           {/* Brand column */}
           <div className="space-y-5">
-            <MarketingBrand dark size="footer" />
+            <MarketingBrand size="footer" />
             <p className="text-sm leading-7 text-muted-foreground max-w-[320px]">
               Structured learning for builders who want momentum, accountability,
               and course design that feels deliberate from the first click.
@@ -528,30 +570,34 @@ export function MarketingPublicFooter() {
             </div>
           ))}
 
-          {/* App download column */}
+          {/* Start learning quick-access column */}
           <div>
             <h3 className="text-xs font-extrabold uppercase tracking-[0.18em] text-foreground mb-5">
-              Get the App
+              Start Learning
             </h3>
             <div className="space-y-3">
               <Link
                 href="/courses"
                 className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground hover:border-[#ff6636]/40 hover:text-foreground hover:bg-muted/40 transition-all duration-200"
               >
-                <span className="text-base">🍎</span>
+                <span className="flex size-8 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636] shrink-0">
+                  <Compass className="size-4" />
+                </span>
                 <div>
-                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Download on</p>
-                  <p className="font-bold text-foreground text-xs">App Store</p>
+                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Explore</p>
+                  <p className="font-bold text-foreground text-xs">Course Catalog</p>
                 </div>
               </Link>
               <Link
-                href="/courses"
+                href="/dashboard"
                 className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground hover:border-[#ff6636]/40 hover:text-foreground hover:bg-muted/40 transition-all duration-200"
               >
-                <span className="text-base">🤖</span>
+                <span className="flex size-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500 shrink-0">
+                  <Sparkles className="size-4" />
+                </span>
                 <div>
-                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Get it on</p>
-                  <p className="font-bold text-foreground text-xs">Google Play</p>
+                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Workspace</p>
+                  <p className="font-bold text-foreground text-xs">Learner Dashboard</p>
                 </div>
               </Link>
             </div>

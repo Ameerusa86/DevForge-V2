@@ -20,14 +20,11 @@ import {
   ChevronLeft,
   ShieldCheck,
   Layers3,
-  Sparkles,
   Star,
   MessageCircleQuestion,
   FolderTree,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 
 const SIDEBAR_STORAGE_KEY = "devforge:admin-sidebar-collapsed";
@@ -158,7 +155,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             <Link href="/admin" className="flex items-center gap-3 group min-w-0">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted transition-transform group-hover:scale-105">
                 <Image
-                  src="/images/DevForge.png"
+                  src="/images/devforge.png"
                   alt="DevForge Logo"
                   width={32}
                   height={32}

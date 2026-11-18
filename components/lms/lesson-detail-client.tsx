@@ -23,6 +23,7 @@ import { RichTextRenderer } from "@/components/editor/RichTextRenderer";
 import { ThemeToggle } from "@/components/themeToggle";
 import { toast } from "sonner";
 import { YouTubePlayer } from "@/components/lms/youtube-player";
+import { LessonDock } from "@/components/lms/lesson-dock";
 import { LessonQuiz, type QuizData } from "@/components/lms/lesson-quiz";
 import {
   buildStructuredSyllabus,
@@ -48,6 +49,9 @@ import {
   Lock,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
+  MessageSquare,
   Menu,
   Sparkles,
 } from "lucide-react";
@@ -738,9 +742,11 @@ export function LessonDetailClient({
     );
   }
 
-  // Left sidebar collapsible state
+  // Left sidebar & right companion dock collapsible states
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [dockOpen, setDockOpen] = useState(false);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [mobileDockOpen, setMobileDockOpen] = useState(false);
 
   // Structured syllabus grouped by phases (when defined) and modules
   const syllabus = useMemo(
@@ -926,7 +932,7 @@ export function LessonDetailClient({
           </div>
         </div>
 
-        {/* Right: Progress Controls & Theme */}
+        {/* Right: Progress Controls, Companion Dock Toggle & Theme */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Mark Complete Instant Action */}
           {initialEnrollmentId && (
@@ -954,6 +960,54 @@ export function LessonDetailClient({
               )}
             </Button>
           )}
+
+          {/* Desktop Q&A & Notes Companion Dock Toggle */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDockOpen((prev) => !prev)}
+            className={cn(
+              "hidden xl:flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-colors",
+              dockOpen
+                ? "border-[#ff6636]/50 bg-[#ff6636]/10 text-[#ff6636]"
+                : "border-border text-muted-foreground hover:text-foreground"
+            )}
+            title={dockOpen ? "Hide Q&A & Notes" : "Open Q&A & Notes"}
+          >
+            {dockOpen ? (
+              <PanelRightClose className="size-3.5" />
+            ) : (
+              <PanelRightOpen className="size-3.5" />
+            )}
+            <span>Q&amp;A &amp; Notes</span>
+          </Button>
+
+          {/* Mobile/Tablet Q&A & Notes Sheet Trigger */}
+          <Sheet open={mobileDockOpen} onOpenChange={setMobileDockOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="xl:hidden flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold border-border text-muted-foreground hover:text-foreground"
+              >
+                <MessageSquare className="size-3.5 text-[#ff6636]" />
+                <span className="hidden sm:inline">Q&amp;A &amp; Notes</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[min(25rem,100vw)] p-0 bg-card border-border">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Lesson Companion</SheetTitle>
+                <SheetDescription>Q&amp;A, personal notes, and lesson study guide</SheetDescription>
+              </SheetHeader>
+              <LessonDock
+                lessonId={currentLesson.id}
+                lessonTitle={currentLesson.title}
+                courseSlug={course.slug}
+                courseTitle={course.title}
+                isEnrolled={Boolean(initialEnrollmentId)}
+              />
+            </SheetContent>
+          </Sheet>
 
           {/* Theme Toggle */}
           <ThemeToggle className="size-8 rounded-xl" />
@@ -1172,6 +1226,14 @@ export function LessonDetailClient({
                   <span>Next Lesson</span>
                   <ChevronRight className="size-4" />
                 </Link>
+              ) : progressPercent >= 100 && initialEnrollmentId ? (
+                <Link
+                  href={`/certificates/${initialEnrollmentId}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all"
+                >
+                  <span>View Certificate</span>
+                  <CheckCircle2 className="size-4" />
+                </Link>
               ) : (
                 <Link
                   href={`/courses/${course.slug}`}
@@ -1184,6 +1246,19 @@ export function LessonDetailClient({
             </div>
           </div>
         </main>
+
+        {/* ── Right Pane: Collapsible Lesson Companion Dock (Q&A & Notes) ───── */}
+        {dockOpen && (
+          <aside className="hidden xl:flex w-80 2xl:w-96 flex-col shrink-0 overflow-hidden">
+            <LessonDock
+              lessonId={currentLesson.id}
+              lessonTitle={currentLesson.title}
+              courseSlug={course.slug}
+              courseTitle={course.title}
+              isEnrolled={Boolean(initialEnrollmentId)}
+            />
+          </aside>
+        )}
 
       </div>
     </div>

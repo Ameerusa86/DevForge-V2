@@ -1,19 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
+  Activity,
   AlertCircle,
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   Clock,
   type LucideIcon,
+  RefreshCw,
+  ShieldCheck,
   Wrench,
   XCircle,
 } from "lucide-react";
+
+import {
+  MarketingPublicFooter,
+  MarketingPublicHeader,
+} from "@/components/marketing/public-chrome";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface SystemStatus {
   status: string;
@@ -55,49 +64,58 @@ interface MaintenanceWindow {
 
 const statusConfig: Record<
   string,
-  { label: string; color: string; icon: LucideIcon; bg: string }
+  { label: string; color: string; badgeClass: string; icon: LucideIcon; dot: string }
 > = {
   OPERATIONAL: {
     label: "All Systems Operational",
-    color: "text-green-600",
+    color: "text-emerald-600 dark:text-emerald-400",
+    badgeClass:
+      "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
     icon: CheckCircle2,
-    bg: "bg-green-500",
+    dot: "bg-emerald-500",
   },
   DEGRADED: {
     label: "Degraded Performance",
-    color: "text-yellow-600",
+    color: "text-amber-600 dark:text-amber-400",
+    badgeClass:
+      "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
     icon: AlertTriangle,
-    bg: "bg-yellow-500",
+    dot: "bg-amber-500",
   },
   PARTIAL_OUTAGE: {
     label: "Partial Outage",
-    color: "text-orange-600",
+    color: "text-[#ff6636]",
+    badgeClass: "border-[#ff6636]/30 bg-[#ff6636]/10 text-[#ff6636]",
     icon: AlertCircle,
-    bg: "bg-orange-500",
+    dot: "bg-[#ff6636]",
   },
   MAJOR_OUTAGE: {
     label: "Major Outage",
-    color: "text-red-600",
+    color: "text-red-600 dark:text-red-400",
+    badgeClass: "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400",
     icon: XCircle,
-    bg: "bg-red-500",
+    dot: "bg-red-500",
   },
   MAINTENANCE: {
     label: "Under Maintenance",
-    color: "text-blue-600",
+    color: "text-blue-600 dark:text-blue-400",
+    badgeClass:
+      "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400",
     icon: Wrench,
-    bg: "bg-blue-500",
+    dot: "bg-blue-500",
   },
 };
 
 const incidentStatusLabels: Record<string, string> = {
-  INVESTIGATING: "🔍 Investigating",
-  IDENTIFIED: "🎯 Identified",
-  MONITORING: "👁️ Monitoring",
-  RESOLVED: "✅ Resolved",
+  INVESTIGATING: "Investigating",
+  IDENTIFIED: "Identified",
+  MONITORING: "Monitoring",
+  RESOLVED: "Resolved",
 };
 
 export default function StatusPage() {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [activeIncidents, setActiveIncidents] = useState<Incident[]>([]);
@@ -107,16 +125,10 @@ export default function StatusPage() {
   >([]);
   const [uptime, setUptime] = useState("99.99");
 
-  useEffect(() => {
-    loadStatusData();
-    // Refresh every 60 seconds
-    const interval = setInterval(loadStatusData, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadStatusData = async () => {
+  const loadStatusData = async (manual = false) => {
+    if (manual) setRefreshing(true);
     try {
-      const response = await fetch("/api/status");
+      const response = await fetch("/api/status", { cache: "no-store" });
       const data = await response.json();
 
       if (data.success) {
@@ -131,8 +143,17 @@ export default function StatusPage() {
       console.error("Failed to load status data:", error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    void loadStatusData();
+    const interval = setInterval(() => {
+      void loadStatusData();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const currentStatus = systemStatus
     ? statusConfig[systemStatus.status] || statusConfig.OPERATIONAL
@@ -140,236 +161,343 @@ export default function StatusPage() {
   const StatusIcon = currentStatus.icon;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+      <MarketingPublicHeader activePath="/status" />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden border-b border-border/50 bg-linear-to-br from-background via-muted/10 to-background">
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-0 right-1/4 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
-          </div>
+        {/* ── Hero Section ─────────────────────────────────────────────────── */}
+        <section className="relative overflow-hidden border-b border-border/40 bg-[#fff9f7] dark:bg-[#111318] py-14 lg:py-18">
+          <div className="pointer-events-none absolute -top-40 right-0 size-[500px] rounded-full bg-[#ff6636]/5 blur-3xl" />
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+              <div className="max-w-2xl space-y-4">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-bold uppercase tracking-widest",
+                    currentStatus.badgeClass,
+                  )}
+                >
+                  <StatusIcon className="size-3.5" />
+                  {currentStatus.label}
+                </span>
 
-          <div className="page-shell-full py-16 md:py-24">
-            <div className="max-w-3xl mx-auto text-center space-y-4">
-              <div
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${currentStatus.color} bg-opacity-10`}
-              >
-                <StatusIcon className="h-5 w-5" />
-                <span className="font-medium">{currentStatus.label}</span>
-              </div>
-              <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">
-                System Status
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                {systemStatus?.message ||
-                  "Current status and uptime for all services"}
-              </p>
-              <div className="flex items-center justify-center gap-8 pt-4">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-600">{uptime}%</p>
-                  <p className="text-sm text-muted-foreground">Uptime (30 days)</p>
+                <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                  Platform{" "}
+                  <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
+                    System Status
+                  </span>
+                </h1>
+
+                <p className="text-sm sm:text-base font-semibold leading-relaxed text-muted-foreground">
+                  {systemStatus?.message ||
+                    "Live service availability, incident updates, and scheduled maintenance across DevForge."}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => loadStatusData(true)}
+                    disabled={refreshing}
+                    className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] disabled:opacity-60 transition-all"
+                  >
+                    <RefreshCw
+                      className={cn("size-3.5", refreshing && "animate-spin")}
+                    />
+                    {refreshing ? "Checking…" : "Refresh Status"}
+                  </button>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white transition-colors"
+                  >
+                    Report an Issue <ArrowRight className="size-3.5" />
+                  </Link>
                 </div>
-                {systemStatus && (
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Last checked:{" "}
-                      {new Date(systemStatus.lastChecked).toLocaleTimeString()}
-                    </p>
-                  </div>
-                )}
+              </div>
+
+              {/* Stats strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 shrink-0">
+                <div className="rounded-2xl border border-border bg-card px-5 py-4 shadow-2xs">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    30-Day Uptime
+                  </p>
+                  <p className="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {uptime}%
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-card px-5 py-4 shadow-2xs">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Monitored Services
+                  </p>
+                  <p className="mt-1 text-2xl font-extrabold text-foreground">
+                    {services.length}
+                  </p>
+                </div>
+                <div className="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-card px-5 py-4 shadow-2xs">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Last Checked
+                  </p>
+                  <p className="mt-1 text-sm font-extrabold text-foreground">
+                    {systemStatus
+                      ? new Date(systemStatus.lastChecked).toLocaleTimeString(
+                          [],
+                          { hour: "2-digit", minute: "2-digit" },
+                        )
+                      : "Just now"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Active Incidents */}
+        {/* ── Active Incidents ─────────────────────────────────────────────── */}
         {activeIncidents.length > 0 && (
-          <section className="py-12 bg-red-50 dark:bg-red-950/20 border-b border-border">
-            <div className="page-shell-full">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <AlertCircle className="h-6 w-6 text-red-600" />
-                Active Incidents
-              </h2>
+          <section className="border-b border-border/60 bg-red-500/5 py-10">
+            <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 space-y-5">
+              <div className="flex items-center gap-2.5">
+                <AlertCircle className="size-5 text-red-500" />
+                <h2 className="text-xl font-extrabold text-foreground">
+                  Active Incidents ({activeIncidents.length})
+                </h2>
+              </div>
+
               <div className="space-y-4">
                 {activeIncidents.map((incident) => (
-                  <Card
+                  <article
                     key={incident.id}
-                    className="border-red-200 dark:border-red-900"
+                    className="rounded-2xl border border-red-500/30 bg-card p-6 shadow-sm space-y-4"
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold">{incident.title}</h3>
-                            <Badge variant="destructive">
-                              {incidentStatusLabels[incident.status]}
-                            </Badge>
-                            <Badge variant="outline">{incident.severity}</Badge>
-                          </div>
-                          <p className="text-muted-foreground">{incident.description}</p>
-                          <p className="text-sm text-muted-foreground mt-2">
-                            Started {new Date(incident.startedAt).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                      {incident.updates && incident.updates.length > 0 && (
-                        <div className="mt-4 space-y-3 border-t pt-4">
-                          <h4 className="font-semibold text-sm">Updates</h4>
-                          {incident.updates.map((update) => (
-                            <div key={update.id} className="text-sm">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="secondary" className="text-xs">
-                                  {incidentStatusLabels[update.status]}
-                                </Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  {new Date(update.createdAt).toLocaleString()}
-                                </span>
-                              </div>
-                              <p className="text-muted-foreground">{update.message}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Upcoming Maintenance */}
-        {upcomingMaintenance.length > 0 && (
-          <section className="py-12 bg-blue-50 dark:bg-blue-950/20 border-b border-border">
-            <div className="page-shell-full">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Wrench className="h-6 w-6 text-blue-600" />
-                Scheduled Maintenance
-              </h2>
-              <div className="space-y-4">
-                {upcomingMaintenance.map((maint) => (
-                  <Card key={maint.id} className="border-blue-200 dark:border-blue-900">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold">{maint.title}</h3>
-                            <Badge>{maint.status}</Badge>
-                          </div>
-                          <p className="text-muted-foreground mb-3">{maint.description}</p>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              <span>
-                                {new Date(maint.scheduledStart).toLocaleString()} →{" "}
-                                {new Date(maint.scheduledEnd).toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Services Status */}
-        <section className="py-16">
-          <div className="page-shell-full">
-            <h2 className="text-2xl font-bold mb-8">Services</h2>
-            {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading services...</p>
-              </div>
-            ) : services.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No services configured</p>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {services.map((service) => {
-                  const serviceStatus = statusConfig[service.status] || statusConfig.OPERATIONAL;
-                  const ServiceIcon = serviceStatus.icon;
-                  return (
-                    <Card key={service.id}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className={`p-2 rounded-lg ${serviceStatus.bg}/10`}>
-                              <ServiceIcon className={`h-5 w-5 ${serviceStatus.color}`} />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">{service.name}</h3>
-                              {service.description && (
-                                <p className="text-sm text-muted-foreground">
-                                  {service.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <Badge
-                            variant={
-                              service.status === "OPERATIONAL"
-                                ? "secondary"
-                                : "destructive"
-                            }
-                            className="flex items-center gap-2"
-                          >
-                            <div className={`w-2 h-2 rounded-full ${serviceStatus.bg}`} />
-                            {serviceStatus.label}
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-extrabold text-foreground">
+                            {incident.title}
+                          </h3>
+                          <Badge variant="destructive" className="text-[10px]">
+                            {incidentStatusLabels[incident.status] ||
+                              incident.status}
+                          </Badge>
+                          <Badge variant="outline" className="text-[10px]">
+                            {incident.severity}
                           </Badge>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {incident.description}
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        Started {new Date(incident.startedAt).toLocaleString()}
+                      </span>
+                    </div>
+
+                    {incident.updates && incident.updates.length > 0 && (
+                      <div className="space-y-3 border-t border-border pt-4">
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                          Timeline Updates
+                        </p>
+                        {incident.updates.map((update) => (
+                          <div
+                            key={update.id}
+                            className="rounded-xl border border-border/60 bg-muted/25 p-3.5 text-xs space-y-1"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold text-[#ff6636]">
+                                {incidentStatusLabels[update.status] ||
+                                  update.status}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {new Date(update.createdAt).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-muted-foreground leading-relaxed">
+                              {update.message}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                ))}
               </div>
-            )}
+            </div>
+          </section>
+        )}
+
+        {/* ── Upcoming Maintenance ─────────────────────────────────────────── */}
+        {upcomingMaintenance.length > 0 && (
+          <section className="border-b border-border/60 bg-blue-500/5 py-10">
+            <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 space-y-5">
+              <div className="flex items-center gap-2.5">
+                <Wrench className="size-5 text-blue-500" />
+                <h2 className="text-xl font-extrabold text-foreground">
+                  Scheduled Maintenance ({upcomingMaintenance.length})
+                </h2>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {upcomingMaintenance.map((maint) => (
+                  <article
+                    key={maint.id}
+                    className="rounded-2xl border border-blue-500/30 bg-card p-6 space-y-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-base font-extrabold text-foreground">
+                        {maint.title}
+                      </h3>
+                      <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/25">
+                        {maint.status}
+                      </Badge>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {maint.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground pt-1">
+                      <Clock className="size-3.5 text-blue-500" />
+                      <span>
+                        {new Date(maint.scheduledStart).toLocaleString()} →{" "}
+                        {new Date(maint.scheduledEnd).toLocaleString()}
+                      </span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── Services List ────────────────────────────────────────────────── */}
+        <section className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 py-12 lg:py-16 space-y-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#ff6636]">
+                Infrastructure
+              </p>
+              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-foreground">
+                Core Services
+              </h2>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <ShieldCheck className="size-4 text-emerald-500" /> Auto-refreshes
+              every 60s
+            </span>
           </div>
+
+          {loading ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-24 rounded-2xl" />
+              ))}
+            </div>
+          ) : services.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center space-y-2">
+              <Activity className="size-8 text-muted-foreground/40 mx-auto" />
+              <p className="text-sm font-bold text-foreground">
+                No services configured yet
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Platform components will appear here once monitored.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {services.map((service) => {
+                const serviceStatus =
+                  statusConfig[service.status] || statusConfig.OPERATIONAL;
+                const ServiceIcon = serviceStatus.icon;
+                return (
+                  <div
+                    key={service.id}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-5 shadow-2xs hover:border-[#ff6636]/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div
+                        className={cn(
+                          "flex size-11 shrink-0 items-center justify-center rounded-xl border",
+                          serviceStatus.badgeClass,
+                        )}
+                      >
+                        <ServiceIcon className="size-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-extrabold text-foreground truncate">
+                          {service.name}
+                        </h3>
+                        {service.description && (
+                          <p className="text-xs font-medium text-muted-foreground line-clamp-1 mt-0.5">
+                            {service.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold shrink-0",
+                        serviceStatus.badgeClass,
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "size-2 rounded-full",
+                          serviceStatus.dot,
+                        )}
+                      />
+                      {serviceStatus.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
-        {/* Recent Incidents */}
+        {/* ── Recent Incidents ─────────────────────────────────────────────── */}
         {recentIncidents.length > 0 && (
-          <section className="py-16 bg-muted/30 border-t border-border">
-            <div className="page-shell-full">
-              <h2 className="text-2xl font-bold mb-8">
-                Recent Incidents (Last 7 Days)
-              </h2>
+          <section className="border-t border-border/60 bg-muted/20 py-12 lg:py-16">
+            <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 space-y-6">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground">
+                  History
+                </p>
+                <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-foreground">
+                  Recent Incidents (Last 7 Days)
+                </h2>
+              </div>
+
               <div className="space-y-4">
                 {recentIncidents.map((incident) => (
-                  <Card key={incident.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{incident.title}</h3>
-                            <Badge
-                              variant={
-                                incident.status === "RESOLVED"
-                                  ? "secondary"
-                                  : "destructive"
-                              }
-                            >
-                              {incidentStatusLabels[incident.status]}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {incident.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(incident.startedAt).toLocaleString()}
-                            {incident.resolvedAt &&
-                              ` - ${new Date(incident.resolvedAt).toLocaleString()}`}
-                          </p>
-                        </div>
+                  <article
+                    key={incident.id}
+                    className="rounded-2xl border border-border bg-card p-6 space-y-2"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-sm font-extrabold text-foreground">
+                          {incident.title}
+                        </h3>
+                        <Badge
+                          variant={
+                            incident.status === "RESOLVED"
+                              ? "secondary"
+                              : "destructive"
+                          }
+                          className="text-[10px]"
+                        >
+                          {incidentStatusLabels[incident.status] ||
+                            incident.status}
+                        </Badge>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {new Date(incident.startedAt).toLocaleString()}
+                        {incident.resolvedAt
+                          ? ` — ${new Date(incident.resolvedAt).toLocaleString()}`
+                          : ""}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {incident.description}
+                    </p>
+                  </article>
                 ))}
               </div>
             </div>
@@ -377,7 +505,7 @@ export default function StatusPage() {
         )}
       </main>
 
-      <Footer />
+      <MarketingPublicFooter />
     </div>
   );
 }

@@ -68,7 +68,7 @@ export function Footer() {
           <div className="max-w-md">
             <div className="flex items-center gap-3">
               <Image
-                src="/images/DevForge.png"
+                src="/images/devforge.png"
                 alt="DevForge Logo"
                 width={112}
                 height={112}

@@ -55,7 +55,7 @@ export function Navbar() {
         <Link href="/" className="flex min-w-0 items-center gap-3 group">
           <div className="relative">
             <Image
-              src="/images/DevForge.png"
+              src="/images/devforge.png"
               alt="DevForge Logo"
               width={80}
               height={80}

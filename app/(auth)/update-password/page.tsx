@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle2, Loader2, LockKeyhole, Shield } from "lucide-react";
+import { toast } from "sonner";
+
+import {
+  MarketingMiniFooter,
+  MarketingPublicHeader,
+} from "@/components/marketing/public-chrome";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Shield, CheckCircle2, LockKeyhole } from "lucide-react";
-import { toast } from "sonner";
+import { DevForgeSpinner } from "@/components/ui/loading-state";
 
 export default function UpdatePasswordPage() {
   const router = useRouter();
@@ -37,7 +42,7 @@ export default function UpdatePasswordPage() {
       }
     };
 
-    checkStatus();
+    void checkStatus();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +67,7 @@ export default function UpdatePasswordPage() {
       }
 
       toast.success("Password updated successfully");
-      router.push("/");
+      router.push("/dashboard");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Failed to update password";
@@ -74,48 +79,60 @@ export default function UpdatePasswordPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Verifying account...</p>
-        </div>
+      <div className="min-h-screen flex flex-col bg-background text-foreground">
+        <MarketingPublicHeader activePath="/login" compact showSearch={false} />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <div className="text-center space-y-4">
+            <DevForgeSpinner size="md" className="mx-auto" />
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              Verifying account…
+            </p>
+          </div>
+        </main>
+        <MarketingMiniFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-background via-background to-muted/40 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-xl border-border/60 bg-card/90">
-        <CardContent className="pt-10 pb-8 px-6 sm:px-10">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-4">
-              <Shield className="h-3.5 w-3.5" /> Security Required
-            </div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <MarketingPublicHeader activePath="/login" compact showSearch={false} />
+
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 sm:p-10 shadow-xl space-y-6">
+          <div className="text-center space-y-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ff6636]/30 bg-[#ff6636]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#ff6636]">
+              <Shield className="size-3.5" /> Security Required
+            </span>
+            <h1 className="text-2xl font-extrabold text-foreground">
               Set a new password
             </h1>
-            <p className="text-sm text-muted-foreground">
-              You&apos;re using a temporary password. Please set a permanent
-              one.
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+              You&apos;re using a temporary password. Please set a permanent one
+              to continue.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Temporary Password</Label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="currentPassword" className="text-xs font-bold">
+                Temporary Password
+              </Label>
               <Input
                 id="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
-                className="h-11"
+                className="h-11 rounded-xl border-border"
                 placeholder="Enter temporary password"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="newPassword" className="text-xs font-bold">
+                New Password
+              </Label>
               <Input
                 id="newPassword"
                 type="password"
@@ -123,13 +140,15 @@ export default function UpdatePasswordPage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={8}
-                className="h-11"
+                className="h-11 rounded-xl border-border"
                 placeholder="Create a strong password"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="text-xs font-bold">
+                Confirm New Password
+              </Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -137,40 +156,45 @@ export default function UpdatePasswordPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
-                className="h-11"
+                className="h-11 rounded-xl border-border"
                 placeholder="Confirm your new password"
               />
             </div>
 
-            <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2 mb-2 text-foreground">
-                <LockKeyhole className="h-4 w-4" />
-                Password tips
+            <div className="rounded-2xl border border-border bg-muted/30 p-4 text-xs text-muted-foreground space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-foreground">
+                <LockKeyhole className="size-3.5 text-[#ff6636]" />
+                Password guidelines
               </div>
               <ul className="space-y-1">
                 <li>• At least 8 characters</li>
-                <li>• Use a mix of letters and numbers</li>
-                <li>• Avoid common words</li>
+                <li>• Mix of letters, numbers, or symbols</li>
+                <li>• Avoid previously used passwords</li>
               </ul>
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 gap-2"
+              className="w-full h-11 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white font-bold text-xs uppercase tracking-wider gap-2"
             >
               {isLoading ? (
-                "Updating..."
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Updating…
+                </>
               ) : (
                 <>
-                  <CheckCircle2 className="h-4 w-4" />
+                  <CheckCircle2 className="size-4" />
                   Update Password
                 </>
               )}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </main>
+
+      <MarketingMiniFooter />
     </div>
   );
 }
