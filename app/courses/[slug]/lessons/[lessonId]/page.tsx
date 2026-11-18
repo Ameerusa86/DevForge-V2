@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { normalizeCoursePhases } from "@/lib/course-phases";
 import {
   LessonDetailClient,
   type LessonDetailCourse,
@@ -23,6 +24,7 @@ async function getLessonPageData(slug: string, lessonId: string) {
         slug: true,
         title: true,
         status: true,
+        phases: true,
         showUnassignedHeader: true,
         lessons: {
           select: {
@@ -31,6 +33,7 @@ async function getLessonPageData(slug: string, lessonId: string) {
             order: true,
             isFree: true,
             moduleId: true,
+            phaseId: true,
             videoUrl: true,
             durationSeconds: true,
           },
@@ -42,6 +45,7 @@ async function getLessonPageData(slug: string, lessonId: string) {
             title: true,
             order: true,
             description: true,
+            phaseId: true,
             lessons: {
               select: {
                 id: true,
@@ -49,6 +53,7 @@ async function getLessonPageData(slug: string, lessonId: string) {
                 order: true,
                 isFree: true,
                 moduleId: true,
+                phaseId: true,
                 videoUrl: true,
                 durationSeconds: true,
               },
@@ -154,6 +159,7 @@ async function getLessonPageData(slug: string, lessonId: string) {
     id: course.id,
     slug: course.slug,
     title: course.title,
+    phases: normalizeCoursePhases(course.phases),
     lessons: course.lessons,
     modules: course.modules,
     showUnassignedHeader: course.showUnassignedHeader,

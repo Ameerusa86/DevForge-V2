@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { JSONContent } from "@tiptap/react";
@@ -25,13 +25,26 @@ import { toast } from "sonner";
 import { YouTubePlayer } from "@/components/lms/youtube-player";
 import { LessonQuiz, type QuizData } from "@/components/lms/lesson-quiz";
 import {
+  buildStructuredSyllabus,
+  findLessonContext,
+  FLAT_SECTION_KEY,
+  getModuleAccordionKey,
+  OTHER_SECTION_KEY,
+  type CoursePhase,
+  type LessonContext,
+  type StructuredSyllabus,
+} from "@/lib/course-phases";
+import {
   Video,
   ArrowLeft,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ChevronsDownUp,
+  ChevronsUpDown,
   Circle,
   ClipboardCheck,
+  Layers3,
   Lock,
   PanelLeftClose,
   PanelLeftOpen,
@@ -48,6 +61,7 @@ export interface LessonOutlineItem {
   order: number;
   isFree?: boolean;
   moduleId?: string | null;
+  phaseId?: string | null;
   videoUrl?: string | null;
   durationSeconds?: number | null;
 }
@@ -57,6 +71,7 @@ export interface LessonOutlineModule {
   title: string;
   order: number;
   description?: string | null;
+  phaseId?: string | null;
   lessons: LessonOutlineItem[];
 }
 
@@ -64,6 +79,7 @@ export interface LessonDetailCourse {
   id: string;
   slug: string;
   title: string;
+  phases?: CoursePhase[] | string | null;
   lessons: LessonOutlineItem[];
   modules?: LessonOutlineModule[];
   showUnassignedHeader?: boolean;
@@ -112,13 +128,21 @@ function OutlineLessonLink({
   const isActive = lesson.id === activeLessonId;
   const isComplete = completionMap[lesson.id] ?? false;
   const isLocked = !lesson.isFree && !hasEnrollment;
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (isActive) {
+      linkRef.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [isActive]);
 
   return (
     <Link
+      ref={linkRef}
       href={`/courses/${courseSlug}/lessons/${lesson.id}`}
       onClick={onNavigate}
       className={cn(
-        "flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-xs font-medium transition-all duration-200 group relative border",
+        "flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium transition-all duration-200 group relative border",
         isActive
           ? "border-[#ff6636]/50 bg-[#ff6636]/10 text-foreground shadow-2xs font-semibold"
           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground"
@@ -155,10 +179,133 @@ function OutlineLessonLink({
   );
 }
 
+function OutlineModuleList({
+  courseSlug,
+  modules,
+  sectionKey,
+  openModules,
+  onOpenModulesChange,
+  activeLessonId,
+  lessonIndexMap,
+  completionMap,
+  hasEnrollment,
+  onNavigate,
+  nested = false,
+}: {
+  courseSlug: string;
+  modules: LessonOutlineModule[];
+  sectionKey: string;
+  openModules: string[];
+  onOpenModulesChange: (value: string[]) => void;
+  activeLessonId: string;
+  lessonIndexMap: Record<string, number>;
+  completionMap: Record<string, boolean>;
+  hasEnrollment: boolean;
+  onNavigate?: () => void;
+  nested?: boolean;
+}) {
+  if (modules.length === 0) return null;
+
+  return (
+    <Accordion
+      type="multiple"
+      value={openModules}
+      onValueChange={onOpenModulesChange}
+      className={nested ? "space-y-1.5" : "space-y-2.5"}
+    >
+      {modules.map((moduleItem) => {
+        const accordionValue = getModuleAccordionKey(sectionKey, moduleItem.id);
+        const totalCount = moduleItem.lessons.length;
+        const completedCount = moduleItem.lessons.filter((l) => completionMap[l.id]).length;
+        const isModuleComplete = totalCount > 0 && completedCount === totalCount;
+        const isModuleActive = moduleItem.lessons.some((l) => l.id === activeLessonId);
+
+        return (
+          <AccordionItem
+            key={accordionValue}
+            value={accordionValue}
+            className={cn(
+              "overflow-hidden border transition-colors",
+              nested ? "rounded-xl" : "rounded-2xl shadow-2xs",
+              isModuleActive
+                ? "border-[#ff6636]/45 bg-[#ff6636]/[0.04]"
+                : nested
+                  ? "border-border/60 bg-card/80"
+                  : "border-border/80 bg-card/60"
+            )}
+          >
+            <AccordionTrigger
+              className={cn(
+                "text-xs font-bold hover:no-underline hover:bg-muted/40 transition-colors",
+                nested ? "px-2.5 py-2.5" : "px-3.5 py-3"
+              )}
+            >
+              <div className="flex items-start justify-between w-full gap-2 pr-1.5 text-left">
+                <div className="flex items-start gap-2 min-w-0 flex-1">
+                  {isModuleComplete ? (
+                    <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                  ) : isModuleActive ? (
+                    <span className="mt-1.5 size-1.5 rounded-full bg-[#ff6636] shrink-0" />
+                  ) : null}
+                  <span
+                    className={cn(
+                      "font-bold leading-snug break-words flex-1",
+                      nested ? "text-[11.5px]" : "text-xs",
+                      isModuleActive ? "text-foreground" : "text-foreground/90"
+                    )}
+                  >
+                    {moduleItem.title}
+                  </span>
+                </div>
+                <span
+                  className={cn(
+                    "text-[10px] font-mono shrink-0 mt-0.5 rounded-md px-1.5 py-0.5 font-semibold",
+                    isModuleComplete
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                      : isModuleActive
+                        ? "bg-[#ff6636]/15 text-[#ff6636]"
+                        : "bg-muted/80 text-muted-foreground"
+                  )}
+                >
+                  {completedCount}/{totalCount}
+                </span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-1.5 space-y-1 border-t border-border/40 bg-background/50">
+              {moduleItem.lessons.length > 0 ? (
+                moduleItem.lessons
+                  .slice()
+                  .sort((a, b) => a.order - b.order)
+                  .map((lesson) => (
+                    <OutlineLessonLink
+                      key={lesson.id}
+                      courseSlug={courseSlug}
+                      lesson={lesson}
+                      lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
+                      activeLessonId={activeLessonId}
+                      completionMap={completionMap}
+                      hasEnrollment={hasEnrollment}
+                      onNavigate={onNavigate}
+                    />
+                  ))
+              ) : (
+                <p className="px-2.5 py-2 text-[11px] text-muted-foreground italic">
+                  No lessons in this module yet.
+                </p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        );
+      })}
+    </Accordion>
+  );
+}
+
 function CourseOutline({
   courseSlug,
-  orderedModules,
-  unassignedLessons,
+  syllabus,
+  lessonContext,
+  totalModuleCount,
   showNoModuleHeader,
   activeLessonId,
   lessonIndexMap,
@@ -167,8 +314,9 @@ function CourseOutline({
   onNavigate,
 }: {
   courseSlug: string;
-  orderedModules: LessonOutlineModule[];
-  unassignedLessons: LessonOutlineItem[];
+  syllabus: StructuredSyllabus<LessonOutlineItem, LessonOutlineModule>;
+  lessonContext: LessonContext<LessonOutlineItem, LessonOutlineModule>;
+  totalModuleCount: number;
   showNoModuleHeader: boolean;
   activeLessonId: string;
   lessonIndexMap: Record<string, number>;
@@ -176,23 +324,145 @@ function CourseOutline({
   hasEnrollment: boolean;
   onNavigate?: () => void;
 }) {
-  const defaultOpenModules = orderedModules
-    .filter((moduleItem) =>
-      moduleItem.lessons.some((lesson) => lesson.id === activeLessonId)
-    )
-    .map((moduleItem) => moduleItem.id);
+  const hasOtherSection =
+    syllabus.hasPhases &&
+    (syllabus.otherStandaloneLessons.length > 0 || syllabus.otherModules.length > 0);
+
+  const allPhaseKeys = useMemo(
+    () => [
+      ...syllabus.phaseGroups.map((g) => g.phase.id),
+      ...(hasOtherSection ? [OTHER_SECTION_KEY] : []),
+    ],
+    [syllabus.phaseGroups, hasOtherSection]
+  );
+
+  const allFlatModuleKeys = useMemo(
+    () =>
+      syllabus.otherModules.map((m) =>
+        getModuleAccordionKey(FLAT_SECTION_KEY, m.id)
+      ),
+    [syllabus.otherModules]
+  );
+
+  const activeSectionKey =
+    lessonContext.sectionKey ?? allPhaseKeys[0] ?? null;
+
+  const activeModuleKey =
+    lessonContext.module && lessonContext.sectionKey
+      ? getModuleAccordionKey(lessonContext.sectionKey, lessonContext.module.id)
+      : !syllabus.hasPhases && syllabus.otherModules[0]
+        ? getModuleAccordionKey(FLAT_SECTION_KEY, syllabus.otherModules[0].id)
+        : null;
+
+  const [openPhases, setOpenPhases] = useState<string[]>(() =>
+    activeSectionKey ? [activeSectionKey] : []
+  );
+  const [openModules, setOpenModules] = useState<string[]>(() =>
+    activeModuleKey ? [activeModuleKey] : []
+  );
+  const [trackedLessonId, setTrackedLessonId] = useState(activeLessonId);
+
+  if (trackedLessonId !== activeLessonId) {
+    setTrackedLessonId(activeLessonId);
+    if (activeSectionKey && !openPhases.includes(activeSectionKey)) {
+      setOpenPhases((prev) =>
+        prev.includes(activeSectionKey) ? prev : [...prev, activeSectionKey]
+      );
+    }
+    if (activeModuleKey && !openModules.includes(activeModuleKey)) {
+      setOpenModules((prev) =>
+        prev.includes(activeModuleKey) ? prev : [...prev, activeModuleKey]
+      );
+    }
+  }
+
+  const areAllPhasesOpen =
+    allPhaseKeys.length > 0 &&
+    allPhaseKeys.every((key) => openPhases.includes(key));
+
+  const areAllFlatModulesOpen =
+    allFlatModuleKeys.length > 0 &&
+    allFlatModuleKeys.every((key) => openModules.includes(key));
+
+  const handleToggleAllPhases = () => {
+    if (areAllPhasesOpen) {
+      setOpenPhases(activeSectionKey ? [activeSectionKey] : []);
+    } else {
+      setOpenPhases(allPhaseKeys);
+    }
+  };
+
+  const handleToggleAllFlatModules = () => {
+    if (areAllFlatModulesOpen) {
+      setOpenModules(activeModuleKey ? [activeModuleKey] : []);
+    } else {
+      setOpenModules(allFlatModuleKeys);
+    }
+  };
 
   return (
     <div className="space-y-3">
-      {/* Unassigned Lessons */}
-      {unassignedLessons.length > 0 && (
+      {/* Compact Hierarchy Summary & Expand/Collapse Control */}
+      {syllabus.hasPhases && allPhaseKeys.length > 1 ? (
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            {syllabus.phaseGroups.length}{" "}
+            {syllabus.phaseGroups.length === 1 ? "Phase" : "Phases"} ·{" "}
+            {totalModuleCount}{" "}
+            {totalModuleCount === 1 ? "Module" : "Modules"}
+          </span>
+          <button
+            type="button"
+            onClick={handleToggleAllPhases}
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
+          >
+            {areAllPhasesOpen ? (
+              <>
+                <ChevronsDownUp className="size-3" />
+                <span>Focus current</span>
+              </>
+            ) : (
+              <>
+                <ChevronsUpDown className="size-3" />
+                <span>Expand all</span>
+              </>
+            )}
+          </button>
+        </div>
+      ) : !syllabus.hasPhases && syllabus.otherModules.length > 1 ? (
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            {syllabus.otherModules.length} Modules
+          </span>
+          <button
+            type="button"
+            onClick={handleToggleAllFlatModules}
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
+          >
+            {areAllFlatModulesOpen ? (
+              <>
+                <ChevronsDownUp className="size-3" />
+                <span>Focus current</span>
+              </>
+            ) : (
+              <>
+                <ChevronsUpDown className="size-3" />
+                <span>Expand all</span>
+              </>
+            )}
+          </button>
+        </div>
+      ) : null}
+
+      {/* Intro / Unassigned Lessons before Phases (or all unassigned when no phases) */}
+      {syllabus.introStandaloneLessons.length > 0 && (
         <div className="space-y-1.5">
           {showNoModuleHeader && (
             <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Core Lessons
             </p>
           )}
-          {unassignedLessons.map((lesson) => (
+          {syllabus.introStandaloneLessons.map((lesson) => (
             <OutlineLessonLink
               key={lesson.id}
               courseSlug={courseSlug}
@@ -207,37 +477,188 @@ function CourseOutline({
         </div>
       )}
 
-      {/* Module Accordions */}
-      {orderedModules.length > 0 && (
+      {/* Phase-Grouped Curriculum */}
+      {syllabus.hasPhases ? (
         <Accordion
           type="multiple"
-          defaultValue={defaultOpenModules.length > 0 ? defaultOpenModules : [orderedModules[0].id]}
+          value={openPhases}
+          onValueChange={setOpenPhases}
           className="space-y-2.5"
         >
-          {orderedModules.map((moduleItem) => {
-            const completedCount = moduleItem.lessons.filter((l) => completionMap[l.id]).length;
+          {syllabus.phaseGroups.map((group) => {
+            const totalPhaseLessons = group.lessons.length;
+            const completedPhaseLessons = group.lessons.filter(
+              (l) => completionMap[l.id]
+            ).length;
+            const phasePercent =
+              totalPhaseLessons > 0
+                ? Math.round((completedPhaseLessons / totalPhaseLessons) * 100)
+                : 0;
+            const isPhaseComplete =
+              totalPhaseLessons > 0 &&
+              completedPhaseLessons === totalPhaseLessons;
+            const isPhaseActive = lessonContext.sectionKey === group.phase.id;
+            const showPhaseEyebrow = !/^phase\b/i.test(group.phase.title);
 
             return (
               <AccordionItem
-                key={moduleItem.id}
-                value={moduleItem.id}
-                className="rounded-2xl border border-border/80 bg-card/60 shadow-2xs overflow-hidden"
+                key={group.phase.id}
+                value={group.phase.id}
+                className={cn(
+                  "rounded-2xl border overflow-hidden transition-colors",
+                  isPhaseActive
+                    ? "border-[#ff6636]/40 bg-card shadow-xs"
+                    : "border-border/80 bg-card/55"
+                )}
               >
-                <AccordionTrigger className="px-3.5 py-3 text-xs font-bold hover:no-underline hover:bg-muted/40 transition-colors">
-                  <div className="flex items-start justify-between w-full gap-2 pr-2 text-left">
-                    <span className="text-xs font-bold text-foreground leading-snug break-words flex-1">
-                      {moduleItem.title}
+                <AccordionTrigger className="px-3 py-3 text-left hover:no-underline hover:bg-muted/40 transition-colors">
+                  <div className="flex items-start gap-2.5 w-full pr-1.5 min-w-0">
+                    <span
+                      className={cn(
+                        "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-extrabold",
+                        isPhaseComplete
+                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                          : isPhaseActive
+                            ? "bg-[#ff6636] text-white shadow-xs"
+                            : "bg-[#ff6636]/12 text-[#ff6636]"
+                      )}
+                    >
+                      {isPhaseComplete ? (
+                        <CheckCircle2 className="size-4" />
+                      ) : (
+                        group.index + 1
+                      )}
                     </span>
-                    <span className="text-[10px] font-mono text-muted-foreground shrink-0 mt-0.5 bg-muted/80 rounded-md px-1.5 py-0.5">
-                      {completedCount}/{moduleItem.lessons.length}
-                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      {showPhaseEyebrow && (
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#ff6636] mb-0.5">
+                          Phase {group.index + 1}
+                        </p>
+                      )}
+                      <p className="text-xs font-extrabold text-foreground leading-snug break-words">
+                        {group.phase.title}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2 text-[10px] font-medium text-muted-foreground">
+                        <span>
+                          {group.modules.length > 0
+                            ? `${group.modules.length} ${group.modules.length === 1 ? "module" : "modules"}`
+                            : `${totalPhaseLessons} ${totalPhaseLessons === 1 ? "lesson" : "lessons"}`}
+                        </span>
+                        {totalPhaseLessons > 0 && (
+                          <>
+                            <span className="text-border">•</span>
+                            <span
+                              className={cn(
+                                "font-mono font-semibold",
+                                isPhaseComplete
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : isPhaseActive || completedPhaseLessons > 0
+                                    ? "text-[#ff6636]"
+                                    : "text-muted-foreground"
+                              )}
+                            >
+                              {completedPhaseLessons}/{totalPhaseLessons}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="p-1.5 space-y-1 border-t border-border/40 bg-background/50">
-                  {moduleItem.lessons
-                    .slice()
-                    .sort((a, b) => a.order - b.order)
-                    .map((lesson) => (
+
+                {totalPhaseLessons > 0 && completedPhaseLessons > 0 && (
+                  <div className="h-0.5 w-full bg-muted/60">
+                    <div
+                      className={cn(
+                        "h-full transition-all duration-300",
+                        isPhaseComplete ? "bg-emerald-500" : "bg-[#ff6636]"
+                      )}
+                      style={{ width: `${phasePercent}%` }}
+                    />
+                  </div>
+                )}
+
+                <AccordionContent className="px-2 pb-2.5 pt-2 space-y-2 border-t border-border/50 bg-background/40">
+                  {group.phase.description && (
+                    <p className="px-1.5 text-[11px] leading-relaxed text-muted-foreground">
+                      {group.phase.description}
+                    </p>
+                  )}
+
+                  {group.standaloneLessons.length > 0 && (
+                    <div className="space-y-1">
+                      {group.standaloneLessons.map((lesson) => (
+                        <OutlineLessonLink
+                          key={lesson.id}
+                          courseSlug={courseSlug}
+                          lesson={lesson}
+                          lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
+                          activeLessonId={activeLessonId}
+                          completionMap={completionMap}
+                          hasEnrollment={hasEnrollment}
+                          onNavigate={onNavigate}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <OutlineModuleList
+                    courseSlug={courseSlug}
+                    modules={group.modules}
+                    sectionKey={group.phase.id}
+                    openModules={openModules}
+                    onOpenModulesChange={setOpenModules}
+                    activeLessonId={activeLessonId}
+                    lessonIndexMap={lessonIndexMap}
+                    completionMap={completionMap}
+                    hasEnrollment={hasEnrollment}
+                    onNavigate={onNavigate}
+                    nested
+                  />
+
+                  {group.standaloneLessons.length === 0 &&
+                    group.modules.length === 0 && (
+                      <p className="px-2 py-2 text-[11px] text-muted-foreground italic">
+                        No modules assigned to this phase yet.
+                      </p>
+                    )}
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
+
+          {hasOtherSection && (
+            <AccordionItem
+              value={OTHER_SECTION_KEY}
+              className={cn(
+                "rounded-2xl border overflow-hidden transition-colors",
+                lessonContext.sectionKey === OTHER_SECTION_KEY
+                  ? "border-[#ff6636]/40 bg-card shadow-xs"
+                  : "border-border/80 bg-card/55"
+              )}
+            >
+              <AccordionTrigger className="px-3 py-3 text-left hover:no-underline hover:bg-muted/40 transition-colors">
+                <div className="flex items-start gap-2.5 w-full pr-1.5 min-w-0">
+                  <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <Layers3 className="size-3.5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-extrabold text-foreground leading-snug">
+                      Other Curriculum
+                    </p>
+                    <p className="mt-1 text-[10px] font-medium text-muted-foreground">
+                      {syllabus.otherModules.length > 0
+                        ? `${syllabus.otherModules.length} ${syllabus.otherModules.length === 1 ? "module" : "modules"}`
+                        : `${syllabus.otherStandaloneLessons.length} ${syllabus.otherStandaloneLessons.length === 1 ? "lesson" : "lessons"}`}
+                    </p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-2 pb-2.5 pt-2 space-y-2 border-t border-border/50 bg-background/40">
+                {syllabus.otherStandaloneLessons.length > 0 && (
+                  <div className="space-y-1">
+                    {syllabus.otherStandaloneLessons.map((lesson) => (
                       <OutlineLessonLink
                         key={lesson.id}
                         courseSlug={courseSlug}
@@ -249,11 +670,38 @@ function CourseOutline({
                         onNavigate={onNavigate}
                       />
                     ))}
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
+                  </div>
+                )}
+                <OutlineModuleList
+                  courseSlug={courseSlug}
+                  modules={syllabus.otherModules}
+                  sectionKey={OTHER_SECTION_KEY}
+                  openModules={openModules}
+                  onOpenModulesChange={setOpenModules}
+                  activeLessonId={activeLessonId}
+                  lessonIndexMap={lessonIndexMap}
+                  completionMap={completionMap}
+                  hasEnrollment={hasEnrollment}
+                  onNavigate={onNavigate}
+                  nested
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
+      ) : (
+        <OutlineModuleList
+          courseSlug={courseSlug}
+          modules={syllabus.otherModules}
+          sectionKey={FLAT_SECTION_KEY}
+          openModules={openModules}
+          onOpenModulesChange={setOpenModules}
+          activeLessonId={activeLessonId}
+          lessonIndexMap={lessonIndexMap}
+          completionMap={completionMap}
+          hasEnrollment={hasEnrollment}
+          onNavigate={onNavigate}
+        />
       )}
     </div>
   );
@@ -279,29 +727,33 @@ export function LessonDetailClient({
   const [isLessonComplete, setIsLessonComplete] = useState<boolean>(
     initialProgressData?.lessonProgress?.[currentLesson.id] ?? false
   );
+  const [syncedLessonId, setSyncedLessonId] = useState(currentLesson.id);
   const [isMarking, setIsMarking] = useState(false);
+
+  if (syncedLessonId !== currentLesson.id) {
+    setSyncedLessonId(currentLesson.id);
+    setIsLessonComplete(
+      (progressData ?? initialProgressData)?.lessonProgress?.[currentLesson.id] ??
+        false
+    );
+  }
 
   // Left sidebar collapsible state
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
-  // Ordered lessons and navigation computation
-  const orderedModules = useMemo(() => {
-    return (course.modules ?? []).slice().sort((a, b) => a.order - b.order);
-  }, [course.modules]);
+  // Structured syllabus grouped by phases (when defined) and modules
+  const syllabus = useMemo(
+    () =>
+      buildStructuredSyllabus(
+        course.lessons,
+        course.modules ?? [],
+        course.phases
+      ),
+    [course.lessons, course.modules, course.phases]
+  );
 
-  const orderedLessons = useMemo(() => {
-    const unassigned = course.lessons
-      .filter((lesson) => !lesson.moduleId)
-      .slice()
-      .sort((a, b) => a.order - b.order);
-
-    const moduleLessons = orderedModules.flatMap((m) =>
-      m.lessons.slice().sort((a, b) => a.order - b.order)
-    );
-
-    return [...unassigned, ...moduleLessons];
-  }, [course.lessons, orderedModules]);
+  const orderedLessons = syllabus.orderedLessons;
 
   const lessonIndexMap = useMemo(() => {
     return orderedLessons.reduce<Record<string, number>>((acc, lesson, index) => {
@@ -310,16 +762,21 @@ export function LessonDetailClient({
     }, {});
   }, [orderedLessons]);
 
+  const lessonContext = useMemo(
+    () => findLessonContext(syllabus, currentLesson.id),
+    [syllabus, currentLesson.id]
+  );
+
+  const currentLessonNumber =
+    lessonIndexMap[currentLesson.id] ?? currentLesson.order;
+  const totalModuleCount = course.modules?.length ?? 0;
+
   const currentIndex = orderedLessons.findIndex((l) => l.id === currentLesson.id);
   const previousLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
-  const nextLesson = currentIndex >= 0 && currentIndex < orderedLessons.length - 1 ? orderedLessons[currentIndex + 1] : null;
-
-  const unassignedLessons = useMemo(() => {
-    return course.lessons
-      .filter((lesson) => !lesson.moduleId)
-      .slice()
-      .sort((a, b) => a.order - b.order);
-  }, [course.lessons]);
+  const nextLesson =
+    currentIndex >= 0 && currentIndex < orderedLessons.length - 1
+      ? orderedLessons[currentIndex + 1]
+      : null;
 
   const progressPercent = progressData?.progress ?? 0;
   const completedLessons = progressData?.completedLessons ?? 0;
@@ -444,8 +901,9 @@ export function LessonDetailClient({
               <div className="p-4 overflow-y-auto max-h-[calc(100vh-5rem)]">
                 <CourseOutline
                   courseSlug={course.slug}
-                  orderedModules={orderedModules}
-                  unassignedLessons={unassignedLessons}
+                  syllabus={syllabus}
+                  lessonContext={lessonContext}
+                  totalModuleCount={totalModuleCount}
                   showNoModuleHeader={course.showUnassignedHeader ?? true}
                   activeLessonId={currentLesson.id}
                   lessonIndexMap={lessonIndexMap}
@@ -460,7 +918,7 @@ export function LessonDetailClient({
           {/* Current Lesson Badge */}
           <div className="min-w-0 truncate hidden md:flex items-center gap-2">
             <span className="rounded-md bg-[#ff6636]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#ff6636] shrink-0">
-              Lesson {currentLesson.order}
+              Lesson {currentLessonNumber}
             </span>
             <span className="text-xs font-bold text-foreground truncate max-w-md">
               {currentLesson.title}
@@ -533,8 +991,9 @@ export function LessonDetailClient({
             <div className="flex-1 overflow-y-auto p-3.5 space-y-2">
               <CourseOutline
                 courseSlug={course.slug}
-                orderedModules={orderedModules}
-                unassignedLessons={unassignedLessons}
+                syllabus={syllabus}
+                lessonContext={lessonContext}
+                totalModuleCount={totalModuleCount}
                 showNoModuleHeader={course.showUnassignedHeader ?? true}
                 activeLessonId={currentLesson.id}
                 lessonIndexMap={lessonIndexMap}
@@ -567,12 +1026,30 @@ export function LessonDetailClient({
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-md bg-[#ff6636]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#ff6636]">
                   <ClipboardCheck className="size-3.5" />
-                  Lesson {currentLesson.order}
+                  Lesson {currentLessonNumber}
                 </span>
                 <span className="text-xs font-semibold text-muted-foreground">
                   Part of {course.title}
                 </span>
               </div>
+
+              {(lessonContext.phase || lessonContext.module) && (
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  {lessonContext.phase && (
+                    <span className="inline-flex items-center rounded-md border border-border/70 bg-muted/50 px-2 py-0.5 text-foreground/85">
+                      {lessonContext.phase.title}
+                    </span>
+                  )}
+                  {lessonContext.phase && lessonContext.module && (
+                    <ChevronRight className="size-3.5 text-muted-foreground/60 shrink-0" />
+                  )}
+                  {lessonContext.module && (
+                    <span className="inline-flex items-center rounded-md border border-border/70 bg-muted/50 px-2 py-0.5 text-foreground/85">
+                      {lessonContext.module.title}
+                    </span>
+                  )}
+                </div>
+              )}
 
               <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
                 {currentLesson.title}

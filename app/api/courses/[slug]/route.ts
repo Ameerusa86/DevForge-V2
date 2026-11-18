@@ -33,6 +33,7 @@ export async function GET(
             order: true,
             isFree: true,
             moduleId: true,
+            phaseId: true,
           },
           orderBy: { order: "asc" },
         },
@@ -42,6 +43,7 @@ export async function GET(
             title: true,
             order: true,
             description: true,
+            phaseId: true,
             lessons: {
               select: {
                 id: true,
@@ -49,6 +51,7 @@ export async function GET(
                 order: true,
                 isFree: true,
                 moduleId: true,
+                phaseId: true,
               },
               orderBy: { order: "asc" },
             },
