@@ -169,6 +169,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const titleInputRef = useRef<HTMLInputElement | null>(null);
   const moduleFormCardRef = useRef<HTMLDivElement | null>(null);
   const moduleTitleInputRef = useRef<HTMLInputElement | null>(null);
+  const handledDeepLinkRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
@@ -526,6 +527,52 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     setActiveTab("edit");
     setIsDialogOpen(true);
   };
+
+  useEffect(() => {
+    if (isLoading || handledDeepLinkRef.current || lessons.length === 0) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const editLessonId = params.get("editLessonId");
+    const quizLessonId = params.get("quizLessonId");
+
+    if (!editLessonId && !quizLessonId) {
+      handledDeepLinkRef.current = true;
+      return;
+    }
+
+    const targetLesson = lessons.find(
+      (item) => item.id === (editLessonId || quizLessonId),
+    );
+    handledDeepLinkRef.current = true;
+
+    if (!targetLesson) return;
+
+    if (editLessonId) {
+      setEditingId(targetLesson.id);
+      setShowAdvancedLessonFields(true);
+      setFormData({
+        title: targetLesson.title,
+        order: targetLesson.order,
+        content: targetLesson.content,
+        isFree: targetLesson.isFree || false,
+        moduleId: targetLesson.moduleId || "",
+        phaseId: resolveCoursePhaseId(targetLesson.phaseId, phases) ?? "none",
+        videoUrl: targetLesson.videoUrl || "",
+        durationMinutes: targetLesson.durationSeconds
+          ? String(Math.round(targetLesson.durationSeconds / 60))
+          : "",
+      });
+      setActiveTab("edit");
+      setIsDialogOpen(true);
+    } else if (quizLessonId) {
+      setQuizLesson({ id: targetLesson.id, title: targetLesson.title });
+      setQuizModalOpen(true);
+    }
+
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [isLoading, lessons, phases]);
 
   const resetForm = () => {
     setFormData({

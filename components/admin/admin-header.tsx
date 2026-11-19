@@ -61,7 +61,7 @@ const adminQuickJumpItems = [
   { title: "Create Course", description: "Start authoring a new course", href: "/admin/courses/create", icon: BookOpen, keywords: "new add course" },
   { title: "Categories", description: "Manage course categories and icons", href: "/admin/categories", icon: FolderTree, keywords: "topics tags taxonomy" },
   { title: "Enrollments", description: "Review student enrollments & progress", href: "/admin/enrollments", icon: Users, keywords: "students progress" },
-  { title: "Content", description: "Platform content management", href: "/admin/content", icon: FileText, keywords: "copy cms pages" },
+  { title: "Content", description: "Cross-course lesson QA, readiness audit, and content inspector", href: "/admin/content", icon: FileText, keywords: "content audit qa lessons drafts videos quizzes" },
   { title: "Schedule", description: "Manage live sessions & workshops", href: "/admin/schedule", icon: Calendar, keywords: "events live stream" },
   { title: "Messages", description: "Direct support conversations", href: "/admin/messages", icon: MessageSquare, keywords: "inbox chat support" },
   { title: "Lesson Q&A", description: "Moderate student lesson questions", href: "/admin/questions", icon: MessageCircleQuestion, keywords: "qa answers questions" },
