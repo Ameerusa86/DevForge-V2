@@ -18,13 +18,25 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, FolderPlus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AlertTriangle, ArrowLeft, FolderPlus } from "lucide-react";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { FileUpload } from "@/components/admin/file-upload";
 import { CoursePreview } from "@/components/admin/course-preview";
 import { generateSlug } from "@/lib/slug";
 import { getCategoryIcon, getCategoryColorTheme } from "@/lib/categories";
+import {
+  normalizeCoursePhases,
+  resolveCoursePhaseId,
+  type CoursePhase,
+} from "@/lib/course-phases";
 import type { CourseCategory } from "@/types/course";
 import { toast } from "sonner";
 
@@ -46,9 +58,21 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
   const [level, setLevel] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [phases, setPhases] = useState<{id: string, title: string, description?: string}[]>([]);
+  const [phases, setPhases] = useState<CoursePhase[]>([]);
   const [phaseTitleInput, setPhaseTitleInput] = useState("");
   const [phaseDescInput, setPhaseDescInput] = useState("");
+  const [courseModules, setCourseModules] = useState<
+    { id: string; title: string; phaseId?: string | null }[]
+  >([]);
+  const [courseLessons, setCourseLessons] = useState<
+    { id: string; title: string; moduleId?: string | null; phaseId?: string | null }[]
+  >([]);
+  const [phaseToRemove, setPhaseToRemove] = useState<{
+    index: number;
+    phase: CoursePhase;
+    moduleCount: number;
+    lessonCount: number;
+  } | null>(null);
   const [price, setPrice] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -95,19 +119,9 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         setCategory(course.category);
         setLevel(course.level);
         setTags(course.tags || []);
-        if (course.phases) {
-          let parsedPhases: any[] = [];
-          if (Array.isArray(course.phases)) {
-            parsedPhases = course.phases;
-          } else if (typeof course.phases === "string") {
-            try {
-              parsedPhases = JSON.parse(course.phases);
-            } catch (e) {
-              console.error("Failed to parse phases JSON", e);
-            }
-          }
-          setPhases(parsedPhases.map((p, i) => ({ ...p, id: p.id || crypto.randomUUID() })));
-        }
+        setPhases(normalizeCoursePhases(course.phases));
+        setCourseModules(Array.isArray(course.modules) ? course.modules : []);
+        setCourseLessons(Array.isArray(course.lessons) ? course.lessons : []);
         setPrice(course.price?.toString() || "");
         setDurationMinutes(course.durationMinutes?.toString() || "");
         setImageUrl(course.imageUrl || "");
@@ -151,8 +165,33 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
     }
   };
 
+  const getPhaseUsage = (phaseId: string) => {
+    const moduleCount = courseModules.filter(
+      (m) => resolveCoursePhaseId(m.phaseId, phases) === phaseId,
+    ).length;
+    const lessonCount = courseLessons.filter(
+      (l) => resolveCoursePhaseId(l.phaseId, phases) === phaseId,
+    ).length;
+    return { moduleCount, lessonCount };
+  };
+
   const handleRemovePhase = (index: number) => {
+    const phase = phases[index];
+    if (!phase) return;
+
+    const { moduleCount, lessonCount } = getPhaseUsage(phase.id);
+    if (moduleCount > 0 || lessonCount > 0) {
+      setPhaseToRemove({ index, phase, moduleCount, lessonCount });
+      return;
+    }
+
     setPhases((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const confirmRemovePhase = () => {
+    if (!phaseToRemove) return;
+    setPhases((prev) => prev.filter((_, i) => i !== phaseToRemove.index));
+    setPhaseToRemove(null);
   };
 
   const handleImageInputChange = (file: File) => {
@@ -521,24 +560,40 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                   
                   {phases.length > 0 && (
                     <div className="space-y-2 mt-4">
-                      {phases.map((phase, index) => (
-                        <div key={index} className="flex items-start justify-between gap-2 rounded-xl border border-border p-3 bg-muted/20">
-                          <div>
-                            <h4 className="text-sm font-bold text-foreground">{phase.title}</h4>
-                            {phase.description && (
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{phase.description}</p>
-                            )}
+                      {phases.map((phase, index) => {
+                        const { moduleCount, lessonCount } = getPhaseUsage(phase.id);
+                        const usageParts: string[] = [];
+                        if (moduleCount > 0) {
+                          usageParts.push(`${moduleCount} ${moduleCount === 1 ? "module" : "modules"}`);
+                        }
+                        if (lessonCount > 0) {
+                          usageParts.push(`${lessonCount} ${lessonCount === 1 ? "lesson" : "lessons"}`);
+                        }
+
+                        return (
+                          <div key={phase.id} className="flex items-start justify-between gap-2 rounded-xl border border-border p-3 bg-muted/20">
+                            <div>
+                              <h4 className="text-sm font-bold text-foreground">{phase.title}</h4>
+                              {phase.description && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{phase.description}</p>
+                              )}
+                              {usageParts.length > 0 && (
+                                <p className="mt-1.5 inline-flex items-center rounded-full border border-border/60 bg-background px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                                  {usageParts.join(" · ")} linked
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePhase(index)}
+                              className="text-muted-foreground hover:text-destructive"
+                              title="Remove Phase"
+                            >
+                              ×
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePhase(index)}
-                            className="text-muted-foreground hover:text-destructive"
-                            title="Remove Phase"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -579,6 +634,60 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
           </form>
         </div>
       </div>
+
+      <Dialog
+        open={Boolean(phaseToRemove)}
+        onOpenChange={(open) => !open && setPhaseToRemove(null)}
+      >
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card text-foreground">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base font-extrabold text-foreground">
+              <AlertTriangle className="size-4.5 text-amber-500" />
+              Remove Linked Phase?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              {phaseToRemove ? (
+                <>
+                  Removing{" "}
+                  <span className="font-bold text-foreground">
+                    &ldquo;{phaseToRemove.phase.title}&rdquo;
+                  </span>{" "}
+                  will leave{" "}
+                  {[
+                    phaseToRemove.moduleCount > 0
+                      ? `${phaseToRemove.moduleCount} ${phaseToRemove.moduleCount === 1 ? "module" : "modules"}`
+                      : null,
+                    phaseToRemove.lessonCount > 0
+                      ? `${phaseToRemove.lessonCount} ${phaseToRemove.lessonCount === 1 ? "lesson" : "lessons"}`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" and ")}{" "}
+                  unassigned once you save the course.
+                </>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPhaseToRemove(null)}
+              className="rounded-xl h-10 text-xs font-bold"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmRemovePhase}
+              className="rounded-xl h-10 text-xs font-bold bg-red-500 hover:bg-red-600 text-white border-none"
+            >
+              Remove Phase
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AdminPage>
   );
 }

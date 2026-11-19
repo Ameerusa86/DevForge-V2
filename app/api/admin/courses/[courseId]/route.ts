@@ -35,6 +35,13 @@ export async function GET(
         },
         enrollments: true,
         lessons: true,
+        modules: {
+          select: {
+            id: true,
+            title: true,
+            phaseId: true,
+          },
+        },
       },
     });
 

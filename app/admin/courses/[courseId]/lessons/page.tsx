@@ -66,8 +66,15 @@ import {
   FolderTree,
   ArrowDownAZ,
   Loader2,
+  Layers,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  normalizeCoursePhases,
+  resolveCoursePhaseId,
+  type CoursePhase,
+} from "@/lib/course-phases";
 
 interface LessonsPageProps {
   params: Promise<{ courseId: string }>;
@@ -117,10 +124,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
-  const [phases, setPhases] = useState<{id: string, title: string, description?: string}[]>([]);
+  const [phases, setPhases] = useState<CoursePhase[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false);
   const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
+  const [isBulkPhaseDialogOpen, setIsBulkPhaseDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleteModuleDialogOpen, setIsDeleteModuleDialogOpen] =
     useState(false);
@@ -133,6 +141,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   >(null);
   const [selectedModuleId, setSelectedModuleId] = useState<string>("");
   const [bulkAssignModuleId, setBulkAssignModuleId] = useState<string>("");
+  const [bulkAssignPhaseId, setBulkAssignPhaseId] = useState<string>("none");
+  const [syncQuickModulePhase, setSyncQuickModulePhase] = useState(true);
+  const [syncBulkModulePhase, setSyncBulkModulePhase] = useState(true);
   const [selectedLessons, setSelectedLessons] = useState<Set<string>>(
     new Set(),
   );
@@ -144,12 +155,20 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   const [isModuleSaving, setIsModuleSaving] = useState(false);
   const [isCourseSaving, setIsCourseSaving] = useState(false);
   const [isArrangingByModule, setIsArrangingByModule] = useState(false);
+  const [isArrangingModulesByPhase, setIsArrangingModulesByPhase] = useState(false);
+  const [updatingPhaseModuleId, setUpdatingPhaseModuleId] = useState<string | null>(null);
+  const [modulePhaseFilter, setModulePhaseFilter] = useState<string>("all");
+  const [groupModulesByPhase, setGroupModulesByPhase] = useState(false);
+  const [lessonPhaseFilter, setLessonPhaseFilter] = useState<string>("all");
+  const [lessonModuleFilter, setLessonModuleFilter] = useState<string>("all");
   const [showUnassignedHeader, setShowUnassignedHeader] = useState(true);
   const [showAdvancedLessonFields, setShowAdvancedLessonFields] =
     useState(false);
   const [draggingModuleId, setDraggingModuleId] = useState<string | null>(null);
   const [draggingLessonId, setDraggingLessonId] = useState<string | null>(null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const moduleFormCardRef = useRef<HTMLDivElement | null>(null);
+  const moduleTitleInputRef = useRef<HTMLInputElement | null>(null);
 
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
@@ -189,6 +208,22 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     }, {});
   }, [modules]);
 
+  const moduleMap = useMemo(() => {
+    return modules.reduce<Record<string, Module>>((acc, moduleItem) => {
+      acc[moduleItem.id] = moduleItem;
+      return acc;
+    }, {});
+  }, [modules]);
+
+  const moduleLessonCountMap = useMemo(() => {
+    return lessons.reduce<Record<string, number>>((acc, lesson) => {
+      if (lesson.moduleId) {
+        acc[lesson.moduleId] = (acc[lesson.moduleId] ?? 0) + 1;
+      }
+      return acc;
+    }, {});
+  }, [lessons]);
+
   const phaseNameMap = useMemo(() => {
     return phases.reduce<Record<string, string>>((acc, phaseItem) => {
       acc[phaseItem.id] = phaseItem.title;
@@ -196,33 +231,101 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     }, {});
   }, [phases]);
 
+  const phaseOrderMap = useMemo(() => {
+    return phases.reduce<Record<string, number>>((acc, phaseItem, index) => {
+      acc[phaseItem.id] = index;
+      return acc;
+    }, {});
+  }, [phases]);
+
   const getPhaseName = (phaseId?: string | null) => {
-    if (!phaseId || phaseId === "none") return null;
-    if (phaseNameMap[phaseId]) return phaseNameMap[phaseId];
-    const match = phases.find((p) => p.id === phaseId || p.title === phaseId);
-    if (match) return match.title;
-    if (typeof phaseId === "string" && phaseId.startsWith("phase-")) {
-      const idx = parseInt(phaseId.replace("phase-", ""), 10);
-      if (!isNaN(idx) && phases[idx]) return phases[idx].title;
-    }
-    const numIdx = parseInt(String(phaseId), 10);
-    if (!isNaN(numIdx) && phases[numIdx]) return phases[numIdx].title;
-    return null;
+    const resolvedId = resolveCoursePhaseId(phaseId, phases);
+    return resolvedId ? (phaseNameMap[resolvedId] ?? null) : null;
   };
 
   const getPhaseIdValue = (phaseId?: string | null) => {
-    if (!phaseId || phaseId === "none") return "none";
-    if (phases.some((p) => p.id === phaseId)) return phaseId;
-    const matchByTitle = phases.find((p) => p.title === phaseId);
-    if (matchByTitle) return matchByTitle.id;
-    if (typeof phaseId === "string" && phaseId.startsWith("phase-")) {
-      const idx = parseInt(phaseId.replace("phase-", ""), 10);
-      if (!isNaN(idx) && phases[idx]) return phases[idx].id;
-    }
-    const numIdx = parseInt(String(phaseId), 10);
-    if (!isNaN(numIdx) && phases[numIdx]) return phases[numIdx].id;
-    return "none";
+    return resolveCoursePhaseId(phaseId, phases) ?? "none";
   };
+
+  const getEffectiveLessonPhase = (lesson: Lesson): {
+    phaseId: string | null;
+    phaseName: string | null;
+    inherited: boolean;
+  } => {
+    const explicitId = resolveCoursePhaseId(lesson.phaseId, phases);
+    if (explicitId) {
+      return {
+        phaseId: explicitId,
+        phaseName: phaseNameMap[explicitId] ?? null,
+        inherited: false,
+      };
+    }
+
+    if (lesson.moduleId && moduleMap[lesson.moduleId]) {
+      const modPhaseId = resolveCoursePhaseId(moduleMap[lesson.moduleId].phaseId, phases);
+      if (modPhaseId) {
+        return {
+          phaseId: modPhaseId,
+          phaseName: phaseNameMap[modPhaseId] ?? null,
+          inherited: true,
+        };
+      }
+    }
+
+    return { phaseId: null, phaseName: null, inherited: false };
+  };
+
+  const sortedModules = useMemo(
+    () => modules.slice().sort((a, b) => a.order - b.order),
+    [modules],
+  );
+
+  const filteredModules = useMemo(() => {
+    return sortedModules.filter((moduleItem) => {
+      if (modulePhaseFilter === "all") return true;
+      const resolvedId = resolveCoursePhaseId(moduleItem.phaseId, phases);
+      if (modulePhaseFilter === "unassigned") return !resolvedId;
+      return resolvedId === modulePhaseFilter;
+    });
+  }, [sortedModules, modulePhaseFilter, phases]);
+
+  const sortedLessons = useMemo(
+    () => lessons.slice().sort((a, b) => a.order - b.order),
+    [lessons],
+  );
+
+  const filteredLessons = useMemo(() => {
+    return sortedLessons.filter((lesson) => {
+      if (lessonModuleFilter === "unassigned" && lesson.moduleId) {
+        return false;
+      }
+      if (
+        lessonModuleFilter !== "all" &&
+        lessonModuleFilter !== "unassigned" &&
+        lesson.moduleId !== lessonModuleFilter
+      ) {
+        return false;
+      }
+
+      if (lessonPhaseFilter !== "all") {
+        const effectivePhaseId =
+          resolveCoursePhaseId(lesson.phaseId, phases) ??
+          (lesson.moduleId && moduleMap[lesson.moduleId]
+            ? resolveCoursePhaseId(moduleMap[lesson.moduleId].phaseId, phases)
+            : null);
+        if (lessonPhaseFilter === "unassigned") {
+          return !effectivePhaseId;
+        }
+        return effectivePhaseId === lessonPhaseFilter;
+      }
+
+      return true;
+    });
+  }, [sortedLessons, lessonModuleFilter, lessonPhaseFilter, phases, moduleMap]);
+
+  const allFilteredSelected =
+    filteredLessons.length > 0 &&
+    filteredLessons.every((l) => selectedLessons.has(l.id));
 
   const moveItem = <T extends { id: string }>(
     items: T[],
@@ -357,18 +460,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         if (!response.ok) throw new Error("Failed to load course settings");
         const data = await response.json();
         setShowUnassignedHeader(data.showUnassignedHeader ?? true);
-        
-        let parsedPhases: Array<{ id?: string; title: string; description?: string }> = [];
-        if (Array.isArray(data.phases)) {
-          parsedPhases = data.phases;
-        } else if (typeof data.phases === "string") {
-          try {
-            parsedPhases = JSON.parse(data.phases);
-          } catch (e) {
-            console.error("Failed to parse phases JSON", e);
-          }
-        }
-        setPhases(parsedPhases.map((p, i) => ({ ...p, id: p.id || `phase-${i}` })));
+        setPhases(normalizeCoursePhases(data.phases));
       } catch (error) {
         console.error(error);
         toast.error("Failed to load course settings");
@@ -542,6 +634,93 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       description: moduleItem.description || "",
       phaseId: getPhaseIdValue(moduleItem.phaseId),
     });
+
+    moduleFormCardRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    window.requestAnimationFrame(() => {
+      moduleTitleInputRef.current?.focus();
+    });
+  };
+
+  const handleQuickModulePhaseChange = async (
+    moduleId: string,
+    nextPhaseValue: string,
+  ) => {
+    setUpdatingPhaseModuleId(moduleId);
+
+    try {
+      const response = await fetch(`/api/admin/modules/${moduleId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phaseId: nextPhaseValue === "none" ? null : nextPhaseValue,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update module phase");
+
+      const updatedModule = await response.json();
+      setModules((prev) =>
+        prev.map((m) => (m.id === moduleId ? updatedModule : m)),
+      );
+
+      const nextPhaseName =
+        nextPhaseValue === "none"
+          ? "Unassigned"
+          : phaseNameMap[nextPhaseValue] || "Selected phase";
+
+      toast.success("Module phase updated", {
+        description: `${updatedModule.title} → ${nextPhaseName}`,
+      });
+    } catch (error) {
+      toast.error("Failed to update module phase", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setUpdatingPhaseModuleId(null);
+    }
+  };
+
+  const handleArrangeModulesByPhase = async () => {
+    if (modules.length <= 1 || phases.length === 0) {
+      toast.info("Nothing to arrange", {
+        description: "Add phases and multiple modules to sort by phase.",
+      });
+      return;
+    }
+
+    setIsArrangingModulesByPhase(true);
+
+    try {
+      const arranged = modules.slice().sort((a, b) => {
+        const aPhaseId = resolveCoursePhaseId(a.phaseId, phases);
+        const bPhaseId = resolveCoursePhaseId(b.phaseId, phases);
+        const aPhaseRank = aPhaseId ? (phaseOrderMap[aPhaseId] ?? 9999) : 9999;
+        const bPhaseRank = bPhaseId ? (phaseOrderMap[bPhaseId] ?? 9999) : 9999;
+
+        if (aPhaseRank !== bPhaseRank) {
+          return aPhaseRank - bPhaseRank;
+        }
+
+        if (a.order !== b.order) {
+          return a.order - b.order;
+        }
+
+        return a.title.localeCompare(b.title);
+      });
+
+      await persistModuleOrder(arranged);
+      toast.success("Modules arranged", {
+        description: "Modules are now ordered by phase.",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to arrange modules by phase");
+    } finally {
+      setIsArrangingModulesByPhase(false);
+    }
   };
 
   const handleCancelEditModule = () => {
@@ -600,6 +779,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     const lesson = lessons.find((l) => l.id === lessonId);
     setChangingModuleLessonId(lessonId);
     setSelectedModuleId(lesson?.moduleId || "unassigned");
+    setSyncQuickModulePhase(true);
     setIsModuleDialogOpen(true);
   };
 
@@ -609,6 +789,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     setIsSaving(true);
 
     try {
+      const targetModulePhaseId =
+        selectedModuleId !== "unassigned"
+          ? resolveCoursePhaseId(moduleMap[selectedModuleId]?.phaseId, phases)
+          : null;
+
       const response = await fetch(
         `/api/admin/lessons/${changingModuleLessonId}`,
         {
@@ -617,6 +802,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           body: JSON.stringify({
             moduleId:
               selectedModuleId === "unassigned" ? null : selectedModuleId,
+            ...(syncQuickModulePhase && targetModulePhaseId
+              ? { phaseId: targetModulePhaseId }
+              : {}),
           }),
         },
       );
@@ -650,6 +838,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
   const openBulkAssignDialog = () => {
     setBulkAssignModuleId("unassigned");
+    setSyncBulkModulePhase(true);
     setIsBulkAssignDialogOpen(true);
   };
 
@@ -659,6 +848,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     setIsSaving(true);
 
     try {
+      const targetModulePhaseId =
+        bulkAssignModuleId !== "unassigned"
+          ? resolveCoursePhaseId(moduleMap[bulkAssignModuleId]?.phaseId, phases)
+          : null;
+
       const updatePromises = Array.from(selectedLessons).map((id) =>
         fetch(`/api/admin/lessons/${id}`, {
           method: "PATCH",
@@ -666,6 +860,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
           body: JSON.stringify({
             moduleId:
               bulkAssignModuleId === "unassigned" ? null : bulkAssignModuleId,
+            ...(syncBulkModulePhase && targetModulePhaseId
+              ? { phaseId: targetModulePhaseId }
+              : {}),
           }),
         }),
       );
@@ -702,6 +899,65 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       setIsBulkAssignDialogOpen(false);
     } catch (error) {
       toast.error("Failed to update lessons", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const openBulkPhaseDialog = () => {
+    setBulkAssignPhaseId("none");
+    setIsBulkPhaseDialogOpen(true);
+  };
+
+  const handleBulkAssignPhase = async () => {
+    if (selectedLessons.size === 0) return;
+
+    setIsSaving(true);
+
+    try {
+      const nextPhaseId =
+        bulkAssignPhaseId === "none" ? null : bulkAssignPhaseId;
+      const updatePromises = Array.from(selectedLessons).map((id) =>
+        fetch(`/api/admin/lessons/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phaseId: nextPhaseId }),
+        }),
+      );
+
+      const results = await Promise.all(updatePromises);
+      const failedUpdates = results.filter((r) => !r.ok);
+
+      if (failedUpdates.length > 0) {
+        throw new Error(`Failed to update ${failedUpdates.length} lesson(s)`);
+      }
+
+      const updatedLessonsData = await Promise.all(
+        results.map((r) => r.json()),
+      );
+
+      setLessons((prev) =>
+        prev.map((lesson) => {
+          const updated = updatedLessonsData.find((u) => u.id === lesson.id);
+          return updated || lesson;
+        }),
+      );
+
+      const phaseName =
+        bulkAssignPhaseId === "none"
+          ? "Unassigned"
+          : phaseNameMap[bulkAssignPhaseId] || "Unknown";
+
+      toast.success("Lessons updated", {
+        description: `${selectedLessons.size} lesson(s) assigned to ${phaseName}`,
+      });
+
+      setSelectedLessons(new Set());
+      setIsBulkPhaseDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to update lesson phases", {
         description: error instanceof Error ? error.message : "Unknown error",
       });
     } finally {
@@ -919,8 +1175,20 @@ export default function LessonsPage({ params }: LessonsPageProps) {
     setIsArrangingByModule(true);
 
     try {
-      const sortedModules = modules.slice().sort((a, b) => a.order - b.order);
-      const moduleRank = sortedModules.reduce<Record<string, number>>(
+      const phaseSortedModules = modules.slice().sort((a, b) => {
+        if (phases.length > 0) {
+          const aPhaseId = resolveCoursePhaseId(a.phaseId, phases);
+          const bPhaseId = resolveCoursePhaseId(b.phaseId, phases);
+          const aPhaseRank = aPhaseId ? (phaseOrderMap[aPhaseId] ?? 9999) : 9999;
+          const bPhaseRank = bPhaseId ? (phaseOrderMap[bPhaseId] ?? 9999) : 9999;
+          if (aPhaseRank !== bPhaseRank) {
+            return aPhaseRank - bPhaseRank;
+          }
+        }
+        return a.order - b.order;
+      });
+
+      const moduleRank = phaseSortedModules.reduce<Record<string, number>>(
         (acc, moduleItem, index) => {
           acc[moduleItem.id] = index;
           return acc;
@@ -929,6 +1197,20 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       );
 
       const arranged = lessons.slice().sort((a, b) => {
+        if (phases.length > 0) {
+          const aEffectivePhase = getEffectiveLessonPhase(a).phaseId;
+          const bEffectivePhase = getEffectiveLessonPhase(b).phaseId;
+          const aPhaseRank = aEffectivePhase
+            ? (phaseOrderMap[aEffectivePhase] ?? 9999)
+            : 9999;
+          const bPhaseRank = bEffectivePhase
+            ? (phaseOrderMap[bEffectivePhase] ?? 9999)
+            : 9999;
+          if (aPhaseRank !== bPhaseRank) {
+            return aPhaseRank - bPhaseRank;
+          }
+        }
+
         const aRank = a.moduleId ? (moduleRank[a.moduleId] ?? 9999) : 9999;
         const bRank = b.moduleId ? (moduleRank[b.moduleId] ?? 9999) : 9999;
 
@@ -945,7 +1227,10 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
       await persistLessonOrder(arranged);
       toast.success("Lessons arranged", {
-        description: "Lessons are now ordered by module and lesson order.",
+        description:
+          phases.length > 0
+            ? "Lessons are now ordered by phase, module, and lesson order."
+            : "Lessons are now ordered by module and lesson order.",
       });
     } catch (error) {
       console.error(error);
@@ -968,10 +1253,22 @@ export default function LessonsPage({ params }: LessonsPageProps) {
   };
 
   const toggleSelectAll = () => {
-    if (selectedLessons.size === lessons.length) {
-      setSelectedLessons(new Set());
+    if (allFilteredSelected) {
+      setSelectedLessons((prev) => {
+        const next = new Set(prev);
+        for (const l of filteredLessons) {
+          next.delete(l.id);
+        }
+        return next;
+      });
     } else {
-      setSelectedLessons(new Set(lessons.map((l) => l.id)));
+      setSelectedLessons((prev) => {
+        const next = new Set(prev);
+        for (const l of filteredLessons) {
+          next.add(l.id);
+        }
+        return next;
+      });
     }
   };
 
@@ -992,6 +1289,119 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
     event.preventDefault();
     void handleSaveLesson(true);
+  };
+
+  const renderModuleRow = (moduleItem: Module) => {
+    const phaseName = getPhaseName(moduleItem.phaseId);
+    const lessonCount = moduleLessonCountMap[moduleItem.id] ?? 0;
+
+    return (
+      <div
+        key={moduleItem.id}
+        className={cn(
+          "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border p-4 transition-all cursor-grab active:cursor-grabbing",
+          editingModuleId === moduleItem.id
+            ? "bg-[#ff6636]/5 border-[#ff6636]"
+            : "bg-background hover:bg-muted/15 border-border/60",
+        )}
+        draggable
+        onDragStart={() => setDraggingModuleId(moduleItem.id)}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={async () => {
+          if (!draggingModuleId) return;
+          if (draggingModuleId === moduleItem.id) return;
+
+          const reordered = moveItem(
+            sortedModules,
+            draggingModuleId,
+            moduleItem.id,
+          );
+
+          await persistModuleOrder(reordered);
+          setDraggingModuleId(null);
+        }}
+        onDragEnd={() => setDraggingModuleId(null)}
+      >
+        <div className="flex items-start gap-3 min-w-0 flex-1">
+          <GripVertical className="size-4 text-muted-foreground/60 mt-0.5 shrink-0" />
+          <span className="text-[10px] font-black uppercase text-muted-foreground w-8 mt-0.5 shrink-0">
+            m-{moduleItem.order}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold text-foreground">
+                {moduleItem.title}
+              </span>
+              <span
+                className={cn(
+                  "rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider shrink-0",
+                  phaseName
+                    ? "bg-[#ff6636]/10 text-[#ff6636] border-[#ff6636]/25"
+                    : "bg-muted text-muted-foreground border-border/40",
+                )}
+              >
+                {phaseName || "Unassigned"}
+              </span>
+              <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-muted/60 text-muted-foreground border border-border/40 shrink-0">
+                {lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}
+              </span>
+            </div>
+            {moduleItem.description ? (
+              <p className="text-[10px] font-semibold text-muted-foreground/80 mt-0.5">
+                {moduleItem.description}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div
+          className="flex items-center gap-2 shrink-0 flex-wrap justify-end"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {phases.length > 0 && (
+            <Select
+              value={getPhaseIdValue(moduleItem.phaseId)}
+              onValueChange={(value) =>
+                handleQuickModulePhaseChange(moduleItem.id, value)
+              }
+              disabled={updatingPhaseModuleId === moduleItem.id}
+            >
+              <SelectTrigger
+                aria-label={`Change phase for ${moduleItem.title}`}
+                className="h-7 min-w-[135px] max-w-[200px] rounded-lg border-border bg-card px-2.5 text-[10px] font-bold text-foreground focus-visible:ring-0"
+              >
+                <SelectValue placeholder="Phase" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="none" className="text-xs font-semibold">
+                  Unassigned
+                </SelectItem>
+                {phases.map((phase) => (
+                  <SelectItem
+                    key={phase.id}
+                    value={phase.id}
+                    className="text-xs font-semibold"
+                  >
+                    {phase.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <button
+            onClick={() => handleEditModule(moduleItem)}
+            className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/10 transition-colors"
+            onClick={() => openDeleteModuleDialog(moduleItem.id)}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -1022,21 +1432,56 @@ export default function LessonsPage({ params }: LessonsPageProps) {
 
 
       {/* Modules Authoring */}
-      <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden mt-6">
-        <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-row items-center justify-between space-y-0">
+      <Card
+        ref={moduleFormCardRef}
+        className="scroll-mt-6 rounded-2xl border border-border bg-card shadow-sm overflow-hidden mt-6"
+      >
+        <CardHeader className="border-b border-border/50 px-6 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between space-y-0">
           <CardTitle className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
             <FolderTree className="size-4.5 text-[#ff6636]" />
             Syllabus Modules ({modules.length})
           </CardTitle>
+          {phases.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setGroupModulesByPhase((prev) => !prev)}
+                className={cn(
+                  "flex items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all h-8",
+                  groupModulesByPhase
+                    ? "border-[#ff6636] bg-[#ff6636]/10 text-[#ff6636]"
+                    : "border-border bg-background text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636]",
+                )}
+              >
+                <Layers className="size-3.5" />
+                Group by Phase
+              </button>
+              <button
+                type="button"
+                onClick={handleArrangeModulesByPhase}
+                disabled={
+                  isLoading ||
+                  isModuleSaving ||
+                  isArrangingModulesByPhase ||
+                  modules.length <= 1
+                }
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-8 disabled:opacity-60"
+              >
+                <ArrowDownAZ className="size-3.5" />
+                {isArrangingModulesByPhase ? "Arranging..." : "Arrange by Phase"}
+              </button>
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="p-6 space-y-5">
           <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12 lg:col-span-6 space-y-1.5">
+            <div className="col-span-12 lg:col-span-5 space-y-1.5">
               <Label htmlFor="module-title" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Module Title
               </Label>
               <Input
+                ref={moduleTitleInputRef}
                 id="module-title"
                 placeholder="e.g., Fundamentals of API Design"
                 value={moduleForm.title}
@@ -1047,7 +1492,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               />
             </div>
 
-            <div className="col-span-12 lg:col-span-3 space-y-1.5">
+            <div className="col-span-12 lg:col-span-4 space-y-1.5">
               <Label htmlFor="module-phase" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Phase Assignment
               </Label>
@@ -1102,29 +1547,6 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               />
             </div>
 
-            <div className="col-span-12 lg:col-span-3 flex items-end gap-2">
-              {editingModuleId && (
-                <Button
-                  onClick={handleCancelEditModule}
-                  variant="outline"
-                  className="flex-1 h-10 rounded-xl text-xs font-bold"
-                >
-                  Cancel
-                </Button>
-              )}
-              <button
-                onClick={handleCreateModule}
-                disabled={isModuleSaving}
-                className="flex-1 h-10 rounded-xl text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white transition-colors"
-              >
-                {isModuleSaving
-                  ? "Saving..."
-                  : editingModuleId
-                    ? "Update Module"
-                    : "Add Module"}
-              </button>
-            </div>
-
             <div className="col-span-12 space-y-1.5">
               <Label htmlFor="module-description" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Module Description (Optional)
@@ -1141,6 +1563,31 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 }
                 className="min-h-[80px] rounded-xl border-border text-xs font-semibold placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/80 bg-background"
               />
+            </div>
+
+            <div className="col-span-12 flex items-center justify-end gap-2">
+              {editingModuleId && (
+                <Button
+                  type="button"
+                  onClick={handleCancelEditModule}
+                  variant="outline"
+                  className="h-10 px-5 rounded-xl text-xs font-bold"
+                >
+                  Cancel
+                </Button>
+              )}
+              <button
+                type="button"
+                onClick={handleCreateModule}
+                disabled={isModuleSaving}
+                className="h-10 px-6 rounded-xl text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white transition-colors"
+              >
+                {isModuleSaving
+                  ? "Saving..."
+                  : editingModuleId
+                    ? "Update Module"
+                    : "Add Module"}
+              </button>
             </div>
           </div>
 
@@ -1161,84 +1608,122 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </Label>
           </div>
 
+          {modules.length > 0 && phases.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              {[
+                {
+                  key: "all",
+                  label: "All",
+                  count: modules.length,
+                },
+                ...phases.map((phase) => ({
+                  key: phase.id,
+                  label: phase.title,
+                  count: modules.filter(
+                    (m) => resolveCoursePhaseId(m.phaseId, phases) === phase.id,
+                  ).length,
+                })),
+                {
+                  key: "unassigned",
+                  label: "Unassigned",
+                  count: modules.filter(
+                    (m) => !resolveCoursePhaseId(m.phaseId, phases),
+                  ).length,
+                },
+              ].map((pill) => (
+                <button
+                  key={pill.key}
+                  type="button"
+                  onClick={() => setModulePhaseFilter(pill.key)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors",
+                    modulePhaseFilter === pill.key
+                      ? "bg-[#ff6636] text-white border-[#ff6636]"
+                      : "bg-background text-muted-foreground border-border hover:border-[#ff6636]/40 hover:text-foreground",
+                  )}
+                >
+                  {pill.label} ({pill.count})
+                </button>
+              ))}
+            </div>
+          )}
+
           {modules.length > 0 ? (
-            <div className="space-y-2 mt-4">
-              {modules
-                .slice()
-                .sort((a, b) => a.order - b.order)
-                .map((moduleItem) => {
-                  const phaseName = getPhaseName(moduleItem.phaseId);
+            filteredModules.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/60 py-8 text-center">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  No modules match the selected phase filter.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setModulePhaseFilter("all")}
+                  className="rounded-lg border border-border bg-background px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636]"
+                >
+                  Show All Modules
+                </button>
+              </div>
+            ) : groupModulesByPhase && phases.length > 0 ? (
+              <div className="space-y-5 mt-4">
+                {phases.map((phase, index) => {
+                  const phaseGroupModules = filteredModules.filter(
+                    (m) => resolveCoursePhaseId(m.phaseId, phases) === phase.id,
+                  );
+                  if (phaseGroupModules.length === 0) return null;
 
                   return (
-                    <div
-                      key={moduleItem.id}
-                      className={cn(
-                        "flex items-center justify-between gap-4 rounded-xl border p-4 transition-all cursor-grab active:cursor-grabbing",
-                        editingModuleId === moduleItem.id
-                          ? "bg-[#ff6636]/5 border-[#ff6636]"
-                          : "bg-background hover:bg-muted/15 border-border/60"
-                      )}
-                      draggable
-                      onDragStart={() => setDraggingModuleId(moduleItem.id)}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={async () => {
-                        if (!draggingModuleId) return;
-                        if (draggingModuleId === moduleItem.id) return;
-
-                        const reordered = moveItem(
-                          modules.slice().sort((a, b) => a.order - b.order),
-                          draggingModuleId,
-                          moduleItem.id,
-                        );
-
-                        await persistModuleOrder(reordered);
-                        setDraggingModuleId(null);
-                      }}
-                      onDragEnd={() => setDraggingModuleId(null)}
-                    >
-                      <div className="flex items-start gap-3 min-w-0 flex-1">
-                        <span className="text-[10px] font-black uppercase text-muted-foreground w-8 mt-0.5 shrink-0">
-                          m-{moduleItem.order}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="text-xs font-bold text-foreground">{moduleItem.title}</span>
-                            <span
-                              className={cn(
-                                "rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider shrink-0",
-                                phaseName
-                                  ? "bg-[#ff6636]/10 text-[#ff6636] border-[#ff6636]/25"
-                                  : "bg-muted text-muted-foreground border-border/40"
-                              )}
-                            >
-                              {phaseName || "Unassigned"}
-                            </span>
-                          </div>
-                          {moduleItem.description ? (
-                            <p className="text-[10px] font-semibold text-muted-foreground/80 mt-0.5">
-                              {moduleItem.description}
-                            </p>
-                          ) : null}
+                    <div key={phase.id} className="space-y-2">
+                      <div className="flex items-center justify-between px-1">
+                        <div className="flex items-center gap-2">
+                          <span className="flex size-5 items-center justify-center rounded-md bg-[#ff6636]/15 text-[10px] font-extrabold text-[#ff6636]">
+                            {index + 1}
+                          </span>
+                          <span className="text-xs font-extrabold text-foreground">
+                            {phase.title}
+                          </span>
                         </div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {phaseGroupModules.length}{" "}
+                          {phaseGroupModules.length === 1 ? "module" : "modules"}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          onClick={() => handleEditModule(moduleItem)}
-                          className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="rounded-lg border border-border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/10 transition-colors"
-                          onClick={() => openDeleteModuleDialog(moduleItem.id)}
-                        >
-                          Delete
-                        </button>
+                      <div className="space-y-2">
+                        {phaseGroupModules.map(renderModuleRow)}
                       </div>
                     </div>
                   );
                 })}
-            </div>
+
+                {(() => {
+                  const unassignedGroupModules = filteredModules.filter(
+                    (m) => !resolveCoursePhaseId(m.phaseId, phases),
+                  );
+                  if (unassignedGroupModules.length === 0) return null;
+
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between px-1">
+                        <span className="text-xs font-extrabold text-muted-foreground">
+                          Unassigned Phase
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {unassignedGroupModules.length}{" "}
+                          {unassignedGroupModules.length === 1
+                            ? "module"
+                            : "modules"}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {unassignedGroupModules.map(renderModuleRow)}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              <div className="space-y-2 mt-4">
+                {filteredModules.map(renderModuleRow)}
+              </div>
+            )
           ) : (
             <p className="text-xs font-semibold text-muted-foreground/80 py-4 text-center">
               No modules built yet. Add a module block to structure your learning tracks.
@@ -1261,7 +1746,11 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-9 disabled:opacity-60"
             >
               <ArrowDownAZ className="size-3.5" />
-              {isArrangingByModule ? "Arranging..." : "Arrange by Module"}
+              {isArrangingByModule
+                ? "Arranging..."
+                : phases.length > 0
+                  ? "Arrange by Phase & Module"
+                  : "Arrange by Module"}
             </button>
 
             {selectedLessons.size > 0 && (
@@ -1271,8 +1760,17 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                   className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-9"
                 >
                   <FolderTree className="size-3.5" />
-                  Assign ({selectedLessons.size})
+                  Assign Module ({selectedLessons.size})
                 </button>
+                {phases.length > 0 && (
+                  <button
+                    onClick={openBulkPhaseDialog}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-all h-9"
+                  >
+                    <Layers className="size-3.5" />
+                    Assign Phase ({selectedLessons.size})
+                  </button>
+                )}
                 <button
                   onClick={openBulkDeleteDialog}
                   className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 hover:bg-red-600 text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all h-9 shadow-md shadow-red-500/10"
@@ -1286,6 +1784,110 @@ export default function LessonsPage({ params }: LessonsPageProps) {
         </CardHeader>
 
         <CardContent className="p-0">
+          {!isLoading &&
+            lessons.length > 0 &&
+            (phases.length > 0 || modules.length > 0) && (
+              <div className="px-6 py-3 border-y border-border/50 bg-muted/5 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  {phases.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[
+                        {
+                          key: "all",
+                          label: "All",
+                          count: lessons.length,
+                        },
+                        ...phases.map((phase) => ({
+                          key: phase.id,
+                          label: phase.title,
+                          count: lessons.filter(
+                            (l) => getEffectiveLessonPhase(l).phaseId === phase.id,
+                          ).length,
+                        })),
+                        {
+                          key: "unassigned",
+                          label: "Unassigned",
+                          count: lessons.filter(
+                            (l) => !getEffectiveLessonPhase(l).phaseId,
+                          ).length,
+                        },
+                      ].map((pill) => (
+                        <button
+                          key={pill.key}
+                          type="button"
+                          onClick={() => setLessonPhaseFilter(pill.key)}
+                          className={cn(
+                            "rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors",
+                            lessonPhaseFilter === pill.key
+                              ? "bg-[#ff6636] text-white border-[#ff6636]"
+                              : "bg-background text-muted-foreground border-border hover:border-[#ff6636]/40 hover:text-foreground",
+                          )}
+                        >
+                          {pill.label} ({pill.count})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {modules.length > 0 && (
+                    <Select
+                      value={lessonModuleFilter}
+                      onValueChange={setLessonModuleFilter}
+                    >
+                      <SelectTrigger
+                        aria-label="Filter lessons by module"
+                        className="h-8 min-w-[175px] max-w-[260px] rounded-xl border-border bg-background px-3 text-[11px] font-semibold focus-visible:ring-0"
+                      >
+                        <SelectValue placeholder="All Modules" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="all" className="text-xs font-semibold">
+                          All Modules
+                        </SelectItem>
+                        <SelectItem
+                          value="unassigned"
+                          className="text-xs font-semibold"
+                        >
+                          Unassigned
+                        </SelectItem>
+                        {sortedModules.map((moduleItem) => {
+                          const pName = getPhaseName(moduleItem.phaseId);
+                          return (
+                            <SelectItem
+                              key={moduleItem.id}
+                              value={moduleItem.id}
+                              className="text-xs font-semibold"
+                            >
+                              {moduleItem.title} {pName ? `(${pName})` : ""}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {(lessonPhaseFilter !== "all" || lessonModuleFilter !== "all") && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-muted-foreground">
+                      Showing {filteredLessons.length} of {lessons.length}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLessonPhaseFilter("all");
+                        setLessonModuleFilter("all");
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
+                    >
+                      <X className="size-3" />
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-14">
               <Loader2 className="size-6 text-[#ff6636] animate-spin mb-2" />
@@ -1308,10 +1910,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                 <TableRow className="hover:bg-transparent border-none">
                   <TableHead className="w-12 px-6 py-3">
                     <Checkbox
-                      checked={
-                        lessons.length > 0 &&
-                        selectedLessons.size === lessons.length
-                      }
+                      checked={allFilteredSelected}
                       onCheckedChange={toggleSelectAll}
                       aria-label="Select all lessons"
                     />
@@ -1326,79 +1925,103 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               </TableHeader>
 
               <TableBody>
-                {lessons
-                  .slice()
-                  .sort((a, b) => a.order - b.order)
-                  .map((lesson) => (
-                    <TableRow
-                      key={lesson.id}
-                      draggable
-                      onDragStart={() => setDraggingLessonId(lesson.id)}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={async () => {
-                        if (!draggingLessonId) return;
-                        if (draggingLessonId === lesson.id) return;
-
-                        const sorted = lessons
-                          .slice()
-                          .sort((a, b) => a.order - b.order);
-                        const reordered = moveItem(
-                          sorted,
-                          draggingLessonId,
-                          lesson.id,
-                        );
-
-                        await persistLessonOrder(reordered);
-                        setDraggingLessonId(null);
-                      }}
-                      onDragEnd={() => setDraggingLessonId(null)}
-                      className="hover:bg-muted/10 border-none cursor-grab active:cursor-grabbing"
-                    >
-                      <TableCell className="px-6 py-4">
-                        <Checkbox
-                          checked={selectedLessons.has(lesson.id)}
-                          onCheckedChange={() => toggleSelectLesson(lesson.id)}
-                          aria-label={`Select ${lesson.title}`}
-                        />
-                      </TableCell>
-
-                      <TableCell className="px-2 py-4">
-                        <GripVertical className="size-4 text-muted-foreground/60" />
-                      </TableCell>
-
-                      <TableCell className="px-4 py-4 text-xs font-bold text-foreground">
-                        {lesson.order}
-                      </TableCell>
-
-                      <TableCell className="px-4 py-4">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-foreground">{lesson.title}</span>
-                          <span className="text-[10px] font-semibold text-muted-foreground/75 mt-0.5">
-                            {lesson.content?.length?.toLocaleString() || 0} characters
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="px-4 py-4">
-                        <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border/40">
-                          {lesson.moduleId
-                            ? moduleNameMap[lesson.moduleId] || "Unknown"
-                            : "Unassigned"}
-                        </span>
-                      </TableCell>
-
-                      <TableCell className="px-4 py-4">
-                        <span
-                          className={cn(
-                            "rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider",
-                            getPhaseName(lesson.phaseId)
-                              ? "bg-[#ff6636]/10 text-[#ff6636] border-[#ff6636]/25"
-                              : "bg-muted text-muted-foreground border-border/40"
-                          )}
+                {filteredLessons.length === 0 ? (
+                  <TableRow className="hover:bg-transparent border-none">
+                    <TableCell colSpan={7} className="px-6 py-10 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          No lessons match the active filters.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLessonPhaseFilter("all");
+                            setLessonModuleFilter("all");
+                          }}
+                          className="rounded-lg border border-border bg-card px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636]"
                         >
-                          {getPhaseName(lesson.phaseId) || "Unassigned"}
-                        </span>
-                      </TableCell>
+                          Clear Filters
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredLessons.map((lesson) => {
+                    const effectivePhase = getEffectiveLessonPhase(lesson);
+
+                    return (
+                      <TableRow
+                        key={lesson.id}
+                        draggable
+                        onDragStart={() => setDraggingLessonId(lesson.id)}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={async () => {
+                          if (!draggingLessonId) return;
+                          if (draggingLessonId === lesson.id) return;
+
+                          const reordered = moveItem(
+                            sortedLessons,
+                            draggingLessonId,
+                            lesson.id,
+                          );
+
+                          await persistLessonOrder(reordered);
+                          setDraggingLessonId(null);
+                        }}
+                        onDragEnd={() => setDraggingLessonId(null)}
+                        className="hover:bg-muted/10 border-none cursor-grab active:cursor-grabbing"
+                      >
+                        <TableCell className="px-6 py-4">
+                          <Checkbox
+                            checked={selectedLessons.has(lesson.id)}
+                            onCheckedChange={() => toggleSelectLesson(lesson.id)}
+                            aria-label={`Select ${lesson.title}`}
+                          />
+                        </TableCell>
+
+                        <TableCell className="px-2 py-4">
+                          <GripVertical className="size-4 text-muted-foreground/60" />
+                        </TableCell>
+
+                        <TableCell className="px-4 py-4 text-xs font-bold text-foreground">
+                          {lesson.order}
+                        </TableCell>
+
+                        <TableCell className="px-4 py-4">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-foreground">{lesson.title}</span>
+                            <span className="text-[10px] font-semibold text-muted-foreground/75 mt-0.5">
+                              {lesson.content?.length?.toLocaleString() || 0} characters
+                            </span>
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="px-4 py-4">
+                          <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border/40">
+                            {lesson.moduleId
+                              ? moduleNameMap[lesson.moduleId] || "Unknown"
+                              : "Unassigned"}
+                          </span>
+                        </TableCell>
+
+                        <TableCell className="px-4 py-4">
+                          {effectivePhase.phaseName && !effectivePhase.inherited ? (
+                            <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider bg-[#ff6636]/10 text-[#ff6636] border-[#ff6636]/25">
+                              {effectivePhase.phaseName}
+                            </span>
+                          ) : effectivePhase.phaseName && effectivePhase.inherited ? (
+                            <span
+                              title="Inherited from assigned module"
+                              className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border border-dashed tracking-wider bg-[#ff6636]/5 text-[#ff6636]/80 border-[#ff6636]/30"
+                            >
+                              {effectivePhase.phaseName} (via module)
+                            </span>
+                          ) : (
+                            <span className="rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase border tracking-wider bg-muted text-muted-foreground border-border/40">
+                              Unassigned
+                            </span>
+                          )}
+                        </TableCell>
 
                       <TableCell className="px-6 py-4 text-right">
                         <DropdownMenu>
@@ -1449,7 +2072,9 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           )}
@@ -1503,12 +2128,21 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     </Label>
                     <Select
                       value={formData.moduleId || "unassigned"}
-                      onValueChange={(value) =>
-                        setFormData({
-                          ...formData,
-                          moduleId: value === "unassigned" ? "" : value,
-                        })
-                      }
+                      onValueChange={(value) => {
+                        const nextModuleId = value === "unassigned" ? "" : value;
+                        const modulePhaseId =
+                          nextModuleId && moduleMap[nextModuleId]
+                            ? getPhaseIdValue(moduleMap[nextModuleId].phaseId)
+                            : "none";
+                        setFormData((prev) => ({
+                          ...prev,
+                          moduleId: nextModuleId,
+                          phaseId:
+                            prev.phaseId === "none" && modulePhaseId !== "none"
+                              ? modulePhaseId
+                              : prev.phaseId,
+                        }));
+                      }}
                     >
                       <SelectTrigger
                         id="lesson-module"
@@ -1830,6 +2464,27 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </Select>
           </div>
 
+          {phases.length > 0 &&
+            selectedModuleId !== "unassigned" &&
+            getPhaseName(moduleMap[selectedModuleId]?.phaseId) && (
+              <div className="flex items-center space-x-2 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5">
+                <Checkbox
+                  id="sync-quick-module-phase"
+                  checked={syncQuickModulePhase}
+                  onCheckedChange={(checked) =>
+                    setSyncQuickModulePhase(Boolean(checked))
+                  }
+                />
+                <Label
+                  htmlFor="sync-quick-module-phase"
+                  className="text-xs font-semibold text-foreground cursor-pointer select-none"
+                >
+                  Also sync lesson phase to &ldquo;
+                  {getPhaseName(moduleMap[selectedModuleId]?.phaseId)}&rdquo;
+                </Label>
+              </div>
+            )}
+
           <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
@@ -1960,6 +2615,27 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </Select>
           </div>
 
+          {phases.length > 0 &&
+            bulkAssignModuleId !== "unassigned" &&
+            getPhaseName(moduleMap[bulkAssignModuleId]?.phaseId) && (
+              <div className="flex items-center space-x-2 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5">
+                <Checkbox
+                  id="sync-bulk-module-phase"
+                  checked={syncBulkModulePhase}
+                  onCheckedChange={(checked) =>
+                    setSyncBulkModulePhase(Boolean(checked))
+                  }
+                />
+                <Label
+                  htmlFor="sync-bulk-module-phase"
+                  className="text-xs font-semibold text-foreground cursor-pointer select-none"
+                >
+                  Also sync lesson phase to &ldquo;
+                  {getPhaseName(moduleMap[bulkAssignModuleId]?.phaseId)}&rdquo;
+                </Label>
+              </div>
+            )}
+
           <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
@@ -1975,6 +2651,59 @@ export default function LessonsPage({ params }: LessonsPageProps) {
               className="rounded-xl h-10 text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white"
             >
               {isSaving ? "Assigning..." : "Assign"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Assign to Phase Dialog */}
+      <Dialog
+        open={isBulkPhaseDialogOpen}
+        onOpenChange={setIsBulkPhaseDialogOpen}
+      >
+        <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card text-foreground">
+          <DialogHeader>
+            <DialogTitle className="text-base font-extrabold text-foreground">Assign to Phase</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Assign {selectedLessons.size} selected lesson(s) to a course phase.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-1.5 py-2">
+            <Label htmlFor="bulk-phase-select" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Course Phase</Label>
+            <Select
+              value={bulkAssignPhaseId}
+              onValueChange={setBulkAssignPhaseId}
+            >
+              <SelectTrigger id="bulk-phase-select" className="h-10 rounded-xl border-border text-xs font-semibold bg-background">
+                <SelectValue placeholder="Choose a phase" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="none" className="text-xs font-semibold">Unassigned</SelectItem>
+                {phases.map((phase) => (
+                  <SelectItem key={phase.id} value={phase.id} className="text-xs font-semibold">
+                    {phase.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsBulkPhaseDialogOpen(false)}
+              disabled={isSaving}
+              className="rounded-xl h-10 text-xs font-bold"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBulkAssignPhase}
+              disabled={isSaving}
+              className="rounded-xl h-10 text-xs font-bold bg-[#ff6636] hover:bg-[#e95a2b] text-white"
+            >
+              {isSaving ? "Assigning..." : "Assign Phase"}
             </Button>
           </div>
         </DialogContent>

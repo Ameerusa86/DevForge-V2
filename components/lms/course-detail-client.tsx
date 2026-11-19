@@ -17,6 +17,7 @@ import {
   MarketingPublicHeader,
 } from "@/components/marketing/public-chrome";
 import { getProxiedImageUrl } from "@/lib/s3-utils";
+import { normalizeCoursePhases, resolveCoursePhaseId } from "@/lib/course-phases";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -570,17 +571,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
               {/* Phases and Curriculum unified view */}
               {(() => {
-                let parsedPhases: any[] = [];
-                if (Array.isArray(course.phases)) {
-                  parsedPhases = course.phases;
-                } else if (typeof course.phases === "string") {
-                  try {
-                    parsedPhases = JSON.parse(course.phases);
-                  } catch (e) {
-                    console.error("Failed to parse phases JSON", e);
-                  }
-                }
-                const normalizedPhases = parsedPhases.map((p, i) => ({ ...p, id: p.id || `phase-${i}` }));
+                const normalizedPhases = normalizeCoursePhases(course.phases);
 
                 return normalizedPhases.length > 0 ? (
                   <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
@@ -606,17 +597,23 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
                     <Accordion type="multiple" className="mt-8 space-y-6 w-full" defaultValue={normalizedPhases.map(p => p.id)}>
                       {normalizedPhases.map((phase, index) => {
-                      const phaseModules = orderedModules.map(m => {
-                        const isModuleInPhase = m.phaseId === phase.id;
-                        const lessonsInThisPhase = m.lessons.filter(l => l.phaseId === phase.id || (!l.phaseId && isModuleInPhase));
-                        
+                      const phaseModules = orderedModules.map((m) => {
+                        const resolvedModulePhaseId = resolveCoursePhaseId(m.phaseId, normalizedPhases);
+                        const isModuleInPhase = resolvedModulePhaseId === phase.id;
+                        const lessonsInThisPhase = m.lessons.filter((l) => {
+                          const resolvedLessonPhaseId = resolveCoursePhaseId(l.phaseId, normalizedPhases);
+                          return resolvedLessonPhaseId === phase.id || (!resolvedLessonPhaseId && isModuleInPhase);
+                        });
+
                         if (isModuleInPhase || lessonsInThisPhase.length > 0) {
                           return { ...m, lessons: lessonsInThisPhase };
                         }
                         return null;
                       }).filter(Boolean) as typeof orderedModules;
 
-                      const phaseStandaloneLessons = unassignedLessons.filter(l => l.phaseId === phase.id);
+                      const phaseStandaloneLessons = unassignedLessons.filter(
+                        (l) => resolveCoursePhaseId(l.phaseId, normalizedPhases) === phase.id,
+                      );
 
                       return (
                         <AccordionItem
@@ -699,20 +696,22 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                     </Accordion>
 
                     {(() => {
-                      const unassignedPhaseModules = orderedModules.map(m => {
-                        const isModuleUnassigned = !m.phaseId || m.phaseId === "none";
-                        const unassignedModuleLessons = m.lessons.filter(l => {
-                          const isLessonUnassigned = !l.phaseId || l.phaseId === "none";
+                      const unassignedPhaseModules = orderedModules.map((m) => {
+                        const isModuleUnassigned = !resolveCoursePhaseId(m.phaseId, normalizedPhases);
+                        const unassignedModuleLessons = m.lessons.filter((l) => {
+                          const isLessonUnassigned = !resolveCoursePhaseId(l.phaseId, normalizedPhases);
                           return isLessonUnassigned && isModuleUnassigned;
                         });
-                        
+
                         if (isModuleUnassigned && (unassignedModuleLessons.length > 0 || m.lessons.length === 0)) {
                           return { ...m, lessons: unassignedModuleLessons };
                         }
                         return null;
                       }).filter(Boolean) as typeof orderedModules;
 
-                      const unassignedPhaseLessons = unassignedLessons.filter(l => !l.phaseId || l.phaseId === "none");
+                      const unassignedPhaseLessons = unassignedLessons.filter(
+                        (l) => !resolveCoursePhaseId(l.phaseId, normalizedPhases),
+                      );
                       
                       if (unassignedPhaseModules.length === 0 && unassignedPhaseLessons.length === 0) return null;
 
