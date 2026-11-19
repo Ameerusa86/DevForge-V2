@@ -2084,13 +2084,13 @@ export default function LessonsPage({ params }: LessonsPageProps) {
       {/* Lesson Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
-          className="flex h-[calc(100dvh-1rem)] max-h-[900px] max-w-[1100px] flex-col gap-0 overflow-hidden border-border bg-card p-0 text-foreground sm:h-[calc(100dvh-2rem)] shadow-2xl rounded-2xl"
+          className="flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[1600px] flex-col gap-0 overflow-hidden rounded-2xl border-border bg-card p-0 text-foreground shadow-2xl sm:h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2.5rem)] lg:w-[calc(100vw-3rem)]"
           onKeyDownCapture={handleLessonDialogKeyDown}
         >
           {/* IMPORTANT: make the dialog a full-height flex column */}
           <div className="flex min-h-0 flex-1 flex-col">
             {/* Header */}
-            <div className="shrink-0 border-b border-border/50 bg-muted/10 px-4 py-4 pr-12 sm:px-6 sm:py-5 sm:pr-14 lg:px-8 lg:py-6">
+            <div className="shrink-0 border-b border-border/50 bg-muted/10 px-4 py-3.5 pr-12 sm:px-6 sm:py-4 sm:pr-14 lg:px-8">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="text-base font-extrabold text-foreground">{dialogTitle}</DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground">
@@ -2100,8 +2100,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
             </div>
 
             {/* Body (scroll region) */}
-            <div className="min-h-0 flex-1 overflow-y-auto bg-card px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
-              <div className="space-y-6">
+            <div className="min-h-0 flex-1 overflow-y-auto bg-card px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+              <div className="space-y-4">
                 {/* Top fields */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Title */}
@@ -2146,7 +2146,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     >
                       <SelectTrigger
                         id="lesson-module"
-                        className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
+                        className="h-10 w-full rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
                       >
                         <SelectValue placeholder="Choose a module" />
                       </SelectTrigger>
@@ -2171,8 +2171,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     </Select>
                   </div>
 
-                  {/* YouTube Video URL & Duration */}
-                  <div className="col-span-12 sm:col-span-8 space-y-1.5">
+                  {/* YouTube Video URL & Duration & Phase */}
+                  <div className="col-span-12 sm:col-span-8 lg:col-span-5 space-y-1.5">
                     <Label htmlFor="lesson-video" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                       <Video className="size-3 text-red-500" /> YouTube Video Source
                     </Label>
@@ -2184,7 +2184,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
                     />
                   </div>
-                  <div className="col-span-12 sm:col-span-4 space-y-1.5">
+                  <div className="col-span-12 sm:col-span-4 lg:col-span-2 space-y-1.5">
                     <Label htmlFor="lesson-duration" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       Duration (Mins)
                     </Label>
@@ -2198,7 +2198,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     />
                   </div>
 
-                                    {/* Phase */}
+                  {/* Phase */}
                   <div className="col-span-12 lg:col-span-5 space-y-1.5">
                     <Label htmlFor="lesson-phase" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       Phase Assignment
@@ -2214,7 +2214,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     >
                       <SelectTrigger
                         id="lesson-phase"
-                        className="h-10 rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
+                        className="h-10 w-full rounded-xl border-border bg-background text-xs font-semibold focus-visible:ring-0 focus-visible:border-border/80"
                       >
                         <SelectValue placeholder="Choose a phase" />
                       </SelectTrigger>
@@ -2233,7 +2233,25 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     </Select>
                   </div>
 
-                  <div className="col-span-12 flex items-center justify-between rounded-xl border border-border/50 bg-muted/15 px-4 py-3">
+                  {/* Free Lesson Checkbox */}
+                  <div className="col-span-12 lg:col-span-7 flex items-center space-x-2.5 rounded-xl border border-border/40 bg-muted/10 px-4 py-3">
+                    <Checkbox
+                      id="is-free"
+                      checked={formData.isFree}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, isFree: checked as boolean })
+                      }
+                    />
+                    <Label
+                      htmlFor="is-free"
+                      className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
+                    >
+                      Make this a free preview lesson (accessible to all visitors without enrollment)
+                    </Label>
+                  </div>
+
+                  {/* Advanced Options Toggle */}
+                  <div className="col-span-12 lg:col-span-5 flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/15 px-4 py-2.5">
                     <div>
                       <p className="text-xs font-bold text-foreground">Advanced Options</p>
                       <p className="text-[10px] font-semibold text-muted-foreground">
@@ -2245,7 +2263,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                       onClick={() =>
                         setShowAdvancedLessonFields((current) => !current)
                       }
-                      className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
+                      className="shrink-0 rounded-lg border border-border bg-card px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground hover:text-[#ff6636] transition-colors"
                     >
                       {showAdvancedLessonFields ? "Hide Options" : "Show Options"}
                     </button>
@@ -2289,25 +2307,8 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                   ) : null}
                 </div>
 
-                {/* Free Lesson Checkbox */}
-                <div className="flex items-center space-x-2 bg-muted/10 border border-border/40 rounded-xl p-3.5">
-                  <Checkbox
-                    id="is-free"
-                    checked={formData.isFree}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, isFree: checked as boolean })
-                    }
-                  />
-                  <Label
-                    htmlFor="is-free"
-                    className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
-                  >
-                    Make this a free preview lesson (accessible to all visitors without enrollment)
-                  </Label>
-                </div>
-
                 {/* Editor / Preview */}
-                <div className="min-h-0 pt-2">
+                <div className="min-h-0 pt-1">
                   <Tabs
                     value={activeTab}
                     onValueChange={(v) => setActiveTab(v as "edit" | "preview")}
@@ -2336,7 +2337,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                           Content <span className="text-destructive">*</span>
                         </Label>
 
-                        <div className="h-[60dvh] min-h-[320px] max-h-[800px]">
+                        <div className="h-[62dvh] min-h-[460px] max-h-[960px]">
                           <LessonEditor
                             value={formData.content}
                             onChange={(content) =>
@@ -2357,7 +2358,7 @@ export default function LessonsPage({ params }: LessonsPageProps) {
                     </TabsContent>
 
                     <TabsContent value="preview" className="mt-4">
-                      <div className="h-[60dvh] min-h-[320px] max-h-[800px] overflow-hidden rounded-xl border bg-muted/10">
+                      <div className="h-[62dvh] min-h-[460px] max-h-[960px] overflow-hidden rounded-xl border bg-muted/10">
                         <div className="h-full overflow-y-auto p-6">
                           {formData.content ? (
                             (() => {
