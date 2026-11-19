@@ -296,29 +296,6 @@ export function MarketingPublicHeader({
           {showSignedInActions && signedInUser ? (
             <div className="flex items-center gap-2">
               <ThemeToggle className={themeToggleClassName} />
-              
-              <Link
-                href="/my-courses"
-                className={cn(
-                  "hidden items-center justify-center gap-2 rounded-xl border border-border bg-background px-4.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground transition-all duration-200 hover:border-[#ff6636] hover:text-[#ff6636] sm:inline-flex",
-                  isActive("/my-courses") && "border-[#ff6636] text-[#ff6636] bg-[#ff6636]/5"
-                )}
-              >
-                <BookOpen className="size-4 text-[#ff6636]" />
-                My Learning
-              </Link>
-              
-              <Link 
-                href="/dashboard" 
-                className={cn(
-                  "hidden items-center justify-center gap-2 rounded-xl border border-border bg-background px-4.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground transition-all duration-200 hover:border-[#ff6636] hover:text-[#ff6636] sm:inline-flex",
-                  isActive("/dashboard") && "border-[#ff6636] text-[#ff6636] bg-[#ff6636]/5"
-                )}
-              >
-                <LayoutDashboard className="size-4 text-[#ff6636]" />
-                Dashboard
-              </Link>
-              
               <NotificationBell />
               <UserDropdown user={signedInUser} />
             </div>
