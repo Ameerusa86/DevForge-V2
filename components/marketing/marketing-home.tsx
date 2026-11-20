@@ -14,6 +14,8 @@ import {
   Clock3,
   Code2,
   Database,
+  ExternalLink,
+  FolderCode,
   Globe,
   Layers3,
   MonitorPlay,
@@ -43,8 +45,12 @@ interface HomeCourse {
   title: string;
   slug: string;
   description: string;
+  contentType?: "COURSE" | "PROJECT_TUTORIAL";
   category: string;
   level: string;
+  techStack?: string[];
+  demoUrl?: string | null;
+  phaseCount?: number;
   price: number;
   imageUrl?: string | null;
   instructor: string;
@@ -482,23 +488,30 @@ function SectionHeading({
 
 export function MarketingHomePage() {
   const [courses, setCourses] = useState<HomeCourse[]>([]);
+  const [projects, setProjects] = useState<HomeCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchCatalog = async () => {
       try {
-        const res = await fetch("/api/courses", { cache: "no-store" });
-        if (!res.ok) throw new Error("fetch failed");
-        const data = await res.json();
-        setCourses(data ?? []);
+        const [coursesRes, projectsRes] = await Promise.all([
+          fetch("/api/courses", { cache: "no-store" }),
+          fetch("/api/projects", { cache: "no-store" }),
+        ]);
+        if (coursesRes.ok) {
+          setCourses((await coursesRes.json()) ?? []);
+        }
+        if (projectsRes.ok) {
+          setProjects((await projectsRes.json()) ?? []);
+        }
       } catch (err) {
-        console.error("Homepage courses fetch error:", err);
+        console.error("Homepage catalog fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
-    void fetchCourses();
+    void fetchCatalog();
   }, []);
 
   // ── derived data ───────────────────────────────────────────────────────────
@@ -901,6 +914,127 @@ export function MarketingHomePage() {
                 <p className="text-sm font-semibold text-muted-foreground">
                   No courses yet. Check back soon!
                 </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            SECTION 3B — HANDS-ON PROJECT TUTORIALS
+        ═══════════════════════════════════════════════════════════════════ */}
+        <section className="py-16 lg:py-20 bg-background border-b border-border/40">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
+            <SectionHeading
+              eyebrow="Hands-On Builds"
+              title="Project Tutorials"
+              subtitle="Ship real-world portfolio projects end-to-end with phased roadmaps, starter repos, live demos, and project certificates."
+              href="/projects"
+              hrefLabel="Explore All Projects"
+            />
+
+            {projects.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {projects.slice(0, 6).map((project) => {
+                  const cat = getCat(project.category);
+                  const imageUrl = project.imageUrl
+                    ? getProxiedImageUrl(project.imageUrl)
+                    : null;
+                  return (
+                    <article
+                      key={project.id}
+                      className="group flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-violet-500/40"
+                    >
+                      <Link
+                        href={`/projects/${project.slug}`}
+                        className="relative block aspect-video overflow-hidden bg-muted/40"
+                      >
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={project.title}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-[#ff6636] to-[#1d2026]" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-sm bg-violet-600/85 border border-white/15 text-white">
+                            <FolderCode className="size-3" />
+                            Project
+                          </span>
+                          <span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-sm bg-black/55 border border-white/10 text-white">
+                            {cat.label}
+                          </span>
+                        </div>
+                        <div className="absolute top-3 right-3">
+                          <span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold backdrop-blur-sm bg-black/55 border border-white/10 text-white">
+                            {formatPrice(project.price)}
+                          </span>
+                        </div>
+                        {project.demoUrl ? (
+                          <div className="absolute bottom-3 left-3">
+                            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-emerald-600/90 text-white">
+                              <ExternalLink className="size-2.5" /> Live Demo
+                            </span>
+                          </div>
+                        ) : null}
+                      </Link>
+                      <div className="flex flex-1 flex-col p-5">
+                        <Link href={`/projects/${project.slug}`} className="block">
+                          <h3 className="text-sm font-bold leading-snug text-foreground line-clamp-2 group-hover:text-[#ff6636] transition-colors">
+                            {project.title}
+                          </h3>
+                        </Link>
+                        <p className="mt-2 flex-1 text-xs font-semibold text-muted-foreground line-clamp-2 leading-relaxed">
+                          {project.description}
+                        </p>
+                        {project.techStack && project.techStack.length > 0 ? (
+                          <div className="mt-3 flex flex-wrap gap-1.5">
+                            {project.techStack.slice(0, 3).map((tech) => (
+                              <span
+                                key={tech}
+                                className="rounded-md border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-bold text-foreground/85"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
+                        <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3.5 text-[10px] font-semibold text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <BookOpen className="size-3" /> {project.lessons} lessons
+                          </span>
+                          <Link
+                            href={`/projects/${project.slug}`}
+                            className="inline-flex items-center gap-1 font-extrabold text-[#ff6636] hover:underline"
+                          >
+                            Start Project <ArrowRight className="size-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 py-16 text-center px-6">
+                <FolderCode className="size-10 text-violet-500/60 mb-3" />
+                <p className="text-sm font-bold text-foreground">
+                  Guided Project Tutorials are on the way
+                </p>
+                <p className="mt-1 max-w-md text-xs font-semibold text-muted-foreground">
+                  Explore our dedicated Projects catalog for real-world builds with GitHub repos and live demos.
+                </p>
+                <Link
+                  href="/projects"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-4 py-2 text-xs font-bold text-white transition-colors"
+                >
+                  Visit Projects <ArrowRight className="size-3.5" />
+                </Link>
               </div>
             )}
           </div>

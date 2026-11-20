@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/db";
 import { NotificationType } from "./generated/prisma/enums";
+import {
+  getAdminBasePath,
+  getCatalogBasePath,
+  getContentTypeMeta,
+  getItemHref,
+} from "@/lib/content-type";
 
 export async function createNotification(
   userId: string,
@@ -8,7 +14,7 @@ export async function createNotification(
     message: string;
     type: NotificationType;
     actionUrl?: string;
-  }
+  },
 ) {
   try {
     const notification = await prisma.notification.create({
@@ -29,12 +35,20 @@ export async function createNotification(
   }
 }
 
-export async function notifyUserEnrolled(userId: string, courseName: string) {
+export async function notifyUserEnrolled(
+  userId: string,
+  courseName: string,
+  contentType?: string | null,
+  slug?: string | null,
+) {
+  const meta = getContentTypeMeta(contentType);
   return createNotification(userId, {
-    title: "Course Enrolled",
+    title: `${meta.singular} Enrolled`,
     message: `You have successfully enrolled in "${courseName}"`,
     type: "COURSE_ENROLLED",
-    actionUrl: "/courses",
+    actionUrl: slug
+      ? getItemHref(contentType, slug)
+      : getCatalogBasePath(contentType),
   });
 }
 
@@ -49,25 +63,29 @@ export async function notifyUserRegistered(userName: string) {
 
 export async function notifyCoursePublished(
   userId: string,
-  courseName: string
+  courseName: string,
+  contentType?: string | null,
 ) {
+  const meta = getContentTypeMeta(contentType);
   return createNotification(userId, {
-    title: "Course Published",
-    message: `Your course "${courseName}" has been published`,
+    title: `${meta.singular} Published`,
+    message: `Your ${meta.singular.toLowerCase()} "${courseName}" has been published`,
     type: "COURSE_PUBLISHED",
-    actionUrl: `/admin/courses`,
+    actionUrl: getAdminBasePath(contentType),
   });
 }
 
 export async function notifyCourseCompleted(
   userId: string,
-  courseName: string
+  courseName: string,
+  contentType?: string | null,
 ) {
+  const meta = getContentTypeMeta(contentType);
   return createNotification(userId, {
-    title: "Course Completed",
+    title: `${meta.singular} Completed`,
     message: `Congratulations! You have completed "${courseName}"`,
     type: "COURSE_COMPLETED",
-    actionUrl: "/profile",
+    actionUrl: "/certificates",
   });
 }
 
@@ -82,12 +100,13 @@ export async function notifySystemAlert(userId: string, message: string) {
 export async function notifyReviewPosted(
   instructorId: string,
   courseName: string,
-  rating: number
+  rating: number,
+  contentType?: string | null,
 ) {
   return createNotification(instructorId, {
     title: "New Review",
     message: `${rating}-star review posted on "${courseName}"`,
     type: "REVIEW_POSTED",
-    actionUrl: `/admin/courses`,
+    actionUrl: getAdminBasePath(contentType),
   });
 }

@@ -57,6 +57,7 @@ export type FooterColumn = {
 
 export const topNavLinks = [
   { href: "/courses", label: "Courses" },
+  { href: "/projects", label: "Projects" },
   { href: "/my-courses", label: "My Learning" },
   { href: "/pricing", label: "Pricing" },
   { href: "/community", label: "Community" },
@@ -364,10 +365,10 @@ export const footerColumns: FooterColumn[] = [
   {
     title: "Quick Links",
     links: [
+      { label: "Courses", href: "/courses" },
+      { label: "Project Tutorials", href: "/projects" },
       { label: "About", href: "/about" },
-      { label: "Become Instructor", href: "/contact" },
       { label: "Contact", href: "/contact" },
-      { label: "Career", href: "/contact" },
     ],
   },
   {

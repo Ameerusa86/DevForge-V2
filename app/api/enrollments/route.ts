@@ -9,7 +9,7 @@ import {
 import { sendEnrollmentReceiptEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 
-// POST /api/enrollments - Enroll in a course
+// POST /api/enrollments - Enroll in a course or project tutorial
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -29,11 +29,10 @@ export async function POST(request: NextRequest) {
     if (!courseId) {
       return NextResponse.json(
         { error: "Course ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Check if already enrolled
     const existingEnrollment = await prisma.enrollment.findUnique({
       where: {
         userId_courseId: {
@@ -45,12 +44,11 @@ export async function POST(request: NextRequest) {
 
     if (existingEnrollment) {
       return NextResponse.json(
-        { error: "Already enrolled in this course" },
-        { status: 400 }
+        { error: "Already enrolled in this item" },
+        { status: 400 },
       );
     }
 
-    // Create enrollment
     const enrollment = await prisma.enrollment.create({
       data: {
         userId: session.user.id,
@@ -63,6 +61,7 @@ export async function POST(request: NextRequest) {
             id: true,
             title: true,
             slug: true,
+            contentType: true,
             price: true,
             instructorId: true,
           },
@@ -77,14 +76,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Notify student about enrollment (in-app)
     try {
-      await notifyUserEnrolled(session.user.id, enrollment.course.title);
+      await notifyUserEnrolled(
+        session.user.id,
+        enrollment.course.title,
+        enrollment.course.contentType,
+        enrollment.course.slug,
+      );
     } catch (err) {
       console.warn("Failed to notify student about enrollment:", err);
     }
 
-    // Send email confirmation with receipt
     if (enrollment.user.email) {
       try {
         await sendEnrollmentReceiptEmail(
@@ -93,14 +95,14 @@ export async function POST(request: NextRequest) {
             title: enrollment.course.title,
             price: Number(enrollment.course.price),
             slug: enrollment.course.slug,
-          }
+            contentType: enrollment.course.contentType,
+          },
         );
       } catch (err) {
         console.warn("Failed to send enrollment email receipt:", err);
       }
     }
 
-    // Notify instructor about new enrollment
     try {
       await createNotification(enrollment.course.instructorId, {
         title: "New Enrollment",
@@ -116,8 +118,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating enrollment:", error);
     return NextResponse.json(
-      { error: "Failed to enroll in course" },
-      { status: 500 }
+      { error: "Failed to enroll" },
+      { status: 500 },
     );
   }
 }
@@ -132,7 +134,7 @@ export async function GET() {
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -147,10 +149,12 @@ export async function GET() {
             slug: true,
             title: true,
             description: true,
+            contentType: true,
             category: true,
             level: true,
             imageUrl: true,
             durationMinutes: true,
+            techStack: true,
             lessons: {
               select: {
                 id: true,
@@ -179,7 +183,7 @@ export async function GET() {
     console.error("Error fetching enrollments:", error);
     return NextResponse.json(
       { error: "Failed to fetch enrollments" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -37,6 +37,7 @@ export interface ContentLesson {
   courseTitle: string;
   courseSlug: string;
   courseStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  contentType: "COURSE" | "PROJECT_TUTORIAL";
   courseHasPhases: boolean;
   instructorName: string;
   moduleId: string | null;
@@ -90,6 +91,7 @@ export interface CourseContentSummary {
   courseTitle: string;
   courseSlug: string;
   courseStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  contentType: "COURSE" | "PROJECT_TUTORIAL";
   instructorName: string;
   totalLessons: number;
   readyLessons: number;

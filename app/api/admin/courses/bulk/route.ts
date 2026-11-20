@@ -1,9 +1,8 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
-
-import { prisma } from "@/lib/db";
-import { logCourseAuditEventSafe } from "@/lib/course-audit";
+import { bulkUpdateAdminCatalog } from "@/lib/catalog-service";
+import { isContentType, type ContentType } from "@/lib/content-type";
 import { getErrorMessage } from "@/lib/utils";
 
 const ALLOWED_STATUSES = new Set(["PUBLISHED", "DRAFT", "ARCHIVED"]);
@@ -11,10 +10,11 @@ const ALLOWED_STATUSES = new Set(["PUBLISHED", "DRAFT", "ARCHIVED"]);
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { courseIds, status, category } = body as {
+    const { courseIds, status, category, contentType } = body as {
       courseIds?: string[];
       status?: string;
       category?: string;
+      contentType?: string;
     };
 
     if (!Array.isArray(courseIds) || courseIds.length === 0) {
@@ -24,9 +24,12 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (!status && !category) {
+    if (!status && !category && !contentType) {
       return NextResponse.json(
-        { error: "At least one field (status or category) is required" },
+        {
+          error:
+            "At least one field (status, category, or contentType) is required",
+        },
         { status: 400 },
       );
     }
@@ -35,61 +38,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    if (category) {
-      if (typeof category !== "string" || !category.trim()) {
-        return NextResponse.json({ error: "Invalid category" }, { status: 400 });
-      }
+    if (category !== undefined && (typeof category !== "string" || !category.trim())) {
+      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
     }
 
-    const updateData: {
-      status?: "PUBLISHED" | "DRAFT" | "ARCHIVED";
-      category?: string;
-      publishedAt?: Date | null;
-    } = {};
-
-    if (status) {
-      updateData.status = status as "PUBLISHED" | "DRAFT" | "ARCHIVED";
-      updateData.publishedAt = status === "PUBLISHED" ? new Date() : null;
+    if (contentType !== undefined && !isContentType(contentType)) {
+      return NextResponse.json(
+        { error: "Invalid contentType" },
+        { status: 400 },
+      );
     }
 
-    if (category) {
-      updateData.category = category.trim();
-    }
-
-    const result = await prisma.course.updateMany({
-      where: { id: { in: courseIds } },
-      data: updateData,
+    const result = await bulkUpdateAdminCatalog({
+      courseIds,
+      status: status as "PUBLISHED" | "DRAFT" | "ARCHIVED" | undefined,
+      category,
+      contentType: contentType as ContentType | undefined,
     });
 
-    const updatedCourses = await prisma.course.findMany({
-      where: { id: { in: courseIds } },
-      select: { id: true, title: true, slug: true },
-    });
-
-    const actionParts = [
-      status ? `status -> ${status}` : null,
-      category ? `category -> ${category}` : null,
-    ].filter(Boolean);
-
-    await Promise.all(
-      updatedCourses.map((course) =>
-        logCourseAuditEventSafe({
-          courseId: course.id,
-          title: "Bulk update applied",
-          description:
-            actionParts.length > 0
-              ? `Bulk action updated ${actionParts.join(" and ")}.`
-              : "Bulk action updated this course.",
-          type: "course",
-          actionUrl: `/admin/courses/${course.id}/edit`,
-        }),
-      ),
-    );
-
-    return NextResponse.json({
-      success: true,
-      updatedCount: result.count,
-    });
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error in bulk course update:", error);
     return NextResponse.json(

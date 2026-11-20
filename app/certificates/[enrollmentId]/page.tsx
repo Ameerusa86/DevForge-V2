@@ -25,11 +25,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDuration } from "@/lib/learner-ui";
+import { isProjectTutorial, type ContentType } from "@/lib/content-type";
 
 interface CertificateData {
   enrollmentId: string;
   courseSlug?: string;
   courseTitle: string;
+  contentType?: ContentType;
+  techStack?: string[];
   courseCategory?: string;
   courseLevel?: string;
   durationMinutes?: number | null;
@@ -206,6 +209,12 @@ export default function CertificateDetailPage() {
     );
   }
 
+  const isProject = isProjectTutorial(certificate.contentType);
+  const accentHex = isProject ? "#7c3aed" : "#ff6636";
+  const badgeBgHex = isProject ? "#f5f3ff" : "#fff1eb";
+  const badgeBorderHex = isProject ? "#ddd6fe" : "#ffd5c2";
+  const techStack = certificate.techStack ?? [];
+
   const formattedDate = new Date(certificate.completedAt).toLocaleDateString(
     "en-US",
     {
@@ -239,10 +248,21 @@ export default function CertificateDetailPage() {
               </div>
 
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                Certificate of{" "}
-                <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
-                  Completion
-                </span>
+                {isProject ? (
+                  <>
+                    Certificate of{" "}
+                    <span className="bg-gradient-to-r from-violet-500 to-[#ff6636] bg-clip-text text-transparent">
+                      Project Completion
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Certificate of{" "}
+                    <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
+                      Completion
+                    </span>
+                  </>
+                )}
               </h1>
               <p className="text-sm font-semibold text-muted-foreground">
                 Awarded to{" "}
@@ -341,23 +361,25 @@ export default function CertificateDetailPage() {
                 <div
                   className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.22em]"
                   style={{
-                    backgroundColor: "#fff1eb",
-                    color: "#ff6636",
-                    border: "1px solid #ffd5c2",
+                    backgroundColor: badgeBgHex,
+                    color: accentHex,
+                    border: `1px solid ${badgeBorderHex}`,
                   }}
                 >
-                  <Award className="size-4" style={{ color: "#ff6636" }} />
-                  DevForge Academy
+                  <Award className="size-4" style={{ color: accentHex }} />
+                  {isProject ? "DevForge Project Studio" : "DevForge Academy"}
                 </div>
                 <p
                   className="text-xs font-bold uppercase tracking-[0.28em]"
                   style={{ color: "#6e7485" }}
                 >
-                  Certificate of Completion
+                  {isProject
+                    ? "Certificate of Project Completion"
+                    : "Certificate of Completion"}
                 </p>
                 <div
                   className="h-1 w-20 rounded-full"
-                  style={{ backgroundColor: "#ff6636" }}
+                  style={{ backgroundColor: accentHex }}
                 />
               </div>
 
@@ -380,15 +402,35 @@ export default function CertificateDetailPage() {
                   className="text-sm font-medium pt-2"
                   style={{ color: "#6e7485" }}
                 >
-                  has successfully completed all lessons and requirements of
+                  {isProject
+                    ? "has successfully built and completed the hands-on project tutorial"
+                    : "has successfully completed all lessons and requirements of"}
                 </p>
 
                 <p
                   className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug max-w-2xl mx-auto"
-                  style={{ color: "#ff6636" }}
+                  style={{ color: accentHex }}
                 >
                   {certificate.courseTitle}
                 </p>
+
+                {isProject && techStack.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    {techStack.slice(0, 8).map((tech) => (
+                      <span
+                        key={tech}
+                        className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold"
+                        style={{
+                          backgroundColor: "#f5f3ff",
+                          color: "#5b21b6",
+                          border: "1px solid #ddd6fe",
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {(certificate.totalLessons || certificate.durationMinutes) && (
                   <p

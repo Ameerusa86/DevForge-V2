@@ -36,6 +36,11 @@ import {
   type StructuredSyllabus,
 } from "@/lib/course-phases";
 import {
+  getCatalogBasePath,
+  isProjectTutorial,
+  type ContentType,
+} from "@/lib/content-type";
+import {
   Video,
   ArrowLeft,
   CheckCircle2,
@@ -83,6 +88,7 @@ export interface LessonDetailCourse {
   id: string;
   slug: string;
   title: string;
+  contentType?: ContentType;
   phases?: CoursePhase[] | string | null;
   lessons: LessonOutlineItem[];
   modules?: LessonOutlineModule[];
@@ -113,6 +119,7 @@ export interface LessonProgressData {
 // ─── Outline Subcomponents ───────────────────────────────────────────────────
 
 function OutlineLessonLink({
+  basePath,
   courseSlug,
   lesson,
   lessonNumber,
@@ -121,6 +128,7 @@ function OutlineLessonLink({
   hasEnrollment,
   onNavigate,
 }: {
+  basePath: string;
   courseSlug: string;
   lesson: LessonOutlineItem;
   lessonNumber: number;
@@ -143,7 +151,7 @@ function OutlineLessonLink({
   return (
     <Link
       ref={linkRef}
-      href={`/courses/${courseSlug}/lessons/${lesson.id}`}
+      href={`${basePath}/${courseSlug}/lessons/${lesson.id}`}
       onClick={onNavigate}
       className={cn(
         "flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium transition-all duration-200 group relative border",
@@ -184,6 +192,7 @@ function OutlineLessonLink({
 }
 
 function OutlineModuleList({
+  basePath,
   courseSlug,
   modules,
   sectionKey,
@@ -196,6 +205,7 @@ function OutlineModuleList({
   onNavigate,
   nested = false,
 }: {
+  basePath: string;
   courseSlug: string;
   modules: LessonOutlineModule[];
   sectionKey: string;
@@ -283,6 +293,7 @@ function OutlineModuleList({
                   .map((lesson) => (
                     <OutlineLessonLink
                       key={lesson.id}
+                      basePath={basePath}
                       courseSlug={courseSlug}
                       lesson={lesson}
                       lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
@@ -306,6 +317,7 @@ function OutlineModuleList({
 }
 
 function CourseOutline({
+  basePath,
   courseSlug,
   syllabus,
   lessonContext,
@@ -317,6 +329,7 @@ function CourseOutline({
   hasEnrollment,
   onNavigate,
 }: {
+  basePath: string;
   courseSlug: string;
   syllabus: StructuredSyllabus<LessonOutlineItem, LessonOutlineModule>;
   lessonContext: LessonContext<LessonOutlineItem, LessonOutlineModule>;
@@ -469,6 +482,7 @@ function CourseOutline({
           {syllabus.introStandaloneLessons.map((lesson) => (
             <OutlineLessonLink
               key={lesson.id}
+              basePath={basePath}
               courseSlug={courseSlug}
               lesson={lesson}
               lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
@@ -595,6 +609,7 @@ function CourseOutline({
                       {group.standaloneLessons.map((lesson) => (
                         <OutlineLessonLink
                           key={lesson.id}
+                          basePath={basePath}
                           courseSlug={courseSlug}
                           lesson={lesson}
                           lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
@@ -608,6 +623,7 @@ function CourseOutline({
                   )}
 
                   <OutlineModuleList
+                    basePath={basePath}
                     courseSlug={courseSlug}
                     modules={group.modules}
                     sectionKey={group.phase.id}
@@ -665,6 +681,7 @@ function CourseOutline({
                     {syllabus.otherStandaloneLessons.map((lesson) => (
                       <OutlineLessonLink
                         key={lesson.id}
+                        basePath={basePath}
                         courseSlug={courseSlug}
                         lesson={lesson}
                         lessonNumber={lessonIndexMap[lesson.id] ?? lesson.order}
@@ -677,6 +694,7 @@ function CourseOutline({
                   </div>
                 )}
                 <OutlineModuleList
+                  basePath={basePath}
                   courseSlug={courseSlug}
                   modules={syllabus.otherModules}
                   sectionKey={OTHER_SECTION_KEY}
@@ -695,6 +713,7 @@ function CourseOutline({
         </Accordion>
       ) : (
         <OutlineModuleList
+          basePath={basePath}
           courseSlug={courseSlug}
           modules={syllabus.otherModules}
           sectionKey={FLAT_SECTION_KEY}
@@ -725,6 +744,8 @@ export function LessonDetailClient({
   initialProgressData?: LessonProgressData | null;
 }) {
   const router = useRouter();
+  const isProject = isProjectTutorial(course.contentType);
+  const basePath = getCatalogBasePath(course.contentType);
   const [progressData, setProgressData] = useState<LessonProgressData | null>(
     initialProgressData ?? null
   );
@@ -795,19 +816,21 @@ export function LessonDetailClient({
       }
       if (e.shiftKey && e.key.toLowerCase() === "n" && nextLesson) {
         e.preventDefault();
-        router.push(`/courses/${course.slug}/lessons/${nextLesson.id}`);
+        router.push(`${basePath}/${course.slug}/lessons/${nextLesson.id}`);
       } else if (e.shiftKey && e.key.toLowerCase() === "p" && previousLesson) {
         e.preventDefault();
-        router.push(`/courses/${course.slug}/lessons/${previousLesson.id}`);
+        router.push(`${basePath}/${course.slug}/lessons/${previousLesson.id}`);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [course.slug, nextLesson, previousLesson, router]);
+  }, [basePath, course.slug, nextLesson, previousLesson, router]);
 
   const handleMarkComplete = async () => {
     if (!initialEnrollmentId) {
-      toast.error("Enroll in the course to save lesson progress.");
+      toast.error(
+        `Enroll in the ${isProject ? "project tutorial" : "course"} to save lesson progress.`,
+      );
       return;
     }
 
@@ -861,9 +884,9 @@ export function LessonDetailClient({
         {/* Left: Back Link, Sidebar Toggle, & Lesson Info */}
         <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
           <Link
-            href={`/courses/${course.slug}`}
+            href={`${basePath}/${course.slug}`}
             className="flex items-center gap-1.5 rounded-xl border border-border/80 bg-muted/40 px-2.5 py-1.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:bg-muted transition-colors shrink-0"
-            title="Back to Course Overview"
+            title={isProject ? "Back to Project Overview" : "Back to Course Overview"}
           >
             <ArrowLeft className="size-3.5" />
             <span className="hidden sm:inline truncate max-w-[180px]">{course.title}</span>
@@ -906,6 +929,7 @@ export function LessonDetailClient({
               </SheetHeader>
               <div className="p-4 overflow-y-auto max-h-[calc(100vh-5rem)]">
                 <CourseOutline
+                  basePath={basePath}
                   courseSlug={course.slug}
                   syllabus={syllabus}
                   lessonContext={lessonContext}
@@ -1004,6 +1028,7 @@ export function LessonDetailClient({
                 lessonTitle={currentLesson.title}
                 courseSlug={course.slug}
                 courseTitle={course.title}
+                basePath={basePath}
                 isEnrolled={Boolean(initialEnrollmentId)}
               />
             </SheetContent>
@@ -1024,7 +1049,8 @@ export function LessonDetailClient({
             <div className="p-4 border-b border-border space-y-2.5 bg-muted/20">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Sparkles className="size-3 text-[#ff6636]" /> Course Syllabus
+                  <Sparkles className="size-3 text-[#ff6636]" />{" "}
+                  {isProject ? "Project Roadmap" : "Course Syllabus"}
                 </span>
                 <span className="text-xs font-mono font-bold text-[#ff6636]">
                   {progressPercent}%
@@ -1044,6 +1070,7 @@ export function LessonDetailClient({
             {/* Tree Scroll Area with full-text wrapping */}
             <div className="flex-1 overflow-y-auto p-3.5 space-y-2">
               <CourseOutline
+                basePath={basePath}
                 courseSlug={course.slug}
                 syllabus={syllabus}
                 lessonContext={lessonContext}
@@ -1119,15 +1146,16 @@ export function LessonDetailClient({
                 <div className="space-y-2">
                   <h2 className="text-xl font-bold text-foreground">This lesson requires enrollment</h2>
                   <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-                    {currentLesson.message || "Enroll in this course to access the full interactive code and text lessons."}
+                    {currentLesson.message ||
+                      `Enroll in this ${isProject ? "project tutorial" : "course"} to access the full interactive code and text lessons.`}
                   </p>
                 </div>
                 <div className="pt-2">
                   <Link
-                    href={`/courses/${course.slug}`}
+                    href={`${basePath}/${course.slug}`}
                     className="inline-flex items-center justify-center rounded-xl bg-[#ff6636] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#e95a2b] shadow-md shadow-[#ff6636]/20 transition-all"
                   >
-                    Enroll in Course
+                    {isProject ? "Start Project" : "Enroll in Course"}
                   </Link>
                 </div>
               </div>
@@ -1200,7 +1228,7 @@ export function LessonDetailClient({
             <div className="pt-10 pb-12 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               {previousLesson ? (
                 <Link
-                  href={`/courses/${course.slug}/lessons/${previousLesson.id}`}
+                  href={`${basePath}/${course.slug}/lessons/${previousLesson.id}`}
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/50 hover:text-[#ff6636] transition-all"
                   title="Shortcut: Shift + P"
                 >
@@ -1209,17 +1237,17 @@ export function LessonDetailClient({
                 </Link>
               ) : (
                 <Link
-                  href={`/courses/${course.slug}`}
+                  href={`${basePath}/${course.slug}`}
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/50 hover:text-[#ff6636] transition-all"
                 >
                   <ArrowLeft className="size-4" />
-                  <span>Course Syllabus</span>
+                  <span>{isProject ? "Project Overview" : "Course Syllabus"}</span>
                 </Link>
               )}
 
               {nextLesson ? (
                 <Link
-                  href={`/courses/${course.slug}/lessons/${nextLesson.id}`}
+                  href={`${basePath}/${course.slug}/lessons/${nextLesson.id}`}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#ff6636]/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
                   title="Shortcut: Shift + N"
                 >
@@ -1236,10 +1264,10 @@ export function LessonDetailClient({
                 </Link>
               ) : (
                 <Link
-                  href={`/courses/${course.slug}`}
+                  href={`${basePath}/${course.slug}`}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-background hover:bg-foreground/90 transition-all"
                 >
-                  <span>Finish Course</span>
+                  <span>{isProject ? "Finish Project" : "Finish Course"}</span>
                   <CheckCircle2 className="size-4" />
                 </Link>
               )}
@@ -1255,6 +1283,7 @@ export function LessonDetailClient({
               lessonTitle={currentLesson.title}
               courseSlug={course.slug}
               courseTitle={course.title}
+              basePath={basePath}
               isEnrolled={Boolean(initialEnrollmentId)}
             />
           </aside>

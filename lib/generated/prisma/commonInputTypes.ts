@@ -182,6 +182,13 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumContentTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentType | Prisma.EnumContentTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContentTypeFilter<$PrismaModel> | $Enums.ContentType
+}
+
 export type EnumCourseLevelFilter<$PrismaModel = never> = {
   equals?: $Enums.CourseLevel | Prisma.EnumCourseLevelFieldRefInput<$PrismaModel>
   in?: $Enums.CourseLevel[] | Prisma.ListEnumCourseLevelFieldRefInput<$PrismaModel>
@@ -240,6 +247,16 @@ export type EnumCourseStatusFilter<$PrismaModel = never> = {
   in?: $Enums.CourseStatus[] | Prisma.ListEnumCourseStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.CourseStatus[] | Prisma.ListEnumCourseStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumCourseStatusFilter<$PrismaModel> | $Enums.CourseStatus
+}
+
+export type EnumContentTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentType | Prisma.EnumContentTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContentTypeWithAggregatesFilter<$PrismaModel> | $Enums.ContentType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContentTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContentTypeFilter<$PrismaModel>
 }
 
 export type EnumCourseLevelWithAggregatesFilter<$PrismaModel = never> = {
@@ -346,6 +363,23 @@ export type IntWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedIntFilter<$PrismaModel>
   _max?: Prisma.NestedIntFilter<$PrismaModel>
+}
+
+export type EnumCategoryScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoryScope | Prisma.EnumCategoryScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoryScopeFilter<$PrismaModel> | $Enums.CategoryScope
+}
+
+export type EnumCategoryScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoryScope | Prisma.EnumCategoryScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoryScopeWithAggregatesFilter<$PrismaModel> | $Enums.CategoryScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCategoryScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCategoryScopeFilter<$PrismaModel>
 }
 
 export type EnumNotificationTypeFilter<$PrismaModel = never> = {
@@ -675,6 +709,13 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumContentTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentType | Prisma.EnumContentTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContentTypeFilter<$PrismaModel> | $Enums.ContentType
+}
+
 export type NestedEnumCourseLevelFilter<$PrismaModel = never> = {
   equals?: $Enums.CourseLevel | Prisma.EnumCourseLevelFieldRefInput<$PrismaModel>
   in?: $Enums.CourseLevel[] | Prisma.ListEnumCourseLevelFieldRefInput<$PrismaModel>
@@ -698,6 +739,16 @@ export type NestedEnumCourseStatusFilter<$PrismaModel = never> = {
   in?: $Enums.CourseStatus[] | Prisma.ListEnumCourseStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.CourseStatus[] | Prisma.ListEnumCourseStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumCourseStatusFilter<$PrismaModel> | $Enums.CourseStatus
+}
+
+export type NestedEnumContentTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentType | Prisma.EnumContentTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContentType[] | Prisma.ListEnumContentTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContentTypeWithAggregatesFilter<$PrismaModel> | $Enums.ContentType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContentTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContentTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumCourseLevelWithAggregatesFilter<$PrismaModel = never> = {
@@ -812,6 +863,23 @@ export type NestedFloatFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type NestedEnumCategoryScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoryScope | Prisma.EnumCategoryScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoryScopeFilter<$PrismaModel> | $Enums.CategoryScope
+}
+
+export type NestedEnumCategoryScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoryScope | Prisma.EnumCategoryScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoryScopeWithAggregatesFilter<$PrismaModel> | $Enums.CategoryScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCategoryScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCategoryScopeFilter<$PrismaModel>
 }
 
 export type NestedEnumNotificationTypeFilter<$PrismaModel = never> = {

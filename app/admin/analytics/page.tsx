@@ -31,12 +31,21 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  getItemHref,
+  type ContentType,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
 
 interface AnalyticsData {
   overview: {
     totalUsers: number;
     totalCourses: number;
     publishedCourses: number;
+    coursesCount?: number;
+    publishedCoursesCount?: number;
+    projectsCount?: number;
+    publishedProjectsCount?: number;
     totalEnrollments: number;
     totalReviews: number;
     completionRate: number;
@@ -52,6 +61,7 @@ interface AnalyticsData {
     id: string;
     title: string;
     slug: string;
+    contentType?: ContentType;
     enrollments: number;
     reviews: number;
   }>;
@@ -67,17 +77,22 @@ interface AnalyticsData {
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState("30");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAnalytics();
-  }, [period]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, contentTypeFilter]);
 
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/analytics?period=${period}`);
+      const res = await fetch(
+        `/api/admin/analytics?period=${period}&type=${contentTypeFilter}`,
+      );
       if (!res.ok) throw new Error("Failed to fetch analytics");
       
       const analyticsData = await res.json();
@@ -170,6 +185,25 @@ export default function AnalyticsPage() {
         description="Monitor platform performance, cohort learning curves, category trends, and operations revenue."
         actions={
           <div className="flex flex-col gap-2.5 sm:w-auto sm:flex-row sm:items-center">
+            <div className="flex items-center gap-1 rounded-xl border border-border bg-card p-1 shadow-sm">
+              {(["ALL", "COURSE", "PROJECT_TUTORIAL"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setContentTypeFilter(t)}
+                  className={cn(
+                    "rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all",
+                    contentTypeFilter === t
+                      ? t === "PROJECT_TUTORIAL"
+                        ? "bg-violet-600 text-white"
+                        : "bg-[#ff6636] text-white"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t === "ALL" ? "All" : t === "COURSE" ? "Courses" : "Projects"}
+                </button>
+              ))}
+            </div>
             <Select value={period} onValueChange={setPeriod}>
               <SelectTrigger className="w-full sm:w-44 rounded-xl border-border bg-card font-semibold text-xs h-10 shadow-sm focus:ring-0">
                 <SelectValue placeholder="Select period" />
@@ -367,10 +401,22 @@ export default function AnalyticsPage() {
                         {index + 1}
                       </div>
                       <Link
-                        href={`/courses/${course.slug}`}
-                        className="text-xs font-bold hover:underline hover:text-[#ff6636] text-foreground truncate max-w-[200px]"
+                        href={getItemHref(course.contentType, course.slug)}
+                        className="flex items-center gap-1.5 text-xs font-bold hover:underline hover:text-[#ff6636] text-foreground truncate max-w-[230px]"
                       >
-                        {course.title}
+                        <span
+                          className={cn(
+                            "shrink-0 rounded px-1.5 py-0.5 text-[8px] font-extrabold uppercase",
+                            course.contentType === "PROJECT_TUTORIAL"
+                              ? "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                              : "bg-[#ff6636]/10 text-[#ff6636]",
+                          )}
+                        >
+                          {course.contentType === "PROJECT_TUTORIAL"
+                            ? "Project"
+                            : "Course"}
+                        </span>
+                        <span className="truncate">{course.title}</span>
                       </Link>
                     </div>
 

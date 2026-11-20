@@ -49,6 +49,7 @@ export async function GET() {
               id: true,
               title: true,
               slug: true,
+              contentType: true,
               category: true,
               level: true,
             },

@@ -23,6 +23,7 @@ import {
   Star,
   MessageCircleQuestion,
   FolderTree,
+  FolderCode,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useState } from "react";
@@ -52,6 +53,11 @@ const sidebarGroups = [
         title: "Courses",
         href: "/admin/courses",
         icon: BookOpen,
+      },
+      {
+        title: "Projects",
+        href: "/admin/projects",
+        icon: FolderCode,
       },
       {
         title: "Categories",

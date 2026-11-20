@@ -58,10 +58,12 @@ export async function GET() {
               slug: true,
               title: true,
               description: true,
+              contentType: true,
               category: true,
               level: true,
               imageUrl: true,
               durationMinutes: true,
+              techStack: true,
               lessons: {
                 select: {
                   id: true,
@@ -100,6 +102,7 @@ export async function GET() {
                   id: true,
                   slug: true,
                   title: true,
+                  contentType: true,
                 },
               },
             },
@@ -165,6 +168,12 @@ export async function GET() {
 
     const stats = {
       totalEnrolled: enrichedEnrollments.length,
+      enrolledCourses: enrichedEnrollments.filter(
+        (e) => e.course.contentType !== "PROJECT_TUTORIAL",
+      ).length,
+      enrolledProjects: enrichedEnrollments.filter(
+        (e) => e.course.contentType === "PROJECT_TUTORIAL",
+      ).length,
       inProgress: enrichedEnrollments.filter(
         (e) => e.progress > 0 && e.progress < 100,
       ).length,
@@ -190,43 +199,69 @@ export async function GET() {
       }));
 
     const enrolledCourseIds = enrollments.map((e) => e.courseId);
-    const recommendedCoursesRaw = await prisma.course.findMany({
-      where: {
-        status: "PUBLISHED",
-        id: {
-          notIn: enrolledCourseIds,
+    const recommendationSelect = {
+      id: true,
+      slug: true,
+      title: true,
+      description: true,
+      contentType: true,
+      category: true,
+      level: true,
+      price: true,
+      imageUrl: true,
+      durationMinutes: true,
+      techStack: true,
+      lessons: {
+        select: {
+          id: true,
         },
       },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        description: true,
-        category: true,
-        level: true,
-        price: true,
-        imageUrl: true,
-        durationMinutes: true,
-        lessons: {
-          select: {
-            id: true,
+      instructor: {
+        select: {
+          name: true,
+        },
+      },
+    } as const;
+
+    const [recommendedCoursesRaw, recommendedProjectsRaw] = await Promise.all([
+      prisma.course.findMany({
+        where: {
+          status: "PUBLISHED",
+          contentType: "COURSE",
+          id: {
+            notIn: enrolledCourseIds,
           },
         },
-        instructor: {
-          select: {
-            name: true,
+        select: recommendationSelect,
+        take: 6,
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      prisma.course.findMany({
+        where: {
+          status: "PUBLISHED",
+          contentType: "PROJECT_TUTORIAL",
+          id: {
+            notIn: enrolledCourseIds,
           },
         },
-      },
-      take: 6,
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+        select: recommendationSelect,
+        take: 6,
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+    ]);
 
     const recommendedCourses = recommendedCoursesRaw.map((course) => ({
       ...course,
       price: Number(course.price),
+    }));
+
+    const recommendedProjects = recommendedProjectsRaw.map((project) => ({
+      ...project,
+      price: Number(project.price),
     }));
 
     return NextResponse.json({
@@ -234,6 +269,7 @@ export async function GET() {
       enrollments: enrichedEnrollments,
       recentActivity,
       recommendedCourses,
+      recommendedProjects,
     });
   } catch (error) {
     console.error("Error fetching dashboard:", error);

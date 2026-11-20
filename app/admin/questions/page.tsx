@@ -37,6 +37,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { authClient } from "@/lib/auth-client";
+import {
+  getLessonHref,
+  isProjectTutorial,
+  normalizeContentType,
+  type ContentType,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type AdminQuestion = {
@@ -58,6 +66,7 @@ type AdminQuestion = {
       id: string;
       title: string;
       slug: string;
+      contentType?: ContentType;
     };
   };
   answers: Array<{
@@ -91,6 +100,8 @@ export default function AdminQuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [courseFilter, setCourseFilter] = useState("all");
   const [pendingDelete, setPendingDelete] = useState<{
     type: "question" | "answer";
@@ -129,11 +140,22 @@ export default function AdminQuestionsPage() {
     void loadQuestions();
   }, [isPending, session?.user?.id]);
 
+  const typeFilteredQuestions = useMemo(
+    () =>
+      questions.filter(
+        (question) =>
+          contentTypeFilter === "ALL" ||
+          normalizeContentType(question.lesson.course.contentType) ===
+            contentTypeFilter,
+      ),
+    [questions, contentTypeFilter],
+  );
+
   const courseOptions = useMemo(
     () =>
       Array.from(
         new Map(
-          questions.map((question) => [
+          typeFilteredQuestions.map((question) => [
             question.lesson.course.id,
             question.lesson.course.title,
           ]),
@@ -141,13 +163,13 @@ export default function AdminQuestionsPage() {
       )
         .map(([id, title]) => ({ id, title }))
         .sort((a, b) => a.title.localeCompare(b.title)),
-    [questions],
+    [typeFilteredQuestions],
   );
 
   const filteredQuestions = useMemo(() => {
     const normalized = searchQuery.trim().toLowerCase();
 
-    return questions.filter((question) => {
+    return typeFilteredQuestions.filter((question) => {
       if (
         courseFilter !== "all" &&
         question.lesson.course.id !== courseFilter
@@ -173,15 +195,15 @@ export default function AdminQuestionsPage() {
         )
       );
     });
-  }, [courseFilter, questions, searchQuery]);
+  }, [courseFilter, typeFilteredQuestions, searchQuery]);
 
   const stats = useMemo(() => {
-    const totalQuestions = questions.length;
-    const totalAnswers = questions.reduce(
+    const totalQuestions = typeFilteredQuestions.length;
+    const totalAnswers = typeFilteredQuestions.reduce(
       (sum, question) => sum + question.answers.length,
       0,
     );
-    const unanswered = questions.filter(
+    const unanswered = typeFilteredQuestions.filter(
       (question) => question.answers.length === 0,
     ).length;
     const answered = totalQuestions - unanswered;
@@ -192,7 +214,7 @@ export default function AdminQuestionsPage() {
       unanswered,
       answered,
     };
-  }, [questions]);
+  }, [typeFilteredQuestions]);
 
   const handleDeleteQuestion = async (questionId: string) => {
     setActionId(questionId);
@@ -351,23 +373,50 @@ export default function AdminQuestionsPage() {
         title="Questions Feed"
         description="Filter and moderate learner Q&A across all lessons."
       >
-        <div className="mb-5 grid gap-3 md:grid-cols-[1fr_220px]">
-          <div className="relative">
+        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/30 p-1 w-fit shrink-0">
+            {(
+              [
+                { value: "ALL", label: "All" },
+                { value: "COURSE", label: "Courses" },
+                { value: "PROJECT_TUTORIAL", label: "Projects" },
+              ] as const
+            ).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  setContentTypeFilter(option.value);
+                  setCourseFilter("all");
+                }}
+                className={cn(
+                  "rounded-md px-3 py-1 text-xs font-semibold transition-all",
+                  contentTypeFilter === option.value
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search by question, learner, lesson, course, or answer..."
+              placeholder="Search by question, learner, lesson, course, project, or answer..."
               className="pl-10"
             />
           </div>
 
           <Select value={courseFilter} onValueChange={setCourseFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All courses" />
+            <SelectTrigger className="md:w-[220px]">
+              <SelectValue placeholder="All items" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All courses</SelectItem>
+              <SelectItem value="all">All items</SelectItem>
               {courseOptions.map((course) => (
                 <SelectItem key={course.id} value={course.id}>
                   {course.title}
@@ -391,6 +440,19 @@ export default function AdminQuestionsPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px] font-bold uppercase tracking-wider",
+                          isProjectTutorial(question.lesson.course.contentType)
+                            ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                            : "border-[#ff6636]/30 bg-[#ff6636]/10 text-[#ff6636]",
+                        )}
+                      >
+                        {isProjectTutorial(question.lesson.course.contentType)
+                          ? "Project"
+                          : "Course"}
+                      </Badge>
                       <Badge variant="outline">
                         {question.lesson.course.title}
                       </Badge>
@@ -420,7 +482,11 @@ export default function AdminQuestionsPage() {
 
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/courses/${question.lesson.course.slug}/lessons/${question.lesson.id}`}
+                      href={getLessonHref(
+                        question.lesson.course.contentType,
+                        question.lesson.course.slug,
+                        question.lesson.id,
+                      )}
                       target="_blank"
                       className="inline-flex h-9 items-center justify-center rounded-md border border-border px-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary"
                     >

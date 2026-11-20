@@ -35,6 +35,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
+import {
+  getItemHref,
+  isProjectTutorial,
+  normalizeContentType,
+  type ContentType,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type AdminCourseOption = {
@@ -42,6 +50,7 @@ type AdminCourseOption = {
   title: string;
   category: string;
   level: string;
+  contentType: ContentType;
 };
 
 type ModerationReview = {
@@ -63,6 +72,7 @@ type ModerationReview = {
     slug: string;
     category: string;
     level: string;
+    contentType?: ContentType;
   };
 };
 
@@ -83,6 +93,8 @@ export default function AdminReviewsPage() {
   const [comment, setComment] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [filterCourseId, setFilterCourseId] = useState("all");
   const [filterRating, setFilterRating] = useState("all");
   const [flaggedFilter, setFlaggedFilter] = useState("all");
@@ -131,7 +143,7 @@ export default function AdminReviewsPage() {
     const load = async () => {
       try {
         const [coursesResponse, moderationResponse] = await Promise.all([
-          fetch("/api/admin/courses", { cache: "no-store" }),
+          fetch("/api/admin/courses?type=ALL", { cache: "no-store" }),
           fetch("/api/admin/reviews", { cache: "no-store" }),
         ]);
 
@@ -148,6 +160,7 @@ export default function AdminReviewsPage() {
           title: string;
           category: string;
           level: string;
+          contentType?: ContentType;
         }> = await coursesResponse.json();
 
         const moderationData: { reviews?: ModerationReview[] } =
@@ -160,6 +173,7 @@ export default function AdminReviewsPage() {
               title: course.title,
               category: course.category,
               level: course.level,
+              contentType: normalizeContentType(course.contentType),
             }))
             .sort((a, b) => a.title.localeCompare(b.title)),
         );
@@ -177,10 +191,27 @@ export default function AdminReviewsPage() {
     void load();
   }, [isPending, session?.user?.id]);
 
+  const filteredCourseOptions = useMemo(
+    () =>
+      courses.filter(
+        (course) =>
+          contentTypeFilter === "ALL" ||
+          course.contentType === contentTypeFilter,
+      ),
+    [courses, contentTypeFilter],
+  );
+
   const filteredReviews = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
 
     return moderationReviews.filter((review) => {
+      if (
+        contentTypeFilter !== "ALL" &&
+        normalizeContentType(review.course.contentType) !== contentTypeFilter
+      ) {
+        return false;
+      }
+
       if (filterCourseId !== "all" && review.course.id !== filterCourseId) {
         return false;
       }
@@ -213,6 +244,7 @@ export default function AdminReviewsPage() {
   }, [
     moderationReviews,
     searchQuery,
+    contentTypeFilter,
     filterCourseId,
     filterRating,
     flaggedFilter,
@@ -420,6 +452,7 @@ export default function AdminReviewsPage() {
                 <SelectContent>
                   {courses.map((course) => (
                     <SelectItem key={course.id} value={course.id}>
+                      [{isProjectTutorial(course.contentType) ? "Project" : "Course"}]{" "}
                       {course.title}
                     </SelectItem>
                   ))}
@@ -482,20 +515,49 @@ export default function AdminReviewsPage() {
         description="Search and filter every user review, then edit, delete, or flag entries for moderation follow-up."
       >
         <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/30 p-1">
+              {(
+                [
+                  { value: "ALL", label: "All" },
+                  { value: "COURSE", label: "Courses" },
+                  { value: "PROJECT_TUTORIAL", label: "Projects" },
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    setContentTypeFilter(option.value);
+                    setFilterCourseId("all");
+                  }}
+                  className={cn(
+                    "rounded-md px-3 py-1 text-xs font-semibold transition-all",
+                    contentTypeFilter === option.value
+                      ? "bg-card text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search by user, course, or comment"
+              placeholder="Search by user, course, project, or comment"
             />
 
             <Select value={filterCourseId} onValueChange={setFilterCourseId}>
               <SelectTrigger>
-                <SelectValue placeholder="Filter by course" />
+                <SelectValue placeholder="Filter by item" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All courses</SelectItem>
-                {courses.map((course) => (
+                <SelectItem value="all">All items</SelectItem>
+                {filteredCourseOptions.map((course) => (
                   <SelectItem key={course.id} value={course.id}>
                     {course.title}
                   </SelectItem>
@@ -553,9 +615,24 @@ export default function AdminReviewsPage() {
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <p className="text-base font-semibold text-foreground">
-                            {review.course.title}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-[10px] font-bold uppercase tracking-wider",
+                                isProjectTutorial(review.course.contentType)
+                                  ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                                  : "border-[#ff6636]/30 bg-[#ff6636]/10 text-[#ff6636]",
+                              )}
+                            >
+                              {isProjectTutorial(review.course.contentType)
+                                ? "Project"
+                                : "Course"}
+                            </Badge>
+                            <p className="text-base font-semibold text-foreground">
+                              {review.course.title}
+                            </p>
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             {review.user.name} · {review.user.email}
                           </p>
@@ -637,11 +714,16 @@ export default function AdminReviewsPage() {
 
                           <div className="flex flex-wrap items-center gap-2">
                             <Link
-                              href={`/courses/${review.course.slug}`}
+                              href={getItemHref(
+                                review.course.contentType,
+                                review.course.slug,
+                              )}
                               className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
                             >
                               <Star className="size-4" />
-                              View course
+                              {isProjectTutorial(review.course.contentType)
+                                ? "View project"
+                                : "View course"}
                             </Link>
 
                             <Button

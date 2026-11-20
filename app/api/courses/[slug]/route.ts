@@ -1,8 +1,8 @@
 import "server-only";
 
-import { prisma } from "@/lib/db";
-import { getErrorMessage } from "@/lib/utils";
 import { NextResponse } from "next/server";
+import { getPublishedCatalogItemBySlug } from "@/lib/catalog-service";
+import { getErrorMessage } from "@/lib/utils";
 
 // Public endpoint to fetch a single published course by slug
 export async function GET(
@@ -16,67 +16,13 @@ export async function GET(
       return NextResponse.json({ error: "Slug is required" }, { status: 400 });
     }
 
-    const course = await prisma.course.findUnique({
-      where: { slug },
-      include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        lessons: {
-          select: {
-            id: true,
-            title: true,
-            order: true,
-            isFree: true,
-            moduleId: true,
-            phaseId: true,
-          },
-          orderBy: { order: "asc" },
-        },
-        modules: {
-          select: {
-            id: true,
-            title: true,
-            order: true,
-            description: true,
-            phaseId: true,
-            lessons: {
-              select: {
-                id: true,
-                title: true,
-                order: true,
-                isFree: true,
-                moduleId: true,
-                phaseId: true,
-              },
-              orderBy: { order: "asc" },
-            },
-          },
-          orderBy: { order: "asc" },
-        },
-        enrollments: true,
-      },
-    });
+    const result = await getPublishedCatalogItemBySlug(slug, "COURSE");
 
-    if (!course || course.status !== "PUBLISHED") {
+    if (!result || result.mismatch) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    const payload = {
-      ...course,
-      instructor: course.instructor.name,
-      lessons: course.lessons,
-      modules: course.modules,
-      showUnassignedHeader: course.showUnassignedHeader,
-      enrollments: course.enrollments.length,
-      price: Number(course.price),
-    };
-
-    return NextResponse.json(payload);
+    return NextResponse.json(result.data);
   } catch (error) {
     console.error("Error fetching course by slug", error);
     return NextResponse.json(

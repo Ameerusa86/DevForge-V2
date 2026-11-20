@@ -200,6 +200,9 @@ export function createCourse(data: CreateCourse): Course {
   return {
     id: "generated-uuid",
     ...data,
+    contentType: data.contentType || "COURSE",
+    techStack: data.techStack || [],
+    deliverables: data.deliverables || [],
     tags: data.tags || [],
     price: data.price || 0,
     status: data.status || "DRAFT",

@@ -1,22 +1,38 @@
 import "server-only";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ensureDefaultCategories } from "@/lib/categories-server";
+import { normalizeContentTypeFilter } from "@/lib/content-type";
 import { getErrorMessage } from "@/lib/utils";
+import type { Prisma } from "@/lib/generated/prisma/client";
 
-// GET /api/categories - Public categories list for catalog filters and navigation
-export async function GET() {
+// GET /api/categories?type=COURSE|PROJECT_TUTORIAL|ALL - Public categories list for catalog filters and navigation
+export async function GET(request: NextRequest) {
   try {
     await ensureDefaultCategories();
 
-    const [categories, publishedCourses] = await Promise.all([
+    const typeParam = request.nextUrl.searchParams.get("type");
+    const typeFilter = typeParam
+      ? normalizeContentTypeFilter(typeParam, "ALL")
+      : "ALL";
+
+    const categoryWhere: Prisma.CourseCategoryWhereInput = {
+      isActive: true,
+      ...(typeFilter === "COURSE"
+        ? { scope: { in: ["BOTH", "COURSE"] } }
+        : typeFilter === "PROJECT_TUTORIAL"
+          ? { scope: { in: ["BOTH", "PROJECT_TUTORIAL"] } }
+          : {}),
+    };
+
+    const [categories, publishedGrouped] = await Promise.all([
       prisma.courseCategory.findMany({
-        where: { isActive: true },
+        where: categoryWhere,
         orderBy: [{ order: "asc" }, { name: "asc" }],
       }),
       prisma.course.groupBy({
-        by: ["category"],
+        by: ["category", "contentType"],
         where: { status: "PUBLISHED" },
         _count: {
           _all: true,
@@ -24,17 +40,36 @@ export async function GET() {
       }),
     ]);
 
-    const countMap = new Map<string, number>();
-    publishedCourses.forEach((item) => {
-      countMap.set(item.category, item._count._all);
-      countMap.set(item.category.toUpperCase(), item._count._all);
+    const courseCountMap = new Map<string, number>();
+    const projectCountMap = new Map<string, number>();
+
+    publishedGrouped.forEach((item) => {
+      const targetMap =
+        item.contentType === "PROJECT_TUTORIAL"
+          ? projectCountMap
+          : courseCountMap;
+      const upper = item.category.toUpperCase();
+      targetMap.set(item.category, (targetMap.get(item.category) ?? 0) + item._count._all);
+      if (upper !== item.category) {
+        targetMap.set(upper, (targetMap.get(upper) ?? 0) + item._count._all);
+      }
     });
 
+    const resolveCount = (
+      map: Map<string, number>,
+      slug: string,
+      name: string,
+    ) =>
+      Math.max(
+        map.get(slug) || 0,
+        map.get(name) || 0,
+        map.get(name.toUpperCase()) || 0,
+      );
+
     const activeCategories = categories.map((cat) => {
-      const directCount = countMap.get(cat.slug) || 0;
-      const nameCount = countMap.get(cat.name) || 0;
-      const upperNameCount = countMap.get(cat.name.toUpperCase()) || 0;
-      const count = Math.max(directCount, nameCount, upperNameCount);
+      const courseCount = resolveCount(courseCountMap, cat.slug, cat.name);
+      const projectCount = resolveCount(projectCountMap, cat.slug, cat.name);
+      const totalCount = courseCount + projectCount;
 
       return {
         id: cat.id,
@@ -43,8 +78,12 @@ export async function GET() {
         description: cat.description,
         icon: cat.icon || "BookOpen",
         color: cat.color || "orange",
+        scope: cat.scope,
         order: cat.order,
-        courseCount: count,
+        courseCount:
+          typeFilter === "PROJECT_TUTORIAL" ? projectCount : courseCount,
+        projectCount,
+        totalCount,
       };
     });
 

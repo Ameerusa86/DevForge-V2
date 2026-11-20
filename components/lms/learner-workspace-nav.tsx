@@ -6,6 +6,7 @@ import {
   Bell,
   BookOpen,
   Compass,
+  FolderCode,
   LayoutDashboard,
   UserRound,
 } from "lucide-react";
@@ -22,7 +23,7 @@ export const LEARNER_NAV_ITEMS = [
     icon: LayoutDashboard,
   },
   {
-    label: "My Courses",
+    label: "My Learning",
     href: "/my-courses",
     icon: BookOpen,
   },
@@ -78,13 +79,22 @@ export function LearnerWorkspaceNav({ activePath }: { activePath: string }) {
         })}
       </nav>
 
-      <Link
-        href="/courses"
-        className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground transition-all duration-200 hover:border-[#ff6636]/50 hover:text-[#ff6636]"
-      >
-        <Compass className="size-3.5 text-[#ff6636]" />
-        <span>Browse Catalog</span>
-      </Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground transition-all duration-200 hover:border-[#ff6636]/50 hover:text-[#ff6636]"
+        >
+          <Compass className="size-3.5 text-[#ff6636]" />
+          <span>Courses</span>
+        </Link>
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground transition-all duration-200 hover:border-violet-500/50 hover:text-violet-500"
+        >
+          <FolderCode className="size-3.5 text-violet-500" />
+          <span>Projects</span>
+        </Link>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Clock3,
   Compass,
+  FolderCode,
   GraduationCap,
   Loader2,
   Play,
@@ -65,6 +66,12 @@ import {
   getLevelBadgeClass,
 } from "@/lib/learner-ui";
 import { getProxiedImageUrl } from "@/lib/s3-utils";
+import {
+  getCatalogBasePath,
+  isProjectTutorial,
+  type ContentType,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
 import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -78,6 +85,7 @@ interface Enrollment {
     slug: string;
     title: string;
     description: string;
+    contentType?: ContentType;
     category: string;
     level: string;
     imageUrl: string | null;
@@ -234,12 +242,14 @@ function EnrollmentCard({
     sortedLessons.find((l) => !completedIds.has(l.id)) ??
     sortedLessons[0] ??
     null;
+  const isProject = isProjectTutorial(course.contentType);
+  const basePath = getCatalogBasePath(course.contentType);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#ff6636]/40 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/40">
       {/* Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted/40">
-        <Link href={`/courses/${course.slug}`} className="block h-full w-full">
+        <Link href={`${basePath}/${course.slug}`} className="block h-full w-full">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -290,12 +300,25 @@ function EnrollmentCard({
           </button>
         </div>
 
-        {/* Category + Ring */}
+        {/* Category + Type + Ring */}
         <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md">
-            <CatIcon className="size-3" />
-            {cat.label}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white backdrop-blur-md border",
+                isProject
+                  ? "bg-violet-600/85 border-violet-400/30"
+                  : "bg-[#ff6636]/85 border-white/15",
+              )}
+            >
+              {isProject ? <FolderCode className="size-2.5" /> : <BookOpen className="size-2.5" />}
+              {isProject ? "Project" : "Course"}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md">
+              <CatIcon className="size-3" />
+              {cat.label}
+            </span>
+          </div>
 
           <div className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-black/45 backdrop-blur-sm">
             <svg className="size-11 -rotate-90" viewBox="0 0 48 48">
@@ -355,7 +378,7 @@ function EnrollmentCard({
         </div>
 
         <div className="flex-1 space-y-1.5">
-          <Link href={`/courses/${course.slug}`} className="block">
+          <Link href={`${basePath}/${course.slug}`} className="block">
             <h3 className="text-sm font-bold leading-snug text-foreground line-clamp-2 group-hover:text-[#ff6636] transition-colors">
               {course.title}
             </h3>
@@ -431,25 +454,29 @@ function EnrollmentCard({
           ) : nextLesson ? (
             <div className="grid grid-cols-[1fr_auto] gap-2">
               <Link
-                href={`/courses/${course.slug}/lessons/${nextLesson.id}`}
+                href={`${basePath}/${course.slug}/lessons/${nextLesson.id}`}
                 className="flex items-center justify-center gap-2 rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] py-2.5 px-3 text-xs font-bold text-white transition-colors"
               >
                 <Play className="size-3.5 fill-current" />
-                {actualProgress > 0 ? "Continue" : "Start Course"}
+                {actualProgress > 0
+                  ? "Continue"
+                  : isProject
+                    ? "Start Project"
+                    : "Start Course"}
               </Link>
               <Link
-                href={`/courses/${course.slug}`}
+                href={`${basePath}/${course.slug}`}
                 className="flex items-center justify-center rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
               >
-                Syllabus
+                {isProject ? "Overview" : "Syllabus"}
               </Link>
             </div>
           ) : (
             <Link
-              href={`/courses/${course.slug}`}
+              href={`${basePath}/${course.slug}`}
               className="flex w-full items-center justify-center rounded-xl border border-border bg-muted/30 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
             >
-              View Course
+              {isProject ? "View Project" : "View Course"}
             </Link>
           )}
         </div>
@@ -489,6 +516,8 @@ export default function MyCoursesPage() {
   const [activeTab, setActiveTab] = useState<
     "all" | "in-progress" | "completed"
   >("all");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [searchQuery, setSearchQuery] = useState("");
@@ -644,10 +673,37 @@ export default function MyCoursesPage() {
     );
   }, [enriched]);
 
+  const enrolledCourseCount = useMemo(
+    () =>
+      enriched.filter(
+        (e) => e.enrollment.course.contentType !== "PROJECT_TUTORIAL",
+      ).length,
+    [enriched],
+  );
+  const enrolledProjectCount = useMemo(
+    () =>
+      enriched.filter(
+        (e) => e.enrollment.course.contentType === "PROJECT_TUTORIAL",
+      ).length,
+    [enriched],
+  );
+
   const filteredCourses = useMemo(() => {
     const items = enriched.filter(({ enrollment, actualProgress }) => {
       if (activeTab === "in-progress" && actualProgress >= 100) return false;
       if (activeTab === "completed" && actualProgress < 100) return false;
+      if (
+        contentTypeFilter === "COURSE" &&
+        enrollment.course.contentType === "PROJECT_TUTORIAL"
+      ) {
+        return false;
+      }
+      if (
+        contentTypeFilter === "PROJECT_TUTORIAL" &&
+        enrollment.course.contentType !== "PROJECT_TUTORIAL"
+      ) {
+        return false;
+      }
       if (
         selectedCategory !== "ALL" &&
         enrollment.course.category !== selectedCategory
@@ -682,10 +738,18 @@ export default function MyCoursesPage() {
       );
     }
     return sorted;
-  }, [enriched, activeTab, selectedCategory, searchQuery, sortBy]);
+  }, [
+    enriched,
+    activeTab,
+    contentTypeFilter,
+    selectedCategory,
+    searchQuery,
+    sortBy,
+  ]);
 
   const resetFilters = () => {
     setActiveTab("all");
+    setContentTypeFilter("ALL");
     setSelectedCategory("ALL");
     setSearchQuery("");
     setSortBy("newest");
@@ -736,7 +800,7 @@ export default function MyCoursesPage() {
               <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.75rem]">
                 Your Enrolled{" "}
                 <span className="bg-gradient-to-r from-[#ff6636] to-[#ff9f60] bg-clip-text text-transparent">
-                  Courses &amp; Paths
+                  Courses &amp; Projects
                 </span>
               </h1>
               <p className="text-sm sm:text-base font-semibold leading-relaxed text-muted-foreground">
@@ -848,44 +912,88 @@ export default function MyCoursesPage() {
       <div className="border-b border-border/40 bg-card py-4">
         <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Status Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-muted/50 p-1 w-fit">
-              <button
-                type="button"
-                onClick={() => setActiveTab("all")}
-                className={cn(
-                  "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
-                  activeTab === "all"
-                    ? "bg-[#ff6636] text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                All ({enriched.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("in-progress")}
-                className={cn(
-                  "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
-                  activeTab === "in-progress"
-                    ? "bg-[#ff6636] text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                In Progress ({activeCourses.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("completed")}
-                className={cn(
-                  "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
-                  activeTab === "completed"
-                    ? "bg-emerald-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                Completed ({completedCourses.length})
-              </button>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Content Type Tabs */}
+              <div className="flex flex-wrap items-center gap-1 rounded-xl border border-border bg-muted/50 p-1 w-fit">
+                <button
+                  type="button"
+                  onClick={() => setContentTypeFilter("ALL")}
+                  className={cn(
+                    "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                    contentTypeFilter === "ALL"
+                      ? "bg-foreground text-background shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  All ({enriched.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContentTypeFilter("COURSE")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                    contentTypeFilter === "COURSE"
+                      ? "bg-[#ff6636] text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <BookOpen className="size-3" />
+                  Courses ({enrolledCourseCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContentTypeFilter("PROJECT_TUTORIAL")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                    contentTypeFilter === "PROJECT_TUTORIAL"
+                      ? "bg-violet-600 text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <FolderCode className="size-3" />
+                  Projects ({enrolledProjectCount})
+                </button>
+              </div>
+
+              {/* Status Tabs */}
+              <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-muted/50 p-1 w-fit">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("all")}
+                  className={cn(
+                    "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
+                    activeTab === "all"
+                      ? "bg-[#ff6636] text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Any Status
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("in-progress")}
+                  className={cn(
+                    "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
+                    activeTab === "in-progress"
+                      ? "bg-[#ff6636] text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  In Progress ({activeCourses.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("completed")}
+                  className={cn(
+                    "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
+                    activeTab === "completed"
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Completed ({completedCourses.length})
+                </button>
+              </div>
             </div>
 
             {/* Search, Category & Sort Controls */}

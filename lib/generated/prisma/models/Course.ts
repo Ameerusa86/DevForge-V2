@@ -41,8 +41,13 @@ export type CourseMinAggregateOutputType = {
   slug: string | null
   title: string | null
   description: string | null
+  contentType: $Enums.ContentType | null
   category: string | null
   level: $Enums.CourseLevel | null
+  demoUrl: string | null
+  starterRepoUrl: string | null
+  githubUrl: string | null
+  prerequisites: string | null
   price: runtime.Decimal | null
   durationMinutes: number | null
   imageUrl: string | null
@@ -60,8 +65,13 @@ export type CourseMaxAggregateOutputType = {
   slug: string | null
   title: string | null
   description: string | null
+  contentType: $Enums.ContentType | null
   category: string | null
   level: $Enums.CourseLevel | null
+  demoUrl: string | null
+  starterRepoUrl: string | null
+  githubUrl: string | null
+  prerequisites: string | null
   price: runtime.Decimal | null
   durationMinutes: number | null
   imageUrl: string | null
@@ -79,10 +89,17 @@ export type CourseCountAggregateOutputType = {
   slug: number
   title: number
   description: number
+  contentType: number
   category: number
   level: number
   tags: number
   phases: number
+  demoUrl: number
+  starterRepoUrl: number
+  githubUrl: number
+  techStack: number
+  prerequisites: number
+  deliverables: number
   price: number
   durationMinutes: number
   imageUrl: number
@@ -112,8 +129,13 @@ export type CourseMinAggregateInputType = {
   slug?: true
   title?: true
   description?: true
+  contentType?: true
   category?: true
   level?: true
+  demoUrl?: true
+  starterRepoUrl?: true
+  githubUrl?: true
+  prerequisites?: true
   price?: true
   durationMinutes?: true
   imageUrl?: true
@@ -131,8 +153,13 @@ export type CourseMaxAggregateInputType = {
   slug?: true
   title?: true
   description?: true
+  contentType?: true
   category?: true
   level?: true
+  demoUrl?: true
+  starterRepoUrl?: true
+  githubUrl?: true
+  prerequisites?: true
   price?: true
   durationMinutes?: true
   imageUrl?: true
@@ -150,10 +177,17 @@ export type CourseCountAggregateInputType = {
   slug?: true
   title?: true
   description?: true
+  contentType?: true
   category?: true
   level?: true
   tags?: true
   phases?: true
+  demoUrl?: true
+  starterRepoUrl?: true
+  githubUrl?: true
+  techStack?: true
+  prerequisites?: true
+  deliverables?: true
   price?: true
   durationMinutes?: true
   imageUrl?: true
@@ -258,10 +292,17 @@ export type CourseGroupByOutputType = {
   slug: string
   title: string
   description: string
+  contentType: $Enums.ContentType
   category: string
   level: $Enums.CourseLevel
   tags: string[]
   phases: runtime.JsonValue | null
+  demoUrl: string | null
+  starterRepoUrl: string | null
+  githubUrl: string | null
+  techStack: string[]
+  prerequisites: string | null
+  deliverables: string[]
   price: runtime.Decimal
   durationMinutes: number | null
   imageUrl: string | null
@@ -302,10 +343,17 @@ export type CourseWhereInput = {
   slug?: Prisma.StringFilter<"Course"> | string
   title?: Prisma.StringFilter<"Course"> | string
   description?: Prisma.StringFilter<"Course"> | string
+  contentType?: Prisma.EnumContentTypeFilter<"Course"> | $Enums.ContentType
   category?: Prisma.StringFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   phases?: Prisma.JsonNullableFilter<"Course">
+  demoUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  starterRepoUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  githubUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  techStack?: Prisma.StringNullableListFilter<"Course">
+  prerequisites?: Prisma.StringNullableFilter<"Course"> | string | null
+  deliverables?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.IntNullableFilter<"Course"> | number | null
   imageUrl?: Prisma.StringNullableFilter<"Course"> | string | null
@@ -329,10 +377,17 @@ export type CourseOrderByWithRelationInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
   category?: Prisma.SortOrder
   level?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   phases?: Prisma.SortOrderInput | Prisma.SortOrder
+  demoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  starterRepoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  githubUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  techStack?: Prisma.SortOrder
+  prerequisites?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliverables?: Prisma.SortOrder
   price?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -359,10 +414,17 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CourseWhereInput | Prisma.CourseWhereInput[]
   title?: Prisma.StringFilter<"Course"> | string
   description?: Prisma.StringFilter<"Course"> | string
+  contentType?: Prisma.EnumContentTypeFilter<"Course"> | $Enums.ContentType
   category?: Prisma.StringFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   phases?: Prisma.JsonNullableFilter<"Course">
+  demoUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  starterRepoUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  githubUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  techStack?: Prisma.StringNullableListFilter<"Course">
+  prerequisites?: Prisma.StringNullableFilter<"Course"> | string | null
+  deliverables?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.IntNullableFilter<"Course"> | number | null
   imageUrl?: Prisma.StringNullableFilter<"Course"> | string | null
@@ -386,10 +448,17 @@ export type CourseOrderByWithAggregationInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
   category?: Prisma.SortOrder
   level?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   phases?: Prisma.SortOrderInput | Prisma.SortOrder
+  demoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  starterRepoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  githubUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  techStack?: Prisma.SortOrder
+  prerequisites?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliverables?: Prisma.SortOrder
   price?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -415,10 +484,17 @@ export type CourseScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringWithAggregatesFilter<"Course"> | string
   title?: Prisma.StringWithAggregatesFilter<"Course"> | string
   description?: Prisma.StringWithAggregatesFilter<"Course"> | string
+  contentType?: Prisma.EnumContentTypeWithAggregatesFilter<"Course"> | $Enums.ContentType
   category?: Prisma.StringWithAggregatesFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelWithAggregatesFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   phases?: Prisma.JsonNullableWithAggregatesFilter<"Course">
+  demoUrl?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
+  starterRepoUrl?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
+  githubUrl?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
+  techStack?: Prisma.StringNullableListFilter<"Course">
+  prerequisites?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
+  deliverables?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalWithAggregatesFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.IntNullableWithAggregatesFilter<"Course"> | number | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
@@ -436,10 +512,17 @@ export type CourseCreateInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -461,10 +544,17 @@ export type CourseUncheckedCreateInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -486,10 +576,17 @@ export type CourseUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -511,10 +608,17 @@ export type CourseUncheckedUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -536,10 +640,17 @@ export type CourseCreateManyInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -557,10 +668,17 @@ export type CourseUpdateManyMutationInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -576,10 +694,17 @@ export type CourseUncheckedUpdateManyInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -615,10 +740,17 @@ export type CourseCountOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
   category?: Prisma.SortOrder
   level?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   phases?: Prisma.SortOrder
+  demoUrl?: Prisma.SortOrder
+  starterRepoUrl?: Prisma.SortOrder
+  githubUrl?: Prisma.SortOrder
+  techStack?: Prisma.SortOrder
+  prerequisites?: Prisma.SortOrder
+  deliverables?: Prisma.SortOrder
   price?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
@@ -641,8 +773,13 @@ export type CourseMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
   category?: Prisma.SortOrder
   level?: Prisma.SortOrder
+  demoUrl?: Prisma.SortOrder
+  starterRepoUrl?: Prisma.SortOrder
+  githubUrl?: Prisma.SortOrder
+  prerequisites?: Prisma.SortOrder
   price?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
@@ -660,8 +797,13 @@ export type CourseMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
   category?: Prisma.SortOrder
   level?: Prisma.SortOrder
+  demoUrl?: Prisma.SortOrder
+  starterRepoUrl?: Prisma.SortOrder
+  githubUrl?: Prisma.SortOrder
+  prerequisites?: Prisma.SortOrder
   price?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
@@ -772,11 +914,33 @@ export type CourseCreatetagsInput = {
   set: string[]
 }
 
+export type CourseCreatetechStackInput = {
+  set: string[]
+}
+
+export type CourseCreatedeliverablesInput = {
+  set: string[]
+}
+
+export type EnumContentTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ContentType
+}
+
 export type EnumCourseLevelFieldUpdateOperationsInput = {
   set?: $Enums.CourseLevel
 }
 
 export type CourseUpdatetagsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type CourseUpdatetechStackInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type CourseUpdatedeliverablesInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -862,10 +1026,17 @@ export type CourseCreateWithoutUserInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -886,10 +1057,17 @@ export type CourseUncheckedCreateWithoutUserInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -920,10 +1098,17 @@ export type CourseCreateWithoutInstructorInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -944,10 +1129,17 @@ export type CourseUncheckedCreateWithoutInstructorInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -997,10 +1189,17 @@ export type CourseScalarWhereInput = {
   slug?: Prisma.StringFilter<"Course"> | string
   title?: Prisma.StringFilter<"Course"> | string
   description?: Prisma.StringFilter<"Course"> | string
+  contentType?: Prisma.EnumContentTypeFilter<"Course"> | $Enums.ContentType
   category?: Prisma.StringFilter<"Course"> | string
   level?: Prisma.EnumCourseLevelFilter<"Course"> | $Enums.CourseLevel
   tags?: Prisma.StringNullableListFilter<"Course">
   phases?: Prisma.JsonNullableFilter<"Course">
+  demoUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  starterRepoUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  githubUrl?: Prisma.StringNullableFilter<"Course"> | string | null
+  techStack?: Prisma.StringNullableListFilter<"Course">
+  prerequisites?: Prisma.StringNullableFilter<"Course"> | string | null
+  deliverables?: Prisma.StringNullableListFilter<"Course">
   price?: Prisma.DecimalFilter<"Course"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.IntNullableFilter<"Course"> | number | null
   imageUrl?: Prisma.StringNullableFilter<"Course"> | string | null
@@ -1034,10 +1233,17 @@ export type CourseCreateWithoutModulesInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1058,10 +1264,17 @@ export type CourseUncheckedCreateWithoutModulesInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1098,10 +1311,17 @@ export type CourseUpdateWithoutModulesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1122,10 +1342,17 @@ export type CourseUncheckedUpdateWithoutModulesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1146,10 +1373,17 @@ export type CourseCreateWithoutEnrollmentsInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1170,10 +1404,17 @@ export type CourseUncheckedCreateWithoutEnrollmentsInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1210,10 +1451,17 @@ export type CourseUpdateWithoutEnrollmentsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1234,10 +1482,17 @@ export type CourseUncheckedUpdateWithoutEnrollmentsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1258,10 +1513,17 @@ export type CourseCreateWithoutLessonsInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1282,10 +1544,17 @@ export type CourseUncheckedCreateWithoutLessonsInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1322,10 +1591,17 @@ export type CourseUpdateWithoutLessonsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1346,10 +1622,17 @@ export type CourseUncheckedUpdateWithoutLessonsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1370,10 +1653,17 @@ export type CourseCreateWithoutReviewsInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1394,10 +1684,17 @@ export type CourseUncheckedCreateWithoutReviewsInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1434,10 +1731,17 @@ export type CourseUpdateWithoutReviewsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1458,10 +1762,17 @@ export type CourseUncheckedUpdateWithoutReviewsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1482,10 +1793,17 @@ export type CourseCreateManyUserInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1502,10 +1820,17 @@ export type CourseCreateManyInstructorInput = {
   slug: string
   title: string
   description: string
+  contentType?: $Enums.ContentType
   category: string
   level?: $Enums.CourseLevel
   tags?: Prisma.CourseCreatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: string | null
+  starterRepoUrl?: string | null
+  githubUrl?: string | null
+  techStack?: Prisma.CourseCreatetechStackInput | string[]
+  prerequisites?: string | null
+  deliverables?: Prisma.CourseCreatedeliverablesInput | string[]
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: number | null
   imageUrl?: string | null
@@ -1522,10 +1847,17 @@ export type CourseUpdateWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1546,10 +1878,17 @@ export type CourseUncheckedUpdateWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1570,10 +1909,17 @@ export type CourseUncheckedUpdateManyWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1590,10 +1936,17 @@ export type CourseUpdateWithoutInstructorInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1614,10 +1967,17 @@ export type CourseUncheckedUpdateWithoutInstructorInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1638,10 +1998,17 @@ export type CourseUncheckedUpdateManyWithoutInstructorInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
   category?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumCourseLevelFieldUpdateOperationsInput | $Enums.CourseLevel
   tags?: Prisma.CourseUpdatetagsInput | string[]
   phases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  demoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  starterRepoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  techStack?: Prisma.CourseUpdatetechStackInput | string[]
+  prerequisites?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.CourseUpdatedeliverablesInput | string[]
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1716,10 +2083,17 @@ export type CourseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   slug?: boolean
   title?: boolean
   description?: boolean
+  contentType?: boolean
   category?: boolean
   level?: boolean
   tags?: boolean
   phases?: boolean
+  demoUrl?: boolean
+  starterRepoUrl?: boolean
+  githubUrl?: boolean
+  techStack?: boolean
+  prerequisites?: boolean
+  deliverables?: boolean
   price?: boolean
   durationMinutes?: boolean
   imageUrl?: boolean
@@ -1744,10 +2118,17 @@ export type CourseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   slug?: boolean
   title?: boolean
   description?: boolean
+  contentType?: boolean
   category?: boolean
   level?: boolean
   tags?: boolean
   phases?: boolean
+  demoUrl?: boolean
+  starterRepoUrl?: boolean
+  githubUrl?: boolean
+  techStack?: boolean
+  prerequisites?: boolean
+  deliverables?: boolean
   price?: boolean
   durationMinutes?: boolean
   imageUrl?: boolean
@@ -1767,10 +2148,17 @@ export type CourseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   slug?: boolean
   title?: boolean
   description?: boolean
+  contentType?: boolean
   category?: boolean
   level?: boolean
   tags?: boolean
   phases?: boolean
+  demoUrl?: boolean
+  starterRepoUrl?: boolean
+  githubUrl?: boolean
+  techStack?: boolean
+  prerequisites?: boolean
+  deliverables?: boolean
   price?: boolean
   durationMinutes?: boolean
   imageUrl?: boolean
@@ -1790,10 +2178,17 @@ export type CourseSelectScalar = {
   slug?: boolean
   title?: boolean
   description?: boolean
+  contentType?: boolean
   category?: boolean
   level?: boolean
   tags?: boolean
   phases?: boolean
+  demoUrl?: boolean
+  starterRepoUrl?: boolean
+  githubUrl?: boolean
+  techStack?: boolean
+  prerequisites?: boolean
+  deliverables?: boolean
   price?: boolean
   durationMinutes?: boolean
   imageUrl?: boolean
@@ -1806,7 +2201,7 @@ export type CourseSelectScalar = {
   userId?: boolean
 }
 
-export type CourseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "description" | "category" | "level" | "tags" | "phases" | "price" | "durationMinutes" | "imageUrl" | "showUnassignedHeader" | "status" | "publishedAt" | "createdAt" | "updatedAt" | "instructorId" | "userId", ExtArgs["result"]["course"]>
+export type CourseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "description" | "contentType" | "category" | "level" | "tags" | "phases" | "demoUrl" | "starterRepoUrl" | "githubUrl" | "techStack" | "prerequisites" | "deliverables" | "price" | "durationMinutes" | "imageUrl" | "showUnassignedHeader" | "status" | "publishedAt" | "createdAt" | "updatedAt" | "instructorId" | "userId", ExtArgs["result"]["course"]>
 export type CourseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   instructor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Course$userArgs<ExtArgs>
@@ -1840,10 +2235,17 @@ export type $CoursePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     slug: string
     title: string
     description: string
+    contentType: $Enums.ContentType
     category: string
     level: $Enums.CourseLevel
     tags: string[]
     phases: runtime.JsonValue | null
+    demoUrl: string | null
+    starterRepoUrl: string | null
+    githubUrl: string | null
+    techStack: string[]
+    prerequisites: string | null
+    deliverables: string[]
     price: runtime.Decimal
     durationMinutes: number | null
     imageUrl: string | null
@@ -2287,10 +2689,17 @@ export interface CourseFieldRefs {
   readonly slug: Prisma.FieldRef<"Course", 'String'>
   readonly title: Prisma.FieldRef<"Course", 'String'>
   readonly description: Prisma.FieldRef<"Course", 'String'>
+  readonly contentType: Prisma.FieldRef<"Course", 'ContentType'>
   readonly category: Prisma.FieldRef<"Course", 'String'>
   readonly level: Prisma.FieldRef<"Course", 'CourseLevel'>
   readonly tags: Prisma.FieldRef<"Course", 'String[]'>
   readonly phases: Prisma.FieldRef<"Course", 'Json'>
+  readonly demoUrl: Prisma.FieldRef<"Course", 'String'>
+  readonly starterRepoUrl: Prisma.FieldRef<"Course", 'String'>
+  readonly githubUrl: Prisma.FieldRef<"Course", 'String'>
+  readonly techStack: Prisma.FieldRef<"Course", 'String[]'>
+  readonly prerequisites: Prisma.FieldRef<"Course", 'String'>
+  readonly deliverables: Prisma.FieldRef<"Course", 'String[]'>
   readonly price: Prisma.FieldRef<"Course", 'Decimal'>
   readonly durationMinutes: Prisma.FieldRef<"Course", 'Int'>
   readonly imageUrl: Prisma.FieldRef<"Course", 'String'>

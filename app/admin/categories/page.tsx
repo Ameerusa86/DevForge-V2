@@ -65,7 +65,8 @@ import {
   getCategoryIcon,
   generateCategorySlug,
 } from "@/lib/categories";
-import type { CourseCategory } from "@/types/course";
+import type { CategoryScope, CourseCategory } from "@/types/course";
+import { getCategoryScopeLabel } from "@/lib/content-type";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CourseCategory[]>([]);
@@ -73,6 +74,7 @@ export default function AdminCategoriesPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [filterScope, setFilterScope] = useState<"ALL" | CategoryScope>("ALL");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
   // Create Modal state
@@ -84,6 +86,7 @@ export default function AdminCategoriesPage() {
     description: "",
     icon: "BookOpen",
     color: "orange",
+    scope: "BOTH" as CategoryScope,
     order: 0,
     isActive: true,
   });
@@ -97,6 +100,7 @@ export default function AdminCategoriesPage() {
     description: "",
     icon: "BookOpen",
     color: "orange",
+    scope: "BOTH" as CategoryScope,
     order: 0,
     isActive: true,
   });
@@ -143,16 +147,22 @@ export default function AdminCategoriesPage() {
         (filterStatus === "active" && cat.isActive) ||
         (filterStatus === "inactive" && !cat.isActive);
 
-      return matchesSearch && matchesStatus;
+      const matchesScope =
+        filterScope === "ALL" || (cat.scope || "BOTH") === filterScope;
+
+      return matchesSearch && matchesStatus && matchesScope;
     });
-  }, [categories, searchQuery, filterStatus]);
+  }, [categories, searchQuery, filterStatus, filterScope]);
 
   // Summary Metrics
   const metrics = useMemo(() => {
     const total = categories.length;
     const active = categories.filter((c) => c.isActive).length;
     const inactive = total - active;
-    const totalCourses = categories.reduce((sum, c) => sum + (c.courseCount || 0), 0);
+    const totalCourses = categories.reduce(
+      (sum, c) => sum + (c.totalCount ?? (c.courseCount || 0) + (c.projectCount || 0)),
+      0,
+    );
     return { total, active, inactive, totalCourses };
   }, [categories]);
 
@@ -165,6 +175,7 @@ export default function AdminCategoriesPage() {
       description: "",
       icon: "Code2",
       color: "orange",
+      scope: "BOTH",
       order: maxOrder + 1,
       isActive: true,
     });
@@ -221,6 +232,7 @@ export default function AdminCategoriesPage() {
       description: cat.description || "",
       icon: cat.icon || "BookOpen",
       color: cat.color || "orange",
+      scope: cat.scope || "BOTH",
       order: cat.order,
       isActive: cat.isActive,
     });
@@ -307,8 +319,11 @@ export default function AdminCategoriesPage() {
 
     try {
       setDeleteLoading(true);
+      const assignedTotal =
+        deletingCategory.totalCount ??
+        (deletingCategory.courseCount || 0) + (deletingCategory.projectCount || 0);
       const url =
-        deletingCategory.courseCount && deletingCategory.courseCount > 0
+        assignedTotal > 0 && reassignCategorySlug
           ? `/api/admin/categories/${deletingCategory.id}?reassignTo=${encodeURIComponent(reassignCategorySlug)}`
           : `/api/admin/categories/${deletingCategory.id}`;
 
@@ -454,6 +469,30 @@ export default function AdminCategoriesPage() {
                 </button>
               </div>
 
+              <div className="flex items-center rounded-xl border border-border bg-muted/40 p-1 text-xs font-semibold">
+                {(
+                  [
+                    { value: "ALL", label: "All Scopes" },
+                    { value: "BOTH", label: "Both" },
+                    { value: "COURSE", label: "Courses" },
+                    { value: "PROJECT_TUTORIAL", label: "Projects" },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setFilterScope(option.value)}
+                    className={`rounded-lg px-2.5 py-1.5 transition-all ${
+                      filterScope === option.value
+                        ? "bg-card text-foreground shadow-xs font-extrabold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex items-center rounded-xl border border-border bg-muted/40 p-1">
                 <Button
                   variant="ghost"
@@ -498,13 +537,14 @@ export default function AdminCategoriesPage() {
                 : "No categories match the active filter."}
             </p>
           </div>
-          {searchQuery && (
+          {(searchQuery || filterStatus !== "all" || filterScope !== "ALL") && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 setSearchQuery("");
                 setFilterStatus("all");
+                setFilterScope("ALL");
               }}
               className="rounded-xl border-border text-xs font-bold"
             >
@@ -584,6 +624,12 @@ export default function AdminCategoriesPage() {
                             View Courses ({cat.courseCount || 0})
                           </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="text-xs font-semibold cursor-pointer">
+                          <Link href={`/admin/projects?category=${encodeURIComponent(cat.slug)}`}>
+                            <ExternalLink className="mr-2 size-3.5" />
+                            View Projects ({cat.projectCount || 0})
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => openDeleteModal(cat)}
@@ -604,20 +650,35 @@ export default function AdminCategoriesPage() {
                   </p>
 
                   {/* Badges preview & Course Count */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${theme.badge}`}>
                         <span className={`size-1.5 rounded-full ${theme.dot}`} />
                         {cat.name}
                       </span>
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] font-bold uppercase tracking-wider"
+                      >
+                        {getCategoryScopeLabel(cat.scope)}
+                      </Badge>
                     </div>
 
-                    <Link
-                      href={`/admin/courses?category=${encodeURIComponent(cat.slug)}`}
-                      className="text-xs font-bold text-muted-foreground hover:text-[#ff6636] transition-colors"
-                    >
-                      <span className="font-extrabold text-foreground">{cat.courseCount || 0}</span> courses
-                    </Link>
+                    <div className="flex items-center gap-2 shrink-0 text-[11px] font-bold text-muted-foreground">
+                      <Link
+                        href={`/admin/courses?category=${encodeURIComponent(cat.slug)}`}
+                        className="hover:text-[#ff6636] transition-colors"
+                      >
+                        <span className="font-extrabold text-foreground">{cat.courseCount || 0}</span> courses
+                      </Link>
+                      <span>·</span>
+                      <Link
+                        href={`/admin/projects?category=${encodeURIComponent(cat.slug)}`}
+                        className="hover:text-violet-500 transition-colors"
+                      >
+                        <span className="font-extrabold text-foreground">{cat.projectCount || 0}</span> projects
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Card Footer with Switch and Order */}
@@ -647,8 +708,10 @@ export default function AdminCategoriesPage() {
                 <tr className="border-b border-border bg-muted/40 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
                   <th className="p-3.5 pl-5">Category</th>
                   <th className="p-3.5">Slug</th>
+                  <th className="p-3.5">Scope</th>
                   <th className="p-3.5">Description</th>
                   <th className="p-3.5 text-center">Courses</th>
+                  <th className="p-3.5 text-center">Projects</th>
                   <th className="p-3.5 text-center">Order</th>
                   <th className="p-3.5 text-center">Status</th>
                   <th className="p-3.5 pr-5 text-right">Actions</th>
@@ -679,6 +742,14 @@ export default function AdminCategoriesPage() {
                           {cat.slug}
                         </span>
                       </td>
+                      <td className="p-3.5">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-bold uppercase tracking-wider"
+                        >
+                          {getCategoryScopeLabel(cat.scope)}
+                        </Badge>
+                      </td>
                       <td className="p-3.5 text-muted-foreground max-w-xs truncate font-medium">
                         {cat.description || "—"}
                       </td>
@@ -688,6 +759,14 @@ export default function AdminCategoriesPage() {
                           className="inline-block px-2 py-0.5 rounded-md bg-muted/60 hover:bg-[#ff6636]/10 hover:text-[#ff6636] transition-colors"
                         >
                           {cat.courseCount || 0}
+                        </Link>
+                      </td>
+                      <td className="p-3.5 text-center font-bold">
+                        <Link
+                          href={`/admin/projects?category=${encodeURIComponent(cat.slug)}`}
+                          className="inline-block px-2 py-0.5 rounded-md bg-muted/60 hover:bg-violet-500/10 hover:text-violet-500 transition-colors"
+                        >
+                          {cat.projectCount || 0}
                         </Link>
                       </td>
                       <td className="p-3.5 text-center text-muted-foreground font-mono">
@@ -841,6 +920,37 @@ export default function AdminCategoriesPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Scope Selector */}
+            <div className="space-y-1.5">
+              <Label htmlFor="create-scope" className="text-xs font-bold text-foreground">
+                Catalog Scope
+              </Label>
+              <Select
+                value={createForm.scope}
+                onValueChange={(val) =>
+                  setCreateForm((prev) => ({
+                    ...prev,
+                    scope: val as CategoryScope,
+                  }))
+                }
+              >
+                <SelectTrigger id="create-scope" className="rounded-xl border-border text-xs font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="BOTH" className="text-xs font-semibold">
+                    Both (Courses &amp; Project Tutorials)
+                  </SelectItem>
+                  <SelectItem value="COURSE" className="text-xs font-semibold">
+                    Courses Only
+                  </SelectItem>
+                  <SelectItem value="PROJECT_TUTORIAL" className="text-xs font-semibold">
+                    Projects Only
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Order & Active Switch */}
@@ -1035,6 +1145,37 @@ export default function AdminCategoriesPage() {
               </div>
             </div>
 
+            {/* Scope Selector */}
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-scope" className="text-xs font-bold text-foreground">
+                Catalog Scope
+              </Label>
+              <Select
+                value={editForm.scope}
+                onValueChange={(val) =>
+                  setEditForm((prev) => ({
+                    ...prev,
+                    scope: val as CategoryScope,
+                  }))
+                }
+              >
+                <SelectTrigger id="edit-scope" className="rounded-xl border-border text-xs font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="BOTH" className="text-xs font-semibold">
+                    Both (Courses &amp; Project Tutorials)
+                  </SelectItem>
+                  <SelectItem value="COURSE" className="text-xs font-semibold">
+                    Courses Only
+                  </SelectItem>
+                  <SelectItem value="PROJECT_TUTORIAL" className="text-xs font-semibold">
+                    Projects Only
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Order & Active Switch */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div className="space-y-1.5">
@@ -1127,22 +1268,30 @@ export default function AdminCategoriesPage() {
             </div>
             <DialogDescription className="text-xs text-muted-foreground pt-1">
               Are you sure you want to delete category{" "}
-              <strong className="text-foreground font-bold">"{deletingCategory?.name}"</strong>?
+              <strong className="text-foreground font-bold">&ldquo;{deletingCategory?.name}&rdquo;</strong>?
             </DialogDescription>
           </DialogHeader>
 
-          {deletingCategory && deletingCategory.courseCount && deletingCategory.courseCount > 0 ? (
+          {deletingCategory &&
+          (deletingCategory.totalCount ??
+            (deletingCategory.courseCount || 0) +
+              (deletingCategory.projectCount || 0)) > 0 ? (
             <div className="space-y-3 py-2">
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300 font-semibold space-y-1">
-                <p className="font-extrabold">⚠️ Warning: Courses Currently Assigned</p>
+                <p className="font-extrabold">⚠️ Warning: Items Currently Assigned</p>
                 <p>
-                  There are <strong className="font-bold">{deletingCategory.courseCount} course(s)</strong> currently categorized under "{deletingCategory.name}".
+                  There are{" "}
+                  <strong className="font-bold">
+                    {deletingCategory.courseCount || 0} course(s) and{" "}
+                    {deletingCategory.projectCount || 0} project(s)
+                  </strong>{" "}
+                  currently categorized under &ldquo;{deletingCategory.name}&rdquo;.
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="reassign-cat" className="text-xs font-bold text-foreground">
-                  Reassign courses to: *
+                  Reassign items to: *
                 </Label>
                 <Select
                   value={reassignCategorySlug}
@@ -1165,7 +1314,7 @@ export default function AdminCategoriesPage() {
             </div>
           ) : (
             <div className="py-2 text-xs text-muted-foreground font-medium">
-              No courses are assigned to this category. It can be removed immediately.
+              No courses or projects are assigned to this category. It can be removed immediately.
             </div>
           )}
 
@@ -1185,18 +1334,23 @@ export default function AdminCategoriesPage() {
               disabled={
                 deleteLoading ||
                 Boolean(
-                  deletingCategory?.courseCount &&
-                    deletingCategory.courseCount > 0 &&
-                    !reassignCategorySlug
+                  deletingCategory &&
+                    (deletingCategory.totalCount ??
+                      (deletingCategory.courseCount || 0) +
+                        (deletingCategory.projectCount || 0)) > 0 &&
+                    !reassignCategorySlug,
                 )
               }
               className="rounded-xl font-bold text-xs shadow-sm"
             >
               {deleteLoading
                 ? "Deleting..."
-                : deletingCategory?.courseCount && deletingCategory.courseCount > 0
-                ? "Reassign & Delete"
-                : "Delete Category"}
+                : deletingCategory &&
+                    (deletingCategory.totalCount ??
+                      (deletingCategory.courseCount || 0) +
+                        (deletingCategory.projectCount || 0)) > 0
+                  ? "Reassign & Delete"
+                  : "Delete Category"}
             </Button>
           </DialogFooter>
         </DialogContent>

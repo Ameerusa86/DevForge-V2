@@ -1,86 +1,29 @@
 import "server-only";
-import { prisma } from "@/lib/db";
-import { generateSlug } from "@/lib/slug";
-import { getErrorMessage } from "@/lib/utils";
-import { notifyCoursePublished } from "@/lib/notification-utils";
-import { logCourseAuditEventSafe } from "@/lib/course-audit";
-import {
-  applyDueCourseSchedules,
-  getCourseSchedules,
-} from "@/lib/course-schedule";
-import { CourseWithStats } from "@/types/api-response";
+
 import { NextRequest, NextResponse } from "next/server";
+import {
+  createAdminCatalogItem,
+  listAdminCatalogItems,
+} from "@/lib/catalog-service";
+import { normalizeContentTypeFilter } from "@/lib/content-type";
+import { getErrorMessage } from "@/lib/utils";
 
-// GET /api/admin/courses - Get all courses
-export async function GET() {
+// GET /api/admin/courses - Get courses (defaults to COURSE; pass ?type=ALL|COURSE|PROJECT_TUTORIAL)
+export async function GET(request: NextRequest) {
   try {
-    await applyDueCourseSchedules();
+    const typeParam = request.nextUrl.searchParams.get("type");
+    const typeFilter = typeParam
+      ? normalizeContentTypeFilter(typeParam, "COURSE")
+      : "COURSE";
 
-    const courses = await prisma.course.findMany({
-      include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        enrollments: true,
-        modules: true,
-        lessons: true,
-        reviews: {
-          select: {
-            rating: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    const schedules = await getCourseSchedules(
-      courses.map((course) => course.id),
-    );
-    const scheduleByCourseId = new Map(
-      schedules.map((schedule) => [schedule.courseId, schedule]),
-    );
-
-    // Transform data to include derived fields
-    const coursesWithStats = courses.map((course: (typeof courses)[0]) => {
-      const reviews = course.reviews || [];
-      const averageRating =
-        reviews.length > 0
-          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-          : 0;
-
-      return {
-        ...course,
-        instructor: course.instructor.name,
-        enrollments: course.enrollments.length,
-        modules: course.modules.length,
-        lessons: course.lessons.length,
-        rating: Number(averageRating.toFixed(1)),
-        totalReviews: reviews.length,
-        price: Number(course.price),
-        revenue: `$${(
-          course.enrollments.length * Number(course.price)
-        ).toLocaleString()}`,
-        createdAt: course.createdAt.toISOString(),
-        updatedAt: course.updatedAt.toISOString(),
-        publishedAt: course.publishedAt?.toISOString(),
-        schedule: scheduleByCourseId.get(course.id) || null,
-      };
-    }) as CourseWithStats[];
-
+    const coursesWithStats = await listAdminCatalogItems(typeFilter);
     return NextResponse.json(coursesWithStats);
   } catch (error) {
     console.error("Error fetching courses:", error);
-    const errorMessage = getErrorMessage(error);
     return NextResponse.json(
       {
         error: "Failed to fetch courses",
-        details: errorMessage,
+        details: getErrorMessage(error),
         timestamp: new Date().toISOString(),
       },
       { status: 500 },
@@ -88,32 +31,20 @@ export async function GET() {
   }
 }
 
-// POST /api/admin/courses - Create a new course
+// POST /api/admin/courses - Create a new course (defaults to COURSE unless contentType specified)
 export async function POST(request: NextRequest) {
   try {
     let body;
     try {
       body = await request.json();
-    } catch (parseError) {
+    } catch {
       return NextResponse.json(
         { error: "Invalid JSON in request body" },
         { status: 400 },
       );
     }
 
-    const {
-      title,
-      description,
-      category,
-      level,
-      price,
-      durationMinutes,
-      imageUrl,
-      tags,
-      phases,
-      status,
-      instructorId,
-    } = body;
+    const { title, description, category, level, instructorId } = body;
 
     if (!title || !description || !category || !level || !instructorId) {
       return NextResponse.json(
@@ -122,74 +53,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const slug = generateSlug(title);
-
-    const course = await prisma.course.create({
-      data: {
-        title,
-        slug,
-        description,
-        category,
-        level,
-        price: parseFloat(price) || 0,
-        durationMinutes: durationMinutes ? parseInt(durationMinutes) : null,
-        imageUrl: imageUrl || null,
-        tags: tags || [],
-        phases: phases || null,
-        status: status || "DRAFT",
-        publishedAt: status === "PUBLISHED" ? new Date() : null,
-        instructorId,
-      },
-      include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+    const course = await createAdminCatalogItem({
+      ...body,
+      contentType: body.contentType ?? "COURSE",
     });
-
-    // Notify instructor if course is published immediately
-    if (status === "PUBLISHED") {
-      try {
-        await notifyCoursePublished(instructorId, title);
-      } catch (notificationError) {
-        console.warn(
-          "Failed to send publication notification:",
-          notificationError,
-        );
-        // Don't fail the API if notification fails
-      }
-    }
-
-    await logCourseAuditEventSafe({
-      courseId: course.id,
-      title: "Course created",
-      description: `${course.title} was created as ${course.status}.`,
-      type: "course",
-      actionUrl: `/admin/courses/${course.id}/edit`,
-    });
-
-    if (course.status === "PUBLISHED") {
-      await logCourseAuditEventSafe({
-        courseId: course.id,
-        title: "Course published",
-        description: `${course.title} was published at creation time.`,
-        type: "course",
-        actionUrl: `/courses/${course.slug}`,
-      });
-    }
 
     return NextResponse.json(course, { status: 201 });
   } catch (error) {
     console.error("Error creating course:", error);
-    const errorMessage = getErrorMessage(error);
     return NextResponse.json(
       {
         error: "Failed to create course",
-        details: errorMessage,
+        details: getErrorMessage(error),
         timestamp: new Date().toISOString(),
       },
       { status: 500 },

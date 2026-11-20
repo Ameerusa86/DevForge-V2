@@ -41,6 +41,7 @@ export type CourseCategoryMinAggregateOutputType = {
   description: string | null
   icon: string | null
   color: string | null
+  scope: $Enums.CategoryScope | null
   order: number | null
   isActive: boolean | null
   createdAt: Date | null
@@ -54,6 +55,7 @@ export type CourseCategoryMaxAggregateOutputType = {
   description: string | null
   icon: string | null
   color: string | null
+  scope: $Enums.CategoryScope | null
   order: number | null
   isActive: boolean | null
   createdAt: Date | null
@@ -67,6 +69,7 @@ export type CourseCategoryCountAggregateOutputType = {
   description: number
   icon: number
   color: number
+  scope: number
   order: number
   isActive: number
   createdAt: number
@@ -90,6 +93,7 @@ export type CourseCategoryMinAggregateInputType = {
   description?: true
   icon?: true
   color?: true
+  scope?: true
   order?: true
   isActive?: true
   createdAt?: true
@@ -103,6 +107,7 @@ export type CourseCategoryMaxAggregateInputType = {
   description?: true
   icon?: true
   color?: true
+  scope?: true
   order?: true
   isActive?: true
   createdAt?: true
@@ -116,6 +121,7 @@ export type CourseCategoryCountAggregateInputType = {
   description?: true
   icon?: true
   color?: true
+  scope?: true
   order?: true
   isActive?: true
   createdAt?: true
@@ -216,6 +222,7 @@ export type CourseCategoryGroupByOutputType = {
   description: string | null
   icon: string | null
   color: string | null
+  scope: $Enums.CategoryScope
   order: number
   isActive: boolean
   createdAt: Date
@@ -252,6 +259,7 @@ export type CourseCategoryWhereInput = {
   description?: Prisma.StringNullableFilter<"CourseCategory"> | string | null
   icon?: Prisma.StringNullableFilter<"CourseCategory"> | string | null
   color?: Prisma.StringNullableFilter<"CourseCategory"> | string | null
+  scope?: Prisma.EnumCategoryScopeFilter<"CourseCategory"> | $Enums.CategoryScope
   order?: Prisma.IntFilter<"CourseCategory"> | number
   isActive?: Prisma.BoolFilter<"CourseCategory"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CourseCategory"> | Date | string
@@ -265,6 +273,7 @@ export type CourseCategoryOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   color?: Prisma.SortOrderInput | Prisma.SortOrder
+  scope?: Prisma.SortOrder
   order?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -281,6 +290,7 @@ export type CourseCategoryWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"CourseCategory"> | string | null
   icon?: Prisma.StringNullableFilter<"CourseCategory"> | string | null
   color?: Prisma.StringNullableFilter<"CourseCategory"> | string | null
+  scope?: Prisma.EnumCategoryScopeFilter<"CourseCategory"> | $Enums.CategoryScope
   order?: Prisma.IntFilter<"CourseCategory"> | number
   isActive?: Prisma.BoolFilter<"CourseCategory"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CourseCategory"> | Date | string
@@ -294,6 +304,7 @@ export type CourseCategoryOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   color?: Prisma.SortOrderInput | Prisma.SortOrder
+  scope?: Prisma.SortOrder
   order?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -315,6 +326,7 @@ export type CourseCategoryScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"CourseCategory"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"CourseCategory"> | string | null
   color?: Prisma.StringNullableWithAggregatesFilter<"CourseCategory"> | string | null
+  scope?: Prisma.EnumCategoryScopeWithAggregatesFilter<"CourseCategory"> | $Enums.CategoryScope
   order?: Prisma.IntWithAggregatesFilter<"CourseCategory"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"CourseCategory"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CourseCategory"> | Date | string
@@ -328,6 +340,7 @@ export type CourseCategoryCreateInput = {
   description?: string | null
   icon?: string | null
   color?: string | null
+  scope?: $Enums.CategoryScope
   order?: number
   isActive?: boolean
   createdAt?: Date | string
@@ -341,6 +354,7 @@ export type CourseCategoryUncheckedCreateInput = {
   description?: string | null
   icon?: string | null
   color?: string | null
+  scope?: $Enums.CategoryScope
   order?: number
   isActive?: boolean
   createdAt?: Date | string
@@ -354,6 +368,7 @@ export type CourseCategoryUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumCategoryScopeFieldUpdateOperationsInput | $Enums.CategoryScope
   order?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -367,6 +382,7 @@ export type CourseCategoryUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumCategoryScopeFieldUpdateOperationsInput | $Enums.CategoryScope
   order?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -380,6 +396,7 @@ export type CourseCategoryCreateManyInput = {
   description?: string | null
   icon?: string | null
   color?: string | null
+  scope?: $Enums.CategoryScope
   order?: number
   isActive?: boolean
   createdAt?: Date | string
@@ -393,6 +410,7 @@ export type CourseCategoryUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumCategoryScopeFieldUpdateOperationsInput | $Enums.CategoryScope
   order?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -406,6 +424,7 @@ export type CourseCategoryUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumCategoryScopeFieldUpdateOperationsInput | $Enums.CategoryScope
   order?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -419,6 +438,7 @@ export type CourseCategoryCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   order?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -436,6 +456,7 @@ export type CourseCategoryMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   order?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -449,6 +470,7 @@ export type CourseCategoryMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   order?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -457,6 +479,10 @@ export type CourseCategoryMinOrderByAggregateInput = {
 
 export type CourseCategorySumOrderByAggregateInput = {
   order?: Prisma.SortOrder
+}
+
+export type EnumCategoryScopeFieldUpdateOperationsInput = {
+  set?: $Enums.CategoryScope
 }
 
 
@@ -468,6 +494,7 @@ export type CourseCategorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   description?: boolean
   icon?: boolean
   color?: boolean
+  scope?: boolean
   order?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -481,6 +508,7 @@ export type CourseCategorySelectCreateManyAndReturn<ExtArgs extends runtime.Type
   description?: boolean
   icon?: boolean
   color?: boolean
+  scope?: boolean
   order?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -494,6 +522,7 @@ export type CourseCategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   description?: boolean
   icon?: boolean
   color?: boolean
+  scope?: boolean
   order?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -507,13 +536,14 @@ export type CourseCategorySelectScalar = {
   description?: boolean
   icon?: boolean
   color?: boolean
+  scope?: boolean
   order?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CourseCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "icon" | "color" | "order" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["courseCategory"]>
+export type CourseCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "icon" | "color" | "scope" | "order" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["courseCategory"]>
 
 export type $CourseCategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CourseCategory"
@@ -525,6 +555,7 @@ export type $CourseCategoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     description: string | null
     icon: string | null
     color: string | null
+    scope: $Enums.CategoryScope
     order: number
     isActive: boolean
     createdAt: Date
@@ -958,6 +989,7 @@ export interface CourseCategoryFieldRefs {
   readonly description: Prisma.FieldRef<"CourseCategory", 'String'>
   readonly icon: Prisma.FieldRef<"CourseCategory", 'String'>
   readonly color: Prisma.FieldRef<"CourseCategory", 'String'>
+  readonly scope: Prisma.FieldRef<"CourseCategory", 'CategoryScope'>
   readonly order: Prisma.FieldRef<"CourseCategory", 'Int'>
   readonly isActive: Prisma.FieldRef<"CourseCategory", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"CourseCategory", 'DateTime'>

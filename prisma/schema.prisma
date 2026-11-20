@@ -93,10 +93,17 @@ model Course {
   slug                 String         @unique
   title                String
   description          String
+  contentType          ContentType    @default(COURSE)
   category             String
   level                CourseLevel    @default(BEGINNER)
   tags                 String[]       @default([])
   phases               Json?
+  demoUrl              String?
+  starterRepoUrl       String?
+  githubUrl            String?
+  techStack            String[]       @default([])
+  prerequisites        String?
+  deliverables         String[]       @default([])
   price                Decimal        @default(0)
   durationMinutes      Int?
   imageUrl             String?
@@ -119,6 +126,8 @@ model Course {
   @@index([userId])
   @@index([category])
   @@index([status])
+  @@index([contentType])
+  @@index([contentType, status])
   @@index([slug])
   @@map("course")
 }
@@ -215,6 +224,17 @@ model Review {
   @@map("review")
 }
 
+enum ContentType {
+  COURSE
+  PROJECT_TUTORIAL
+}
+
+enum CategoryScope {
+  BOTH
+  COURSE
+  PROJECT_TUTORIAL
+}
+
 enum CourseLevel {
   BEGINNER
   INTERMEDIATE
@@ -234,14 +254,16 @@ model CourseCategory {
   slug        String   @unique
   description String?
   icon        String?  @default("BookOpen")
-  color       String?  @default("text-[#ff6636]")
-  order       Int      @default(0)
+  color       String?       @default("text-[#ff6636]")
+  scope       CategoryScope @default(BOTH)
+  order       Int           @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([order])
   @@index([isActive])
+  @@index([scope])
   @@map("course_category")
 }
 

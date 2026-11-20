@@ -73,6 +73,12 @@ import type {
   ContentStats,
   CourseContentSummary,
 } from "@/lib/content-audit";
+import {
+  getAdminLessonsHref,
+  getItemHref,
+  isProjectTutorial,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
 import { cn } from "@/lib/utils";
 import { extractYouTubeId, getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -203,6 +209,8 @@ export default function ContentPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<ContentFilter>("all");
   const [courseFilter, setCourseFilter] = useState<string>("all");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [courseStatusFilter, setCourseStatusFilter] =
     useState<CourseStatusFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("updated_desc");
@@ -335,12 +343,20 @@ export default function ContentPage() {
   const uniqueCourses = useMemo(
     () =>
       Array.from(
-        new Map(lessons.map((l) => [l.courseId, l.courseTitle])).entries(),
+        new Map(
+          lessons
+            .filter(
+              (l) =>
+                contentTypeFilter === "ALL" ||
+                l.contentType === contentTypeFilter,
+            )
+            .map((l) => [l.courseId, l.courseTitle]),
+        ).entries(),
       ).sort((a, b) => a[1].localeCompare(b[1])),
-    [lessons],
+    [lessons, contentTypeFilter],
   );
 
-  // Base search + course + status matches (used to compute live filter badge counts)
+  // Base search + course + type + status matches (used to compute live filter badge counts)
   const baseMatchedLessons = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return lessons.filter((lesson) => {
@@ -351,6 +367,13 @@ export default function ContentPage() {
           (lesson.moduleTitle ?? "").toLowerCase().includes(q) ||
           lesson.excerpt.toLowerCase().includes(q);
         if (!matchesQuery) return false;
+      }
+
+      if (
+        contentTypeFilter !== "ALL" &&
+        lesson.contentType !== contentTypeFilter
+      ) {
+        return false;
       }
 
       if (courseFilter !== "all" && lesson.courseId !== courseFilter) {
@@ -366,7 +389,7 @@ export default function ContentPage() {
 
       return true;
     });
-  }, [lessons, searchQuery, courseFilter, courseStatusFilter]);
+  }, [lessons, searchQuery, contentTypeFilter, courseFilter, courseStatusFilter]);
 
   const filterCounts = useMemo(
     () => ({
@@ -451,6 +474,12 @@ export default function ContentPage() {
     return [...courseSummaries]
       .filter((course) => {
         if (
+          contentTypeFilter !== "ALL" &&
+          course.contentType !== contentTypeFilter
+        ) {
+          return false;
+        }
+        if (
           courseStatusFilter !== "all" &&
           course.courseStatus !== courseStatusFilter
         ) {
@@ -480,7 +509,7 @@ export default function ContentPage() {
         }
         return a.readinessScore - b.readinessScore;
       });
-  }, [courseSummaries, courseStatusFilter, searchQuery]);
+  }, [courseSummaries, contentTypeFilter, courseStatusFilter, searchQuery]);
 
   const visibleSelectedIds = useMemo(
     () => filtered.filter((l) => selectedIds.has(l.id)).map((l) => l.id),
@@ -931,6 +960,34 @@ export default function ContentPage() {
                 />
               </div>
 
+              {/* Content Type Filter */}
+              <div className="flex items-center rounded-xl border border-border bg-muted/30 p-0.5 text-[11px] font-bold">
+                {(
+                  [
+                    { value: "ALL", label: "All" },
+                    { value: "COURSE", label: "Courses" },
+                    { value: "PROJECT_TUTORIAL", label: "Projects" },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setContentTypeFilter(option.value);
+                      setCourseFilter("all");
+                    }}
+                    className={cn(
+                      "rounded-lg px-2.5 py-1.5 transition-all",
+                      contentTypeFilter === option.value
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Course Status Filter */}
               <Select
                 value={courseStatusFilter}
@@ -1278,6 +1335,18 @@ export default function ContentPage() {
                                       <span
                                         className={cn(
                                           "rounded border px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider shrink-0",
+                                          isProjectTutorial(lesson.contentType)
+                                            ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                                            : "border-[#ff6636]/30 bg-[#ff6636]/10 text-[#ff6636]",
+                                        )}
+                                      >
+                                        {isProjectTutorial(lesson.contentType)
+                                          ? "Project"
+                                          : "Course"}
+                                      </span>
+                                      <span
+                                        className={cn(
+                                          "rounded border px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider shrink-0",
                                           getCourseStatusTone(
                                             lesson.courseStatus,
                                           ),
@@ -1425,7 +1494,7 @@ export default function ContentPage() {
                                         className="cursor-pointer text-xs px-3.5 py-2"
                                       >
                                         <Link
-                                          href={`/admin/courses/${lesson.courseId}/lessons?editLessonId=${lesson.id}`}
+                                          href={`${getAdminLessonsHref(lesson.contentType, lesson.courseId)}?editLessonId=${lesson.id}`}
                                           className="flex items-center gap-2"
                                         >
                                           <Edit className="size-3.5" /> Edit
@@ -1437,7 +1506,7 @@ export default function ContentPage() {
                                         className="cursor-pointer text-xs px-3.5 py-2"
                                       >
                                         <Link
-                                          href={`/admin/courses/${lesson.courseId}/lessons?quizLessonId=${lesson.id}`}
+                                          href={`${getAdminLessonsHref(lesson.contentType, lesson.courseId)}?quizLessonId=${lesson.id}`}
                                           className="flex items-center gap-2"
                                         >
                                           <Award className="size-3.5" />{" "}
@@ -1451,11 +1520,14 @@ export default function ContentPage() {
                                         className="cursor-pointer text-xs px-3.5 py-2"
                                       >
                                         <Link
-                                          href={`/courses/${lesson.courseSlug}`}
+                                          href={getItemHref(lesson.contentType, lesson.courseSlug)}
                                           className="flex items-center gap-2"
                                         >
-                                          <BookOpen className="size-3.5" /> View
-                                          Course Page
+                                          <BookOpen className="size-3.5" /> View{" "}
+                                          {isProjectTutorial(lesson.contentType)
+                                            ? "Project"
+                                            : "Course"}{" "}
+                                          Page
                                         </Link>
                                       </DropdownMenuItem>
                                       <DropdownMenuSeparator className="bg-border" />
@@ -1759,7 +1831,7 @@ export default function ContentPage() {
                         {/* Deep-link Action Buttons */}
                         <div className="flex flex-col gap-2 pt-2 border-t border-border/50">
                           <Link
-                            href={`/admin/courses/${selectedLesson.courseId}/lessons?editLessonId=${selectedLesson.id}`}
+                            href={`${getAdminLessonsHref(selectedLesson.contentType, selectedLesson.courseId)}?editLessonId=${selectedLesson.id}`}
                             className="w-full"
                           >
                             <Button className="w-full rounded-xl h-10 text-xs font-bold gap-1.5 bg-[#ff6636] hover:bg-[#e95a2b] text-white">
@@ -1769,7 +1841,7 @@ export default function ContentPage() {
 
                           <div className="grid grid-cols-2 gap-2">
                             <Link
-                              href={`/admin/courses/${selectedLesson.courseId}/lessons?quizLessonId=${selectedLesson.id}`}
+                              href={`${getAdminLessonsHref(selectedLesson.contentType, selectedLesson.courseId)}?quizLessonId=${selectedLesson.id}`}
                             >
                               <Button
                                 variant="outline"
@@ -1779,12 +1851,20 @@ export default function ContentPage() {
                                 {selectedLesson.hasQuiz ? "Quiz" : "Add Quiz"}
                               </Button>
                             </Link>
-                            <Link href={`/courses/${selectedLesson.courseSlug}`}>
+                            <Link
+                              href={getItemHref(
+                                selectedLesson.contentType,
+                                selectedLesson.courseSlug,
+                              )}
+                            >
                               <Button
                                 variant="outline"
                                 className="w-full rounded-xl h-9 text-xs font-bold gap-1.5"
                               >
-                                <BookOpen className="size-3.5" /> Course Page
+                                <BookOpen className="size-3.5" />{" "}
+                                {isProjectTutorial(selectedLesson.contentType)
+                                  ? "Project Page"
+                                  : "Course Page"}
                               </Button>
                             </Link>
                           </div>
@@ -1852,7 +1932,7 @@ export default function ContentPage() {
                             </div>
 
                             <Link
-                              href={`/admin/courses/${selectedLesson.courseId}/lessons?editLessonId=${selectedLesson.id}`}
+                              href={`${getAdminLessonsHref(selectedLesson.contentType, selectedLesson.courseId)}?editLessonId=${selectedLesson.id}`}
                               className="block"
                             >
                               <Button className="w-full rounded-xl h-10 text-xs font-bold gap-1.5 bg-[#ff6636] hover:bg-[#e95a2b] text-white">
@@ -1933,6 +2013,18 @@ export default function ContentPage() {
                           <TableCell className="px-6 py-4 max-w-[260px]">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "rounded border px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider shrink-0",
+                                    isProjectTutorial(course.contentType)
+                                      ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                                      : "border-[#ff6636]/30 bg-[#ff6636]/10 text-[#ff6636]",
+                                  )}
+                                >
+                                  {isProjectTutorial(course.contentType)
+                                    ? "Project"
+                                    : "Course"}
+                                </span>
                                 <span
                                   className={cn(
                                     "rounded border px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider shrink-0",
@@ -2056,7 +2148,10 @@ export default function ContentPage() {
                                 Audit Lessons
                               </Button>
                               <Link
-                                href={`/admin/courses/${course.courseId}/lessons`}
+                                href={getAdminLessonsHref(
+                                  course.contentType,
+                                  course.courseId,
+                                )}
                               >
                                 <Button
                                   size="sm"

@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Zap,
   Code2,
+  FolderCode,
   Layers3,
   X,
   ArrowRight,
@@ -105,10 +106,19 @@ export function CommandPalette({
       {
         id: "nav-catalog",
         title: "Explore Course Catalog",
-        description: "Browse all programming & architecture courses",
+        description: "Browse all structured programming & architecture courses",
         category: "Navigation",
         icon: Compass,
         action: () => router.push("/courses"),
+      },
+      {
+        id: "nav-projects",
+        title: "Explore Project Tutorials",
+        description: "Build real-world apps end-to-end with repos & live demos",
+        category: "Navigation",
+        icon: FolderCode,
+        action: () => router.push("/projects"),
+        badge: "G P",
       },
       {
         id: "nav-profile",
@@ -133,6 +143,14 @@ export function CommandPalette({
         category: "Navigation",
         icon: ShieldCheck,
         action: () => router.push("/admin"),
+      },
+      {
+        id: "nav-admin-projects",
+        title: "Admin: Manage Project Tutorials",
+        description: "Create, edit, and organize project tutorials",
+        category: "Navigation",
+        icon: FolderCode,
+        action: () => router.push("/admin/projects"),
       },
 
       // Categories

@@ -317,12 +317,19 @@ export async function sendWelcomeEmail(recipient: EmailRecipient) {
  */
 export async function sendEnrollmentReceiptEmail(
   recipient: EmailRecipient,
-  course: { title: string; price: number | string; slug: string },
+  course: {
+    title: string;
+    price: number | string;
+    slug: string;
+    contentType?: string | null;
+  },
 ) {
   const name = recipient.name || "Student";
   const numPrice = Number(course.price) || 0;
   const formattedPrice = numPrice === 0 ? "Free" : `$${numPrice.toFixed(2)}`;
-  const courseUrl = `${appUrl}/courses/${course.slug}`;
+  const isProject = course.contentType === "PROJECT_TUTORIAL";
+  const itemLabel = isProject ? "project tutorial" : "course";
+  const courseUrl = `${appUrl}/${isProject ? "projects" : "courses"}/${course.slug}`;
   const receiptId = `DF-${Date.now().toString(36).toUpperCase()}`;
   const dateFormatted = new Date().toLocaleDateString("en-US", {
     month: "short",
@@ -398,7 +405,7 @@ export async function sendEnrollmentReceiptEmail(
     </table>
 
     <p style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; margin: 0;">
-      Please retain this email as proof of your enrollment. You can access your course anytime from your <a href="${appUrl}/dashboard" style="color: #ff6636; text-decoration: underline;">student dashboard</a>.
+      Please retain this email as proof of your enrollment. You can access your ${itemLabel} anytime from your <a href="${appUrl}/dashboard" style="color: #ff6636; text-decoration: underline;">student dashboard</a>.
     </p>
   `;
 

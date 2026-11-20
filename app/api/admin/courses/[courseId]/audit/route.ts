@@ -1,12 +1,16 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
-
 import { prisma } from "@/lib/db";
 import {
   getCourseAuditEvents,
   logCourseAuditEventSafe,
 } from "@/lib/course-audit";
+import {
+  getAdminEditHref,
+  getContentTypeMeta,
+  getItemHref,
+} from "@/lib/content-type";
 
 export async function GET(
   _request: NextRequest,
@@ -39,26 +43,26 @@ export async function GET(
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
+    const meta = getContentTypeMeta(course.contentType);
     let events = await getCourseAuditEvents(courseId, 80);
 
-    // Seed legacy courses once so they have an initial persisted timeline.
     if (events.length === 0) {
       await logCourseAuditEventSafe({
         courseId,
-        title: "Course created",
-        description: `Course was created by ${course.instructor.name}.`,
+        title: `${meta.singular} created`,
+        description: `${meta.singular} was created by ${course.instructor.name}.`,
         type: "course",
-        actionUrl: `/admin/courses/${courseId}/edit`,
+        actionUrl: getAdminEditHref(course.contentType, courseId),
         occurredAt: course.createdAt,
       });
 
       if (course.publishedAt) {
         await logCourseAuditEventSafe({
           courseId,
-          title: "Course published",
-          description: "Course was published and made visible to students.",
+          title: `${meta.singular} published`,
+          description: `${meta.singular} was published and made visible to learners.`,
           type: "course",
-          actionUrl: `/courses/${course.slug}`,
+          actionUrl: getItemHref(course.contentType, course.slug),
           occurredAt: course.publishedAt,
         });
       }
@@ -71,6 +75,7 @@ export async function GET(
         id: course.id,
         title: course.title,
         status: course.status,
+        contentType: course.contentType,
       },
       events,
     });

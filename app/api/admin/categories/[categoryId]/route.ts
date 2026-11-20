@@ -3,7 +3,30 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateCategorySlug } from "@/lib/categories";
+import { normalizeCategoryScope, type CategoryScope } from "@/lib/content-type";
 import { getErrorMessage } from "@/lib/utils";
+
+async function getCategoryCounts(slug: string, name: string) {
+  const [courseCount, projectCount] = await Promise.all([
+    prisma.course.count({
+      where: {
+        contentType: "COURSE",
+        OR: [{ category: slug }, { category: name }],
+      },
+    }),
+    prisma.course.count({
+      where: {
+        contentType: "PROJECT_TUTORIAL",
+        OR: [{ category: slug }, { category: name }],
+      },
+    }),
+  ]);
+  return {
+    courseCount,
+    projectCount,
+    totalCount: courseCount + projectCount,
+  };
+}
 
 // GET /api/admin/categories/[categoryId]
 export async function GET(
@@ -33,11 +56,7 @@ export async function GET(
       );
     }
 
-    const courseCount = await prisma.course.count({
-      where: {
-        OR: [{ category: category.slug }, { category: category.name }],
-      },
-    });
+    const counts = await getCategoryCounts(category.slug, category.name);
 
     return NextResponse.json({
       success: true,
@@ -45,7 +64,7 @@ export async function GET(
         ...category,
         createdAt: category.createdAt.toISOString(),
         updatedAt: category.updatedAt.toISOString(),
-        courseCount,
+        ...counts,
       },
     });
   } catch (error) {
@@ -88,7 +107,8 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, slug, description, icon, color, order, isActive } = body;
+    const { name, slug, description, icon, color, scope, order, isActive } =
+      body;
 
     const updateData: {
       name?: string;
@@ -96,6 +116,7 @@ export async function PATCH(
       description?: string | null;
       icon?: string;
       color?: string;
+      scope?: CategoryScope;
       order?: number;
       isActive?: boolean;
     } = {};
@@ -147,6 +168,10 @@ export async function PATCH(
       updateData.color = color ? String(color).trim() : "orange";
     }
 
+    if (scope !== undefined) {
+      updateData.scope = normalizeCategoryScope(scope, existing.scope);
+    }
+
     if (order !== undefined) {
       updateData.order = parseInt(String(order), 10) || 0;
     }
@@ -160,7 +185,6 @@ export async function PATCH(
       data: updateData,
     });
 
-    // If slug changed, cascade update courses with the old slug
     if (finalSlug && finalSlug !== existing.slug) {
       await prisma.course.updateMany({
         where: { category: existing.slug },
@@ -168,11 +192,7 @@ export async function PATCH(
       });
     }
 
-    const courseCount = await prisma.course.count({
-      where: {
-        OR: [{ category: updated.slug }, { category: updated.name }],
-      },
-    });
+    const counts = await getCategoryCounts(updated.slug, updated.name);
 
     return NextResponse.json({
       success: true,
@@ -180,7 +200,7 @@ export async function PATCH(
         ...updated,
         createdAt: updated.createdAt.toISOString(),
         updatedAt: updated.updatedAt.toISOString(),
-        courseCount,
+        ...counts,
       },
     });
   } catch (error) {
@@ -222,7 +242,6 @@ export async function DELETE(
       );
     }
 
-    // Check query params or body for reassignToSlug
     const url = new URL(request.url);
     let reassignToSlug = url.searchParams.get("reassignTo");
 
@@ -267,13 +286,12 @@ export async function DELETE(
           return NextResponse.json(
             {
               success: false,
-              error: "Cannot reassign courses to the category being deleted.",
+              error: "Cannot reassign items to the category being deleted.",
             },
             { status: 400 },
           );
         }
 
-        // Reassign courses
         await prisma.course.updateMany({
           where: {
             OR: [{ category: category.slug }, { category: category.name }],
@@ -284,7 +302,7 @@ export async function DELETE(
         return NextResponse.json(
           {
             success: false,
-            error: `Cannot delete '${category.name}' because ${coursesInCat} course(s) are currently assigned to it. Please provide a replacement category to reassign them to.`,
+            error: `Cannot delete '${category.name}' because ${coursesInCat} course(s)/project(s) are currently assigned to it. Please provide a replacement category to reassign them to.`,
             courseCount: coursesInCat,
           },
           { status: 409 },

@@ -48,6 +48,7 @@ export default function AdminDashboard() {
   interface CourseApiData {
     id: string;
     title: string;
+    contentType?: "COURSE" | "PROJECT_TUTORIAL";
     instructor: string;
     enrollments: number;
     price: string | number;
@@ -86,13 +87,17 @@ export default function AdminDashboard() {
   interface TopCourse {
     id: string;
     name: string;
+    contentType: "COURSE" | "PROJECT_TUTORIAL";
     instructor: string;
     enrollments: number;
     revenue: number;
     status: string;
   }
 
-  const [topCourses, setTopCourses] = useState<TopCourse[]>([]);
+  const [allCatalogCourses, setAllCatalogCourses] = useState<CourseApiData[]>([]);
+  const [topTypeFilter, setTopTypeFilter] = useState<
+    "ALL" | "COURSE" | "PROJECT_TUTORIAL"
+  >("ALL");
   const [period, setPeriod] = useState("30");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -101,11 +106,31 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeCourses: 0,
+    activeCoursesOnly: 0,
+    activeProjectsOnly: 0,
     totalRevenue: 0,
     completionRate: 0,
     recentUsers: 0,
     recentEnrollments: 0,
   });
+
+  const topCourses: TopCourse[] = allCatalogCourses
+    .filter((c) =>
+      topTypeFilter === "ALL"
+        ? true
+        : (c.contentType ?? "COURSE") === topTypeFilter,
+    )
+    .sort((a, b) => b.enrollments - a.enrollments)
+    .slice(0, 5)
+    .map((course) => ({
+      id: course.id,
+      name: course.title,
+      contentType: course.contentType ?? "COURSE",
+      instructor: course.instructor,
+      enrollments: course.enrollments,
+      revenue: Number(course.price) * course.enrollments,
+      status: course.status === "PUBLISHED" ? "active" : "draft",
+    }));
 
   const [insights, setInsights] = useState({
     averageRating: 0,
@@ -165,7 +190,7 @@ export default function AdminDashboard() {
         analyticsResponse,
         statusResponse,
       ] = await Promise.all([
-        fetch("/api/admin/courses"),
+        fetch("/api/admin/courses?type=ALL"),
         fetch("/api/admin/users"),
         fetch("/api/admin/enrollments"),
         fetch(`/api/admin/analytics?period=${period}`),
@@ -183,20 +208,7 @@ export default function AdminDashboard() {
       const periodStartDate = new Date();
       periodStartDate.setDate(periodStartDate.getDate() - Number(period));
 
-      const sorted = courses
-        .sort((a, b) => b.enrollments - a.enrollments)
-        .slice(0, 5);
-
-      setTopCourses(
-        sorted.map((course) => ({
-          id: course.id,
-          name: course.title,
-          instructor: course.instructor,
-          enrollments: course.enrollments,
-          revenue: Number(course.price) * course.enrollments,
-          status: course.status === "PUBLISHED" ? "active" : "draft",
-        })),
-      );
+      setAllCatalogCourses(courses);
 
       const fallbackTotalRevenue = courses.reduce((sum, course) => {
         return sum + course.enrollments * Number(course.price);
@@ -218,10 +230,20 @@ export default function AdminDashboard() {
           new Date(enrollment.createdAt) >= periodStartDate,
       ).length;
 
+      const publishedAll = courses.filter((course) => course.status === "PUBLISHED");
+      const activeCoursesOnly = publishedAll.filter(
+        (c) => (c.contentType ?? "COURSE") === "COURSE",
+      ).length;
+      const activeProjectsOnly = publishedAll.filter(
+        (c) => c.contentType === "PROJECT_TUTORIAL",
+      ).length;
+
       setStats((prev) => ({
         ...prev,
         totalUsers: users.length,
-        activeCourses: courses.filter((course) => course.status === "PUBLISHED").length,
+        activeCourses: publishedAll.length,
+        activeCoursesOnly,
+        activeProjectsOnly,
         totalRevenue: fallbackTotalRevenue,
         completionRate,
       }));
@@ -366,20 +388,46 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/50 px-6 py-5">
-              <div className="flex items-center gap-2.5">
-                <div className="flex size-9 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
-                  <Award className="size-5" />
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex size-9 items-center justify-center rounded-xl bg-[#ff6636]/10 text-[#ff6636]">
+                    <Award className="size-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-extrabold text-foreground">
+                      Top Performing Catalog
+                    </CardTitle>
+                    <p className="text-[11px] font-semibold text-muted-foreground">
+                      {stats.activeCoursesOnly} active courses · {stats.activeProjectsOnly} active projects
+                    </p>
+                  </div>
                 </div>
-                <CardTitle className="text-base font-extrabold text-foreground">
-                  Top Performing Courses
-                </CardTitle>
+                <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
+                  {(["ALL", "COURSE", "PROJECT_TUTORIAL"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTopTypeFilter(t)}
+                      className={cn(
+                        "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
+                        topTypeFilter === t
+                          ? t === "PROJECT_TUTORIAL"
+                            ? "bg-violet-600 text-white"
+                            : "bg-[#ff6636] text-white"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {t === "ALL" ? "All" : t === "COURSE" ? "Courses" : "Projects"}
+                    </button>
+                  ))}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader className="bg-muted/10">
                   <TableRow className="hover:bg-transparent border-b border-border/40">
-                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6">Course</TableHead>
+                    <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6">Item</TableHead>
                     <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4">Instructor</TableHead>
                     <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 text-right">Enrollments</TableHead>
                     <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-4 text-right">Revenue</TableHead>
@@ -390,8 +438,20 @@ export default function AdminDashboard() {
                   {topCourses.length > 0 ? (
                     topCourses.map((course) => (
                       <TableRow key={course.id} className="hover:bg-muted/10 border-b border-border/30 last:border-b-0">
-                        <TableCell className="font-bold text-xs text-foreground px-6 py-4.5 max-w-[200px] truncate">
-                          {course.name}
+                        <TableCell className="font-bold text-xs text-foreground px-6 py-4.5 max-w-[230px]">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={cn(
+                                "shrink-0 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider",
+                                course.contentType === "PROJECT_TUTORIAL"
+                                  ? "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                                  : "bg-[#ff6636]/10 text-[#ff6636]",
+                              )}
+                            >
+                              {course.contentType === "PROJECT_TUTORIAL" ? "Project" : "Course"}
+                            </span>
+                            <span className="truncate">{course.name}</span>
+                          </div>
                         </TableCell>
                         <TableCell className="px-4 py-4.5">
                           <div className="flex items-center gap-2">

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getCertificateCode, type ContentType } from "@/lib/content-type";
 
 // GET /api/certificates - List earned certificates and in-progress certificate tracks
 export async function GET() {
@@ -37,6 +38,8 @@ export async function GET() {
                 slug: true,
                 title: true,
                 description: true,
+                contentType: true,
+                techStack: true,
                 category: true,
                 level: true,
                 imageUrl: true,
@@ -87,6 +90,8 @@ export async function GET() {
       courseId: string;
       courseSlug: string;
       courseTitle: string;
+      contentType: ContentType;
+      techStack: string[];
       courseCategory: string;
       courseLevel: string;
       courseImageUrl: string | null;
@@ -103,6 +108,8 @@ export async function GET() {
       courseId: string;
       courseSlug: string;
       courseTitle: string;
+      contentType: ContentType;
+      techStack: string[];
       courseCategory: string;
       courseLevel: string;
       courseImageUrl: string | null;
@@ -130,9 +137,11 @@ export async function GET() {
           (p) => p.lesson.courseId === enrollment.courseId && p.completedAt,
         );
         const completedAt = lastCompleted?.completedAt || enrollment.updatedAt;
-        const certificateId = `CERT-${enrollment.id
-          .substring(0, 8)
-          .toUpperCase()}-${new Date(completedAt).getFullYear()}`;
+        const certificateId = getCertificateCode(
+          enrollment.course.contentType,
+          enrollment.id,
+          completedAt,
+        );
 
         earned.push({
           enrollmentId: enrollment.id,
@@ -140,6 +149,8 @@ export async function GET() {
           courseId: enrollment.course.id,
           courseSlug: enrollment.course.slug,
           courseTitle: enrollment.course.title,
+          contentType: enrollment.course.contentType,
+          techStack: enrollment.course.techStack || [],
           courseCategory: enrollment.course.category,
           courseLevel: enrollment.course.level,
           courseImageUrl: enrollment.course.imageUrl,
@@ -156,6 +167,8 @@ export async function GET() {
           courseId: enrollment.course.id,
           courseSlug: enrollment.course.slug,
           courseTitle: enrollment.course.title,
+          contentType: enrollment.course.contentType,
+          techStack: enrollment.course.techStack || [],
           courseCategory: enrollment.course.category,
           courseLevel: enrollment.course.level,
           courseImageUrl: enrollment.course.imageUrl,

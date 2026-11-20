@@ -3,10 +3,11 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getCertificateCode } from "@/lib/content-type";
 
 // GET /api/certificates/[enrollmentId] - Get certificate data
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ enrollmentId: string }> },
 ) {
   try {
@@ -36,6 +37,8 @@ export async function GET(
             id: true,
             slug: true,
             title: true,
+            contentType: true,
+            techStack: true,
             category: true,
             level: true,
             durationMinutes: true,
@@ -100,14 +103,18 @@ export async function GET(
 
     const completedAt =
       completedLessons[0]?.completedAt || enrollment.updatedAt || new Date();
-    const certificateId = `CERT-${enrollmentId
-      .substring(0, 8)
-      .toUpperCase()}-${new Date(completedAt).getFullYear()}`;
+    const certificateId = getCertificateCode(
+      enrollment.course.contentType,
+      enrollmentId,
+      completedAt,
+    );
 
     return NextResponse.json({
       enrollmentId,
       courseSlug: enrollment.course.slug,
       courseTitle: enrollment.course.title,
+      contentType: enrollment.course.contentType,
+      techStack: enrollment.course.techStack || [],
       courseCategory: enrollment.course.category,
       courseLevel: enrollment.course.level,
       durationMinutes: enrollment.course.durationMinutes,

@@ -18,6 +18,11 @@ import {
 } from "@/components/marketing/public-chrome";
 import { getProxiedImageUrl } from "@/lib/s3-utils";
 import { normalizeCoursePhases, resolveCoursePhaseId } from "@/lib/course-phases";
+import {
+  getCatalogBasePath,
+  isProjectTutorial,
+  type ContentType,
+} from "@/lib/content-type";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -25,8 +30,14 @@ import {
   BookOpen,
   CheckCircle2,
   Clock3,
+  Code2,
+  ExternalLink,
+  FolderCode,
+  GitBranch,
   GraduationCap,
   Layers3,
+  ListChecks,
+  Lock,
   PlayCircle,
   Sparkles,
   Tag,
@@ -57,9 +68,19 @@ export interface CourseDetail {
   slug: string;
   title: string;
   description: string;
+  contentType?: ContentType;
   category: string;
   level: string;
   tags: string[];
+  demoUrl?: string | null;
+  starterRepoUrl?: string | null;
+  githubUrl?: string | null;
+  hasStarterRepo?: boolean;
+  hasGithubRepo?: boolean;
+  repoAccessLocked?: boolean;
+  techStack?: string[];
+  prerequisites?: string | null;
+  deliverables?: string[];
   price: number;
   durationMinutes?: number | null;
   imageUrl?: string | null;
@@ -140,15 +161,17 @@ function getTagBadgeStyle(tag: string) {
 }
 
 function LessonRow({
+  basePath,
   courseSlug,
   lesson,
 }: {
+  basePath: string;
   courseSlug: string;
   lesson: LessonItem;
 }) {
   return (
     <Link
-      href={`/courses/${courseSlug}/lessons/${lesson.id}`}
+      href={`${basePath}/${courseSlug}/lessons/${lesson.id}`}
       className="group flex items-start gap-3.5 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-[#ff6636] hover:bg-[#ff6636]/5 hover:shadow-2xs"
     >
       <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground transition-colors duration-200 group-hover:bg-[#ff6636]/10 group-hover:text-[#ff6636] font-mono">
@@ -176,7 +199,19 @@ function LessonRow({
 
 export function CourseDetailClient({ course }: { course: CourseDetail }) {
   const { data: session } = authClient.useSession();
+  const isProject = isProjectTutorial(course.contentType);
+  const basePath = getCatalogBasePath(course.contentType);
+  const itemNoun = isProject ? "project tutorial" : "course";
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [starterRepoUrl, setStarterRepoUrl] = useState<string | null>(
+    course.starterRepoUrl ?? null,
+  );
+  const [githubUrl, setGithubUrl] = useState<string | null>(
+    course.githubUrl ?? null,
+  );
+  const [repoAccessLocked, setRepoAccessLocked] = useState<boolean>(
+    Boolean(course.repoAccessLocked),
+  );
   const [enrollmentProgress, setEnrollmentProgress] = useState<number | null>(
     null,
   );
@@ -302,11 +337,34 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
       await res.json();
       setIsEnrolled(true);
-      toast.success("Successfully enrolled in course!");
+      toast.success(
+        isProject
+          ? "Successfully enrolled in project tutorial!"
+          : "Successfully enrolled in course!",
+      );
+
+      // Re-fetch project payload so server-gated repo links unlock immediately
+      if (isProject) {
+        try {
+          const refreshed = await fetch(`/api/projects/${course.slug}`, {
+            cache: "no-store",
+          });
+          if (refreshed.ok) {
+            const refreshedData = await refreshed.json();
+            setStarterRepoUrl(refreshedData.starterRepoUrl ?? null);
+            setGithubUrl(refreshedData.githubUrl ?? null);
+            setRepoAccessLocked(Boolean(refreshedData.repoAccessLocked));
+          }
+        } catch {
+          // ignore
+        }
+      }
     } catch (error) {
       console.error("Enrollment error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to enroll in course",
+        error instanceof Error
+          ? error.message
+          : `Failed to enroll in ${itemNoun}`,
       );
     } finally {
       setEnrolling(false);
@@ -375,7 +433,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
     }
 
     if (!lessonProgress) {
-      return `/courses/${course.slug}/lessons/${orderedLessons[0].id}`;
+      return `${basePath}/${course.slug}/lessons/${orderedLessons[0].id}`;
     }
 
     const nextUncompletedLesson = orderedLessons.find(
@@ -383,22 +441,39 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
     );
 
     if (nextUncompletedLesson) {
-      return `/courses/${course.slug}/lessons/${nextUncompletedLesson.id}`;
+      return `${basePath}/${course.slug}/lessons/${nextUncompletedLesson.id}`;
     }
 
-    return `/courses/${course.slug}/lessons/${orderedLessons[orderedLessons.length - 1].id}`;
-  }, [course.slug, lessonProgress, orderedLessons]);
+    return `${basePath}/${course.slug}/lessons/${orderedLessons[orderedLessons.length - 1].id}`;
+  }, [basePath, course.slug, lessonProgress, orderedLessons]);
 
   const learningCtaLabel =
     enrollmentProgress === 100
       ? "Review lessons"
       : (enrollmentProgress ?? 0) > 0
-        ? "Continue learning"
-        : "Start learning";
+        ? isProject
+          ? "Continue building"
+          : "Continue learning"
+        : isProject
+          ? "Start building"
+          : "Start learning";
+
+  const hasProjectResources =
+    isProject &&
+    Boolean(
+      course.demoUrl ||
+        course.hasStarterRepo ||
+        course.hasGithubRepo ||
+        starterRepoUrl ||
+        githubUrl ||
+        (course.techStack && course.techStack.length > 0) ||
+        course.prerequisites ||
+        (course.deliverables && course.deliverables.length > 0),
+    );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <MarketingPublicHeader activePath="/courses" />
+      <MarketingPublicHeader activePath={basePath} />
 
       <main>
         {/* Deep, Premium Dark Hero Section */}
@@ -409,16 +484,22 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
           <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 relative">
             <Link
-              href="/courses"
+              href={basePath}
               className="inline-flex items-center gap-2 text-sm font-semibold text-[#8c94a3] transition-colors duration-200 hover:text-white"
             >
               <ArrowLeft className="size-4" />
-              Back to courses
+              {isProject ? "Back to projects" : "Back to courses"}
             </Link>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_880px] items-center">
               <div className="max-w-190 space-y-6">
                 <div className="flex flex-wrap gap-2">
+                  {isProject ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-600/85 border border-violet-400/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                      <FolderCode className="size-3.5" />
+                      Project Tutorial
+                    </span>
+                  ) : null}
                   <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-white/10 border border-white/10 text-white">
                     <Tag className="size-3.5 text-[#ff6636]" />
                     {course.category}
@@ -547,13 +628,20 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
               {/* Outcomes Box */}
               <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                  What you will learn
+                  {isProject ? "What you will build" : "What you will learn"}
                 </p>
                 <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  Course overview and outcomes
+                  {isProject
+                    ? "Project overview and deliverables"
+                    : "Course overview and outcomes"}
                 </h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  {learningPoints.map((point) => (
+                  {(isProject &&
+                  course.deliverables &&
+                  course.deliverables.length > 0
+                    ? course.deliverables
+                    : learningPoints
+                  ).map((point) => (
                     <div
                       key={point}
                       className="flex items-start gap-3 rounded-xl border border-border/50 bg-muted/40 p-4 transition-colors duration-200 hover:bg-muted/65"
@@ -568,6 +656,158 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                   ))}
                 </div>
               </section>
+
+              {/* Project Tutorial Resources & Tech Stack */}
+              {hasProjectResources ? (
+                <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-500">
+                        Project Blueprint
+                      </p>
+                      <h2 className="mt-1.5 text-2xl font-bold tracking-tight text-foreground">
+                        Tech Stack &amp; Source Resources
+                      </h2>
+                    </div>
+                    {course.demoUrl ? (
+                      <a
+                        href={course.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white transition-colors shrink-0"
+                      >
+                        <ExternalLink className="size-3.5" />
+                        Open Live Demo
+                      </a>
+                    ) : null}
+                  </div>
+
+                  {/* Tech Stack */}
+                  {course.techStack && course.techStack.length > 0 ? (
+                    <div className="space-y-2.5">
+                      <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Code2 className="size-3.5 text-[#ff6636]" />
+                        Technologies Used
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {course.techStack.map((tech) => (
+                          <span
+                            key={tech}
+                            className="inline-flex items-center rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Prerequisites */}
+                  {course.prerequisites ? (
+                    <div className="space-y-2 rounded-xl border border-border/60 bg-muted/30 p-4">
+                      <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <ListChecks className="size-3.5 text-[#ff6636]" />
+                        Prerequisites
+                      </p>
+                      <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
+                        {course.prerequisites}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {/* GitHub Repositories (Starter + Final, gated on paid projects) */}
+                  {course.hasStarterRepo ||
+                  course.hasGithubRepo ||
+                  starterRepoUrl ||
+                  githubUrl ? (
+                    <div className="space-y-3">
+                      <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <GitBranch className="size-3.5 text-[#ff6636]" />
+                        Source Code Repositories
+                      </p>
+
+                      {repoAccessLocked && !isEnrolled ? (
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+                          <div className="flex items-start gap-3">
+                            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                              <Lock className="size-4" />
+                            </span>
+                            <div>
+                              <p className="text-sm font-bold text-foreground">
+                                {course.hasStarterRepo && course.hasGithubRepo
+                                  ? "Starter & Final GitHub Repositories Included"
+                                  : course.hasStarterRepo
+                                    ? "Starter GitHub Repository Included"
+                                    : "Final Solution GitHub Repository Included"}
+                              </p>
+                              <p className="mt-0.5 text-xs font-medium text-muted-foreground">
+                                Enroll in this project tutorial to unlock direct access to the source repositories.
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={handleEnroll}
+                            disabled={enrolling}
+                            className="rounded-xl bg-[#ff6636] hover:bg-[#e95a2b] text-white font-bold text-xs shrink-0"
+                          >
+                            {enrolling ? "Enrolling..." : "Enroll to Unlock"}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {starterRepoUrl ? (
+                            <a
+                              href={starterRepoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-4 hover:border-[#ff6636]/50 hover:bg-[#ff6636]/5 transition-all"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500">
+                                  <GitBranch className="size-4" />
+                                </span>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold text-foreground group-hover:text-[#ff6636]">
+                                    Starter Boilerplate Repo
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground truncate">
+                                    Clone the starting workspace
+                                  </p>
+                                </div>
+                              </div>
+                              <ExternalLink className="size-4 shrink-0 text-muted-foreground group-hover:text-[#ff6636]" />
+                            </a>
+                          ) : null}
+                          {githubUrl ? (
+                            <a
+                              href={githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-4 hover:border-[#ff6636]/50 hover:bg-[#ff6636]/5 transition-all"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#ff6636]/10 text-[#ff6636]">
+                                  <FolderCode className="size-4" />
+                                </span>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold text-foreground group-hover:text-[#ff6636]">
+                                    Final Reference Repo
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground truncate">
+                                    Inspect the completed solution
+                                  </p>
+                                </div>
+                              </div>
+                              <ExternalLink className="size-4 shrink-0 text-muted-foreground group-hover:text-[#ff6636]" />
+                            </a>
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </section>
+              ) : null}
 
               {/* Phases and Curriculum unified view */}
               {(() => {
@@ -640,7 +880,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                               {phaseStandaloneLessons.length > 0 && (
                                 <div className="grid gap-3">
                                   {phaseStandaloneLessons.map((lesson) => (
-                                    <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                    <LessonRow key={lesson.id} basePath={basePath} courseSlug={course.slug} lesson={lesson} />
                                   ))}
                                 </div>
                               )}
@@ -679,7 +919,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                                     <AccordionContent className="px-5 pt-3 pb-5 border-t border-border/40 bg-card">
                                       <div className="grid gap-3 mt-1">
                                         {moduleItem.lessons.slice().sort((a, b) => a.order - b.order).map((lesson) => (
-                                          <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                          <LessonRow key={lesson.id} basePath={basePath} courseSlug={course.slug} lesson={lesson} />
                                         ))}
                                       </div>
                                     </AccordionContent>
@@ -721,7 +961,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                           {unassignedPhaseLessons.length > 0 && (
                             <div className="grid gap-3 lg:pl-14">
                               {unassignedPhaseLessons.map((lesson) => (
-                                <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                <LessonRow key={lesson.id} basePath={basePath} courseSlug={course.slug} lesson={lesson} />
                               ))}
                             </div>
                           )}
@@ -760,7 +1000,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                                     <AccordionContent className="px-5 pt-3 pb-5 border-t border-border/40 bg-card">
                                       <div className="grid gap-3 mt-1">
                                         {moduleItem.lessons.slice().sort((a, b) => a.order - b.order).map((lesson) => (
-                                          <LessonRow key={lesson.id} courseSlug={course.slug} lesson={lesson} />
+                                          <LessonRow key={lesson.id} basePath={basePath} courseSlug={course.slug} lesson={lesson} />
                                         ))}
                                       </div>
                                     </AccordionContent>
@@ -806,6 +1046,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                         {unassignedLessons.map((lesson) => (
                           <LessonRow
                             key={lesson.id}
+                            basePath={basePath}
                             courseSlug={course.slug}
                             lesson={lesson}
                           />
@@ -857,6 +1098,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                                   .map((lesson) => (
                                     <LessonRow
                                       key={lesson.id}
+                                      basePath={basePath}
                                       courseSlug={course.slug}
                                       lesson={lesson}
                                     />
@@ -895,19 +1137,19 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                       />
                     ) : (
                       <div className="rounded-xl border border-border bg-muted/40 p-5 text-sm leading-relaxed text-foreground/75 font-medium">
-                        Finish this course to unlock reviews. Your current
+                        Finish this {itemNoun} to unlock reviews. Your current
                         progress is {enrollmentProgress ?? 0}%.
                       </div>
                     )
                   ) : (
                     <div className="rounded-xl border border-border bg-muted/40 p-5 text-sm leading-relaxed text-foreground/75 font-medium">
-                      Enroll in this course to leave a review after completion.
+                      Enroll in this {itemNoun} to leave a review after completion.
                     </div>
                   )
                 ) : (
                   <div className="rounded-xl border border-border bg-muted/40 p-5 text-sm leading-relaxed text-foreground/75 font-medium">
-                    Sign in and enroll to leave your review after completing the
-                    course.
+                    Sign in and enroll to leave your review after completing the{" "}
+                    {itemNoun}.
                   </div>
                 )}
 
@@ -938,7 +1180,7 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
 
                   <p className="mt-4 text-xs leading-relaxed text-muted-foreground font-medium">
                     By {course.instructor}. Enroll to track progress, return to
-                    lessons anytime, and keep the course in your dashboard.
+                    lessons anytime, and keep this {itemNoun} in your dashboard.
                   </p>
 
                   <div className="mt-6">
@@ -965,7 +1207,11 @@ export function CourseDetailClient({ course }: { course: CourseDetail }) {
                         onClick={handleEnroll}
                         disabled={enrolling}
                       >
-                        {enrolling ? "Enrolling..." : "Enroll now"}
+                        {enrolling
+                          ? "Enrolling..."
+                          : isProject
+                            ? "Start Project"
+                            : "Enroll now"}
                       </Button>
                     )}
                   </div>

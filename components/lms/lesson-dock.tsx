@@ -20,6 +20,7 @@ interface LessonDockProps {
   lessonTitle: string;
   courseSlug?: string;
   courseTitle?: string;
+  basePath?: string;
   isEnrolled: boolean;
 }
 
@@ -28,6 +29,7 @@ export function LessonDock({
   lessonTitle,
   courseSlug,
   courseTitle,
+  basePath = "/courses",
   isEnrolled,
 }: LessonDockProps) {
   const [activeTab, setActiveTab] = useState<"qa" | "notes" | "guide">("qa");
@@ -147,11 +149,15 @@ export function LessonDock({
             <div className="space-y-2 pt-1">
               {courseSlug && (
                 <Link
-                  href={`/courses/${courseSlug}`}
+                  href={`${basePath}/${courseSlug}`}
                   className="flex items-center gap-2 rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
                 >
                   <BookOpen className="size-3.5 text-[#ff6636]" />
-                  <span>Course Syllabus &amp; Reviews</span>
+                  <span>
+                    {basePath === "/projects"
+                      ? "Project Overview & Reviews"
+                      : "Course Syllabus & Reviews"}
+                  </span>
                 </Link>
               )}
               <Link

@@ -1,3 +1,7 @@
+import type { CategoryScope, ContentType } from "@/lib/content-type";
+
+export type { CategoryScope, ContentType };
+
 export interface CourseCategory {
   id: string;
   name: string;
@@ -5,11 +9,14 @@ export interface CourseCategory {
   description?: string | null;
   icon?: string | null;
   color?: string | null;
+  scope: CategoryScope;
   order: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   courseCount?: number;
+  projectCount?: number;
+  totalCount?: number;
 }
 
 export interface Course {
@@ -17,10 +24,17 @@ export interface Course {
   slug: string;
   title: string;
   description: string;
+  contentType: ContentType;
   category: string;
   level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
   tags: string[];
   phases?: { id: string; title: string; description?: string }[] | null;
+  demoUrl?: string | null;
+  starterRepoUrl?: string | null;
+  githubUrl?: string | null;
+  techStack?: string[];
+  prerequisites?: string | null;
+  deliverables?: string[];
   price: number;
   durationMinutes?: number;
   imageUrl?: string;
@@ -54,7 +68,12 @@ export interface Lesson {
   videoUrl?: string | null;
   durationSeconds?: number | null;
   phaseId?: string | null;
-  quiz?: any;
+  quiz?: {
+    id: string;
+    title: string;
+    passingScore?: number;
+    questions?: unknown[];
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

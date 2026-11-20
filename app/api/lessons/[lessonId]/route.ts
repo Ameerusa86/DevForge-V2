@@ -26,6 +26,7 @@ export async function GET(
             id: true,
             title: true,
             price: true,
+            contentType: true,
           },
         },
       },
@@ -35,7 +36,11 @@ export async function GET(
       return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
     }
 
-    // If lesson is free, allow access to everyone
+    const itemNoun =
+      lesson.course.contentType === "PROJECT_TUTORIAL"
+        ? "project tutorial"
+        : "course";
+
     if (lesson.isFree) {
       return NextResponse.json({
         ...lesson,
@@ -43,7 +48,6 @@ export async function GET(
       });
     }
 
-    // For premium lessons, check if user is enrolled
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -57,12 +61,10 @@ export async function GET(
         content: null,
         isFree: false,
         isLocked: true,
-        message:
-          "This lesson requires enrollment. Please enroll in the course to access this content.",
+        message: `This lesson requires enrollment. Please enroll in the ${itemNoun} to access this content.`,
       });
     }
 
-    // Check if user is enrolled in the course
     const enrollment = await prisma.enrollment.findUnique({
       where: {
         userId_courseId: {
@@ -81,12 +83,10 @@ export async function GET(
         content: null,
         isFree: false,
         isLocked: true,
-        message:
-          "This lesson requires enrollment. Please enroll in the course to access this content.",
+        message: `This lesson requires enrollment. Please enroll in the ${itemNoun} to access this content.`,
       });
     }
 
-    // User is enrolled, return full lesson content
     return NextResponse.json({
       ...lesson,
       isLocked: false,

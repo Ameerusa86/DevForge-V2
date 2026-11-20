@@ -6,28 +6,31 @@ import { formatDistanceToNow } from "date-fns";
 export async function GET() {
   try {
     const [recentUsers, recentEnrollments, recentCourses] = await Promise.all([
-      // New user registrations
       prisma.user.findMany({
         select: { id: true, name: true, email: true, createdAt: true },
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
-      // New enrollments with user + course
       prisma.enrollment.findMany({
         select: {
           id: true,
           createdAt: true,
           progress: true,
           user: { select: { name: true } },
-          course: { select: { title: true } },
+          course: { select: { title: true, contentType: true } },
         },
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
-      // Published courses
       prisma.course.findMany({
         where: { status: "PUBLISHED" },
-        select: { id: true, title: true, publishedAt: true, createdAt: true },
+        select: {
+          id: true,
+          title: true,
+          contentType: true,
+          publishedAt: true,
+          createdAt: true,
+        },
         orderBy: { publishedAt: "desc" },
         take: 10,
       }),
@@ -57,10 +60,14 @@ export async function GET() {
     }
 
     for (const e of recentEnrollments) {
+      const itemLabel =
+        e.course.contentType === "PROJECT_TUTORIAL"
+          ? "Project tutorial"
+          : "Course";
       if (e.progress === 100) {
         activities.push({
           id: `enroll-complete-${e.id}`,
-          title: "Course completed",
+          title: `${itemLabel} completed`,
           description: `${e.user.name || "A student"} completed "${e.course.title}"`,
           time: formatDistanceToNow(new Date(e.createdAt), { addSuffix: true }),
           rawTime: new Date(e.createdAt),
@@ -80,9 +87,11 @@ export async function GET() {
 
     for (const c of recentCourses) {
       const ts = c.publishedAt ?? c.createdAt;
+      const itemLabel =
+        c.contentType === "PROJECT_TUTORIAL" ? "Project tutorial" : "Course";
       activities.push({
         id: `course-${c.id}`,
-        title: "Course published",
+        title: `${itemLabel} published`,
         description: `"${c.title}" is now live`,
         time: formatDistanceToNow(new Date(ts), { addSuffix: true }),
         rawTime: new Date(ts),
@@ -90,7 +99,6 @@ export async function GET() {
       });
     }
 
-    // Sort by most recent and return top 20
     activities.sort((a, b) => b.rawTime.getTime() - a.rawTime.getTime());
     const result = activities
       .slice(0, 20)

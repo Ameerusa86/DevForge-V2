@@ -53,6 +53,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
+import {
+  getItemHref,
+  isProjectTutorial,
+  normalizeContentType,
+  type ContentType,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
 import { cn } from "@/lib/utils";
 
 interface EnrollmentData {
@@ -60,6 +68,13 @@ interface EnrollmentData {
   studentName: string;
   email: string;
   courseName: string;
+  contentType?: ContentType;
+  course?: {
+    id: string;
+    title: string;
+    slug: string;
+    contentType?: ContentType;
+  };
   progress: number;
   createdAt: string;
 }
@@ -67,6 +82,8 @@ interface EnrollmentData {
 export default function EnrollmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "completed">("all");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,13 +94,10 @@ export default function EnrollmentsPage() {
   const [targetCourse, setTargetCourse] = useState("");
   const [initialProgress, setInitialProgress] = useState("0");
 
-  // Dynamic Course List for Select dropdown
-  const [availableCourses, setAvailableCourses] = useState<string[]>([
-    "Interactive Blueprint: React & Next.js",
-    "Advanced C# & ASP.NET Core Masterclass",
-    "Python & Machine Learning Foundations",
-    "Full-Stack Web Development Bootcamp",
-  ]);
+  // Dynamic Course & Project List for Select dropdown
+  const [availableCourses, setAvailableCourses] = useState<
+    Array<{ title: string; contentType: ContentType }>
+  >([]);
 
   const fetchEnrollments = async () => {
     try {
@@ -137,6 +151,19 @@ export default function EnrollmentsPage() {
 
   useEffect(() => {
     fetchEnrollments();
+    fetch("/api/admin/courses?type=ALL", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((items: Array<{ title: string; contentType?: ContentType }>) => {
+        if (Array.isArray(items) && items.length > 0) {
+          setAvailableCourses(
+            items.map((item) => ({
+              title: item.title,
+              contentType: normalizeContentType(item.contentType),
+            })),
+          );
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleDelete = async (enrollmentId: string) => {
@@ -170,11 +197,15 @@ export default function EnrollmentsPage() {
       return;
     }
 
+    const matchedCatalog = availableCourses.find(
+      (item) => item.title === targetCourse,
+    );
     const newEnrollment: EnrollmentData = {
       id: `en-${Date.now()}`,
       studentName: studentName,
       email: studentEmail,
       courseName: targetCourse,
+      contentType: matchedCatalog?.contentType ?? "COURSE",
       progress: Number(initialProgress) || 0,
       createdAt: new Date().toISOString(),
     };
@@ -203,7 +234,12 @@ export default function EnrollmentsPage() {
     toast.success("Enrollment catalog exported.");
   };
 
-  const filteredEnrollments = enrollments.filter((e) => {
+  const typeFilteredEnrollments = enrollments.filter((e) => {
+    const itemType = normalizeContentType(e.contentType ?? e.course?.contentType);
+    return contentTypeFilter === "ALL" || itemType === contentTypeFilter;
+  });
+
+  const filteredEnrollments = typeFilteredEnrollments.filter((e) => {
     const matchesSearch =
       e.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -218,13 +254,13 @@ export default function EnrollmentsPage() {
   });
 
   const stats = {
-    totalEnrollments: enrollments.length,
-    activeEnrollments: enrollments.filter((e) => e.progress < 100).length,
-    completedEnrollments: enrollments.filter((e) => e.progress === 100).length,
+    totalEnrollments: typeFilteredEnrollments.length,
+    activeEnrollments: typeFilteredEnrollments.filter((e) => e.progress < 100).length,
+    completedEnrollments: typeFilteredEnrollments.filter((e) => e.progress === 100).length,
     averageProgress:
       Math.round(
-        enrollments.reduce((sum, e) => sum + e.progress, 0) /
-          enrollments.length,
+        typeFilteredEnrollments.reduce((sum, e) => sum + e.progress, 0) /
+          typeFilteredEnrollments.length,
       ) || 0,
   };
 
@@ -353,22 +389,48 @@ export default function EnrollmentsPage() {
         </div>
 
         {/* Filter buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-[9px] font-extrabold uppercase tracking-wider text-muted-foreground whitespace-nowrap">Filter Status:</span>
-          {(["all", "active", "completed"] as const).map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={cn(
-                "rounded-xl px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider border transition-all whitespace-nowrap",
-                filterStatus === status
-                  ? "bg-[#ff6636] border-[#ff6636] text-white"
-                  : "bg-background border-border text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {status}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3 overflow-x-auto">
+          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/30 p-1">
+            {(
+              [
+                { value: "ALL", label: "All" },
+                { value: "COURSE", label: "Courses" },
+                { value: "PROJECT_TUTORIAL", label: "Projects" },
+              ] as const
+            ).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setContentTypeFilter(option.value)}
+                className={cn(
+                  "rounded-lg px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider transition-all whitespace-nowrap",
+                  contentTypeFilter === option.value
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] font-extrabold uppercase tracking-wider text-muted-foreground whitespace-nowrap">Filter Status:</span>
+            {(["all", "active", "completed"] as const).map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(status)}
+                className={cn(
+                  "rounded-xl px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider border transition-all whitespace-nowrap",
+                  filterStatus === status
+                    ? "bg-[#ff6636] border-[#ff6636] text-white"
+                    : "bg-background border-border text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
         </div>
 
       </div>
@@ -411,8 +473,42 @@ export default function EnrollmentsPage() {
                       <TableCell className="px-4 py-4 text-xs font-semibold text-muted-foreground">
                         {enrollment.email}
                       </TableCell>
-                      <TableCell className="px-4 py-4 text-xs font-bold text-foreground max-w-[240px] truncate">
-                        {enrollment.courseName}
+                      <TableCell className="px-4 py-4 text-xs font-bold text-foreground max-w-[260px]">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "shrink-0 text-[9px] font-extrabold uppercase tracking-wider",
+                              isProjectTutorial(
+                                enrollment.contentType ??
+                                  enrollment.course?.contentType,
+                              )
+                                ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                                : "border-[#ff6636]/30 bg-[#ff6636]/10 text-[#ff6636]",
+                            )}
+                          >
+                            {isProjectTutorial(
+                              enrollment.contentType ??
+                                enrollment.course?.contentType,
+                            )
+                              ? "Project"
+                              : "Course"}
+                          </Badge>
+                          {enrollment.course?.slug ? (
+                            <Link
+                              href={getItemHref(
+                                enrollment.contentType ??
+                                  enrollment.course?.contentType,
+                                enrollment.course.slug,
+                              )}
+                              className="truncate hover:text-[#ff6636] transition-colors"
+                            >
+                              {enrollment.courseName}
+                            </Link>
+                          ) : (
+                            <span className="truncate">{enrollment.courseName}</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="px-4 py-4">
                         <div className="space-y-1 w-32">
@@ -541,8 +637,13 @@ export default function EnrollmentsPage() {
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {availableCourses.map((course) => (
-                    <SelectItem key={course} value={course} className="text-xs font-semibold">
-                      {course}
+                    <SelectItem
+                      key={`${course.contentType}-${course.title}`}
+                      value={course.title}
+                      className="text-xs font-semibold"
+                    >
+                      [{isProjectTutorial(course.contentType) ? "Project" : "Course"}]{" "}
+                      {course.title}
                     </SelectItem>
                   ))}
                 </SelectContent>

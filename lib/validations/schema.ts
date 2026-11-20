@@ -1,6 +1,14 @@
 import { z } from "zod";
 
 // Enums matching Prisma schema
+export const ContentTypeSchema = z.enum(["COURSE", "PROJECT_TUTORIAL"]);
+
+export const CategoryScopeSchema = z.enum([
+  "BOTH",
+  "COURSE",
+  "PROJECT_TUTORIAL",
+]);
+
 export const CourseLevelSchema = z.enum([
   "BEGINNER",
   "INTERMEDIATE",
@@ -21,10 +29,14 @@ export const CreateCategorySchema = z.object({
   slug: z
     .string()
     .min(1, "Slug is required")
-    .regex(/^[A-Za-z0-9_-]+$/, "Slug can only contain letters, numbers, hyphens and underscores"),
+    .regex(
+      /^[A-Za-z0-9_-]+$/,
+      "Slug can only contain letters, numbers, hyphens and underscores",
+    ),
   description: z.string().max(500).optional().nullable(),
   icon: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
+  scope: CategoryScopeSchema.default("BOTH").optional(),
   order: z.number().int().default(0).optional(),
   isActive: z.boolean().default(true).optional(),
 });
@@ -52,15 +64,22 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = CreateUserSchema.partial().omit({ id: true });
 
-// Course schemas
+// Course / Project Tutorial schemas
 export const CourseSchema = z.object({
   id: z.string().uuid(),
   slug: z.string().min(1),
   title: z.string().min(1),
   description: z.string().min(1),
+  contentType: ContentTypeSchema.default("COURSE"),
   category: CourseCategorySchema,
   level: CourseLevelSchema.default("BEGINNER"),
   tags: z.array(z.string()).default([]),
+  demoUrl: z.string().url().nullable().optional(),
+  starterRepoUrl: z.string().url().nullable().optional(),
+  githubUrl: z.string().url().nullable().optional(),
+  techStack: z.array(z.string()).default([]),
+  prerequisites: z.string().nullable().optional(),
+  deliverables: z.array(z.string()).default([]),
   price: z.number().min(0).default(0),
   durationMinutes: z.number().int().positive().nullable().optional(),
   imageUrl: z.string().url().nullable().optional(),
@@ -79,9 +98,20 @@ export const CreateCourseSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
+  contentType: ContentTypeSchema.default("COURSE").optional(),
   category: CourseCategorySchema,
   level: CourseLevelSchema.default("BEGINNER"),
   tags: z.array(z.string()).default([]).optional(),
+  demoUrl: z.string().url("Invalid demo URL").nullable().optional(),
+  starterRepoUrl: z
+    .string()
+    .url("Invalid starter repo URL")
+    .nullable()
+    .optional(),
+  githubUrl: z.string().url("Invalid GitHub repo URL").nullable().optional(),
+  techStack: z.array(z.string()).default([]).optional(),
+  prerequisites: z.string().max(2000).nullable().optional(),
+  deliverables: z.array(z.string()).default([]).optional(),
   price: z.number().min(0, "Price must be positive").default(0).optional(),
   durationMinutes: z
     .number()
@@ -199,6 +229,7 @@ export const VerificationSchema = z.object({
 
 // Query/Filter schemas
 export const CourseFilterSchema = z.object({
+  contentType: ContentTypeSchema.optional(),
   category: CourseCategorySchema.optional(),
   level: CourseLevelSchema.optional(),
   status: CourseStatusSchema.optional(),
@@ -207,6 +238,7 @@ export const CourseFilterSchema = z.object({
   search: z.string().optional(),
   instructorId: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  techStack: z.array(z.string()).optional(),
 });
 
 export const PaginationSchema = z.object({
@@ -217,6 +249,8 @@ export const PaginationSchema = z.object({
 });
 
 // Type exports
+export type ContentType = z.infer<typeof ContentTypeSchema>;
+export type CategoryScope = z.infer<typeof CategoryScopeSchema>;
 export type CourseLevel = z.infer<typeof CourseLevelSchema>;
 export type CourseStatus = z.infer<typeof CourseStatusSchema>;
 export type CourseCategory = z.infer<typeof CourseCategorySchema>;

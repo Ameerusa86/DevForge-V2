@@ -13,13 +13,21 @@ export interface CourseWithStats
   > {
   instructor: string;
   enrollments: number;
+  modules?: number;
   lessons: number;
   rating: number;
+  totalReviews?: number;
   revenue: string;
   createdAt: string;
   updatedAt: string;
   price: number;
   publishedAt: string | undefined;
+  schedule?: {
+    courseId: string;
+    publishAt: string | null;
+    unpublishAt: string | null;
+    updatedAt: string;
+  } | null;
 }
 
 export interface UserWithDetails {

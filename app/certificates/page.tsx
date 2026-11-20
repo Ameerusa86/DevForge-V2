@@ -14,6 +14,7 @@ import {
   Compass,
   Copy,
   ExternalLink,
+  FolderCode,
   Info,
   Play,
   RefreshCw,
@@ -47,6 +48,12 @@ import {
   getLevelBadgeClass,
 } from "@/lib/learner-ui";
 import { cn } from "@/lib/utils";
+import {
+  getItemHref,
+  isProjectTutorial,
+  type ContentType,
+  type ContentTypeFilter,
+} from "@/lib/content-type";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,6 +63,8 @@ interface EarnedCertificate {
   courseId: string;
   courseSlug: string;
   courseTitle: string;
+  contentType?: ContentType;
+  techStack?: string[];
   courseCategory: string;
   courseLevel: string;
   courseImageUrl: string | null;
@@ -72,6 +81,8 @@ interface InProgressCredential {
   courseId: string;
   courseSlug: string;
   courseTitle: string;
+  contentType?: ContentType;
+  techStack?: string[];
   courseCategory: string;
   courseLevel: string;
   courseImageUrl: string | null;
@@ -115,6 +126,8 @@ export default function CertificatesPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [contentTypeFilter, setContentTypeFilter] =
+    useState<ContentTypeFilter>("ALL");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const shouldRedirectToLogin = !isPending && !session?.user;
@@ -186,6 +199,18 @@ export default function CertificatesPage() {
     if (!data) return [];
     return data.earned.filter((cert) => {
       if (
+        contentTypeFilter === "COURSE" &&
+        cert.contentType === "PROJECT_TUTORIAL"
+      ) {
+        return false;
+      }
+      if (
+        contentTypeFilter === "PROJECT_TUTORIAL" &&
+        cert.contentType !== "PROJECT_TUTORIAL"
+      ) {
+        return false;
+      }
+      if (
         selectedCategory !== "ALL" &&
         cert.courseCategory !== selectedCategory
       ) {
@@ -202,11 +227,23 @@ export default function CertificatesPage() {
       }
       return true;
     });
-  }, [data, selectedCategory, searchQuery]);
+  }, [data, contentTypeFilter, selectedCategory, searchQuery]);
 
   const filteredInProgress = useMemo(() => {
     if (!data) return [];
     return data.inProgress.filter((item) => {
+      if (
+        contentTypeFilter === "COURSE" &&
+        item.contentType === "PROJECT_TUTORIAL"
+      ) {
+        return false;
+      }
+      if (
+        contentTypeFilter === "PROJECT_TUTORIAL" &&
+        item.contentType !== "PROJECT_TUTORIAL"
+      ) {
+        return false;
+      }
       if (
         selectedCategory !== "ALL" &&
         item.courseCategory !== selectedCategory
@@ -223,7 +260,7 @@ export default function CertificatesPage() {
       }
       return true;
     });
-  }, [data, selectedCategory, searchQuery]);
+  }, [data, contentTypeFilter, selectedCategory, searchQuery]);
 
   const totalCertifiedMinutes = useMemo(() => {
     if (!data) return 0;
@@ -439,6 +476,48 @@ export default function CertificatesPage() {
                 </SelectContent>
               </Select>
             )}
+
+            {/* Content Type Tabs */}
+            <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1 w-fit shrink-0">
+              <button
+                type="button"
+                onClick={() => setContentTypeFilter("ALL")}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                  contentTypeFilter === "ALL"
+                    ? "bg-foreground text-background shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setContentTypeFilter("COURSE")}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                  contentTypeFilter === "COURSE"
+                    ? "bg-[#ff6636] text-white shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <BookOpen className="size-3" />
+                Courses
+              </button>
+              <button
+                type="button"
+                onClick={() => setContentTypeFilter("PROJECT_TUTORIAL")}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                  contentTypeFilter === "PROJECT_TUTORIAL"
+                    ? "bg-violet-600 text-white shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <FolderCode className="size-3" />
+                Projects
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
@@ -530,6 +609,7 @@ export default function CertificatesPage() {
                 const cat = getCategoryMeta(cert.courseCategory);
                 const CatIcon = cat.icon;
                 const isCopied = copiedId === cert.enrollmentId;
+                const isProject = isProjectTutorial(cert.contentType);
 
                 return (
                   <article
@@ -537,11 +617,29 @@ export default function CertificatesPage() {
                     className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#ff6636]/50 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/40"
                   >
                     {/* Miniature Certificate Header Crest */}
-                    <div className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-[#fff7f3] via-card to-[#fff2ea] dark:from-[#1d2026] dark:via-card dark:to-[#241b17] p-6">
+                    <div
+                      className={cn(
+                        "relative overflow-hidden border-b border-border/60 bg-gradient-to-br p-6",
+                        isProject
+                          ? "from-violet-500/10 via-card to-[#fff2ea] dark:from-violet-950/30 dark:via-card dark:to-[#1d2026]"
+                          : "from-[#fff7f3] via-card to-[#fff2ea] dark:from-[#1d2026] dark:via-card dark:to-[#241b17]",
+                      )}
+                    >
                       <div className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full bg-[#ff6636]/10 blur-2xl" />
                       <div className="relative flex items-start justify-between gap-3">
-                        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#ff6636] text-white shadow-md shadow-[#ff6636]/25">
-                          <Award className="size-6" />
+                        <div
+                          className={cn(
+                            "flex size-12 items-center justify-center rounded-2xl text-white shadow-md",
+                            isProject
+                              ? "bg-violet-600 shadow-violet-500/25"
+                              : "bg-[#ff6636] shadow-[#ff6636]/25",
+                          )}
+                        >
+                          {isProject ? (
+                            <FolderCode className="size-6" />
+                          ) : (
+                            <Award className="size-6" />
+                          )}
                         </div>
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                           <CheckCircle2 className="size-3" /> Verified
@@ -549,8 +647,15 @@ export default function CertificatesPage() {
                       </div>
 
                       <div className="relative mt-5 space-y-1">
-                        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#ff6636]">
-                          Certificate of Completion
+                        <p
+                          className={cn(
+                            "text-[10px] font-extrabold uppercase tracking-[0.2em]",
+                            isProject ? "text-violet-500" : "text-[#ff6636]",
+                          )}
+                        >
+                          {isProject
+                            ? "Certificate of Project Completion"
+                            : "Certificate of Completion"}
                         </p>
                         <h3 className="text-lg font-extrabold leading-snug text-foreground line-clamp-2 group-hover:text-[#ff6636] transition-colors">
                           {cert.courseTitle}
@@ -561,6 +666,16 @@ export default function CertificatesPage() {
                     {/* Metadata Body */}
                     <div className="flex flex-1 flex-col p-5 space-y-4">
                       <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase",
+                            isProject
+                              ? "bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20"
+                              : "bg-[#ff6636]/10 text-[#ff6636] border border-[#ff6636]/20",
+                          )}
+                        >
+                          {isProject ? "Project" : "Course"}
+                        </span>
                         <span
                           className={cn(
                             "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase",
@@ -691,7 +806,7 @@ export default function CertificatesPage() {
                         </span>
                       </div>
                       <Link
-                        href={`/courses/${item.courseSlug}`}
+                        href={getItemHref(item.contentType, item.courseSlug)}
                         className="block text-sm font-bold text-foreground hover:text-[#ff6636] transition-colors line-clamp-2"
                       >
                         {item.courseTitle}
@@ -720,7 +835,7 @@ export default function CertificatesPage() {
                     </div>
 
                     <Link
-                      href={`/courses/${item.courseSlug}`}
+                      href={getItemHref(item.contentType, item.courseSlug)}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-muted/40 hover:bg-[#ff6636] hover:text-white hover:border-[#ff6636] py-2.5 text-xs font-bold text-foreground transition-all"
                     >
                       <Play className="size-3.5 fill-current" /> Continue to

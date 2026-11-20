@@ -11,6 +11,7 @@ import {
   type CourseContentSummary,
 } from "@/lib/content-audit";
 import { logCourseAuditEventSafe } from "@/lib/course-audit";
+import { getAdminLessonsHref } from "@/lib/content-type";
 import { normalizeCoursePhases, resolveCoursePhaseId } from "@/lib/course-phases";
 import { prisma } from "@/lib/db";
 import { extractYouTubeId } from "@/lib/youtube";
@@ -27,6 +28,7 @@ export async function GET() {
           title: true,
           slug: true,
           status: true,
+          contentType: true,
           phases: true,
           instructor: {
             select: { name: true },
@@ -42,6 +44,7 @@ export async function GET() {
               title: true,
               slug: true,
               status: true,
+              contentType: true,
               phases: true,
               instructor: {
                 select: { name: true },
@@ -170,6 +173,7 @@ export async function GET() {
         courseTitle: lesson.course.title,
         courseSlug: lesson.course.slug,
         courseStatus: lesson.course.status,
+        contentType: lesson.course.contentType,
         courseHasPhases,
         instructorName: lesson.course.instructor.name,
         moduleId: lesson.moduleId ?? null,
@@ -246,6 +250,7 @@ export async function GET() {
         courseTitle: course.title,
         courseSlug: course.slug,
         courseStatus: course.status,
+        contentType: course.contentType,
         instructorName: course.instructor.name,
         totalLessons,
         readyLessons,
@@ -313,7 +318,10 @@ export async function PATCH(request: NextRequest) {
 
     const affected = await prisma.lesson.findMany({
       where: { id: { in: body.lessonIds } },
-      select: { courseId: true },
+      select: {
+        courseId: true,
+        course: { select: { contentType: true } },
+      },
       distinct: ["courseId"],
     });
 
@@ -324,7 +332,7 @@ export async function PATCH(request: NextRequest) {
           title: "Bulk lesson access updated",
           description: `Updated preview access to ${body.isFree ? "Free Preview" : "Paid"} from Content QA.`,
           type: "lesson",
-          actionUrl: `/admin/courses/${row.courseId}/lessons`,
+          actionUrl: getAdminLessonsHref(row.course.contentType, row.courseId),
         }),
       ),
     );

@@ -1,12 +1,13 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
-
+import { prisma } from "@/lib/db";
 import {
   getCourseScheduleById,
   setCourseSchedule,
 } from "@/lib/course-schedule";
 import { logCourseAuditEventSafe } from "@/lib/course-audit";
+import { getAdminEditHref } from "@/lib/content-type";
 
 export async function GET(
   _request: NextRequest,
@@ -70,12 +71,17 @@ export async function PATCH(
 
     await setCourseSchedule(courseId, publishAt, unpublishAt);
 
+    const item = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { contentType: true },
+    });
+
     await logCourseAuditEventSafe({
       courseId,
       title: "Schedule updated",
       description: `Publish: ${publishAt ? publishAt.toISOString() : "none"}, Unpublish: ${unpublishAt ? unpublishAt.toISOString() : "none"}.`,
       type: "course",
-      actionUrl: `/admin/courses/${courseId}/edit`,
+      actionUrl: getAdminEditHref(item?.contentType, courseId),
     });
 
     const schedule = await getCourseScheduleById(courseId);

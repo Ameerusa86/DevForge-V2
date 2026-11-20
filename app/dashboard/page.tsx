@@ -15,6 +15,7 @@ import {
   Clock3,
   Compass,
   Flame,
+  FolderCode,
   LayoutDashboard,
   Play,
   PlayCircle,
@@ -42,6 +43,12 @@ import {
   getProgressState,
 } from "@/lib/learner-ui";
 import { getProxiedImageUrl } from "@/lib/s3-utils";
+import {
+  getItemHref,
+  getLessonHref,
+  isProjectTutorial,
+  type ContentType,
+} from "@/lib/content-type";
 import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -51,6 +58,7 @@ interface Course {
   slug: string;
   title: string;
   description: string;
+  contentType?: ContentType;
   category: string;
   level: string;
   price?: number;
@@ -82,6 +90,7 @@ interface RecentActivity {
       id: string;
       slug: string;
       title: string;
+      contentType?: ContentType;
     };
   } | null;
 }
@@ -89,6 +98,8 @@ interface RecentActivity {
 interface DashboardData {
   stats: {
     totalEnrolled: number;
+    enrolledCourses?: number;
+    enrolledProjects?: number;
     inProgress: number;
     readyToStart: number;
     completed: number;
@@ -100,6 +111,7 @@ interface DashboardData {
   enrollments: Enrollment[];
   recentActivity: RecentActivity[];
   recommendedCourses: Course[];
+  recommendedProjects?: Course[];
 }
 
 // ─── API Helper ───────────────────────────────────────────────────────────────
@@ -278,8 +290,12 @@ export default function DashboardPage() {
 
   const nextFocusHref = nextFocus
     ? nextFocus.nextLesson
-      ? `/courses/${nextFocus.course.slug}/lessons/${nextFocus.nextLesson.id}`
-      : `/courses/${nextFocus.course.slug}`
+      ? getLessonHref(
+          nextFocus.course.contentType,
+          nextFocus.course.slug,
+          nextFocus.nextLesson.id,
+        )
+      : getItemHref(nextFocus.course.contentType, nextFocus.course.slug)
     : "/courses";
 
   const focusCat = nextFocus ? getCategoryMeta(nextFocus.course.category) : null;
@@ -389,7 +405,10 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   <div>
                     <Link
-                      href={`/courses/${nextFocus.course.slug}`}
+                      href={getItemHref(
+                        nextFocus.course.contentType,
+                        nextFocus.course.slug,
+                      )}
                       className="text-base font-bold text-foreground hover:text-[#ff6636] transition-colors line-clamp-1"
                     >
                       {nextFocus.course.title}
@@ -430,10 +449,15 @@ export default function DashboardPage() {
                       {nextFocus.progress > 0 ? "Continue Lesson" : "Start Lesson"}
                     </Link>
                     <Link
-                      href={`/courses/${nextFocus.course.slug}`}
+                      href={getItemHref(
+                        nextFocus.course.contentType,
+                        nextFocus.course.slug,
+                      )}
                       className="flex items-center justify-center rounded-xl border border-border bg-muted/40 hover:border-[#ff6636]/40 hover:text-[#ff6636] px-3.5 py-2.5 text-xs font-bold text-foreground transition-colors"
                     >
-                      Syllabus
+                      {isProjectTutorial(nextFocus.course.contentType)
+                        ? "Overview"
+                        : "Syllabus"}
                     </Link>
                   </div>
                 </div>
@@ -609,11 +633,22 @@ export default function DashboardPage() {
                     ? getProxiedImageUrl(enrollment.course.imageUrl)
                     : null;
                   const isComplete = enrollment.progress >= 100;
+                  const isProject = isProjectTutorial(
+                    enrollment.course.contentType,
+                  );
+                  const itemHref = getItemHref(
+                    enrollment.course.contentType,
+                    enrollment.course.slug,
+                  );
                   const resumeHref = isComplete
                     ? `/certificates/${enrollment.id}`
                     : enrollment.nextLesson
-                      ? `/courses/${enrollment.course.slug}/lessons/${enrollment.nextLesson.id}`
-                      : `/courses/${enrollment.course.slug}`;
+                      ? getLessonHref(
+                          enrollment.course.contentType,
+                          enrollment.course.slug,
+                          enrollment.nextLesson.id,
+                        )
+                      : itemHref;
 
                   return (
                     <article
@@ -622,7 +657,7 @@ export default function DashboardPage() {
                     >
                       {/* Thumbnail */}
                       <Link
-                        href={`/courses/${enrollment.course.slug}`}
+                        href={itemHref}
                         className="relative block aspect-video overflow-hidden bg-muted/40"
                       >
                         {imageUrl ? (
@@ -640,10 +675,22 @@ export default function DashboardPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
 
                         <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
-                            <CatIcon className="size-3" />
-                            {cat.label}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white backdrop-blur-sm border",
+                                isProject
+                                  ? "bg-violet-600/85 border-violet-400/30"
+                                  : "bg-[#ff6636]/85 border-white/15",
+                              )}
+                            >
+                              {isProject ? "Project" : "Course"}
+                            </span>
+                            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+                              <CatIcon className="size-3" />
+                              {cat.label}
+                            </span>
+                          </div>
                           <span
                             className={cn(
                               "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-md",
@@ -684,7 +731,7 @@ export default function DashboardPage() {
 
                         <div className="flex-1">
                           <Link
-                            href={`/courses/${enrollment.course.slug}`}
+                            href={itemHref}
                             className="block text-base font-bold leading-snug text-foreground line-clamp-2 group-hover:text-[#ff6636] transition-colors"
                           >
                             {enrollment.course.title}
@@ -736,14 +783,18 @@ export default function DashboardPage() {
                                 <Play className="size-3.5 fill-current" />
                                 <span>
                                   {enrollment.progress > 0
-                                    ? "Continue Learning"
-                                    : "Start Course"}
+                                    ? isProject
+                                      ? "Continue Project"
+                                      : "Continue Learning"
+                                    : isProject
+                                      ? "Start Project"
+                                      : "Start Course"}
                                 </span>
                               </>
                             )}
                           </Link>
                           <Link
-                            href={`/courses/${enrollment.course.slug}`}
+                            href={itemHref}
                             className="flex items-center justify-center rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs font-bold text-foreground hover:border-[#ff6636]/40 hover:text-[#ff6636] transition-colors"
                           >
                             Details
@@ -785,7 +836,11 @@ export default function DashboardPage() {
                   {recentActivityPreview.map((item) => (
                     <Link
                       key={item.lessonId}
-                      href={`/courses/${item.lesson.course.slug}/lessons/${item.lesson.id}`}
+                      href={getLessonHref(
+                        item.lesson.course.contentType,
+                        item.lesson.course.slug,
+                        item.lesson.id,
+                      )}
                       className="group flex items-start gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 hover:border-[#ff6636]/40 hover:bg-muted/40 transition-all"
                     >
                       <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -809,14 +864,14 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Recommended Next */}
+            {/* Recommended Courses */}
             {data.recommendedCourses.length > 0 && (
               <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-border/60 pb-3.5">
                   <div className="flex items-center gap-2">
                     <Sparkles className="size-4 text-[#ff6636]" />
                     <h3 className="text-sm font-extrabold text-foreground">
-                      Recommended Next
+                      Recommended Courses
                     </h3>
                   </div>
                   <Link
@@ -866,6 +921,73 @@ export default function DashboardPage() {
                             lessons
                             {typeof course.price === "number"
                               ? ` · ${course.price > 0 ? `$${course.price.toFixed(0)}` : "Free"}`
+                              : ""}
+                          </p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Recommended Project Tutorials */}
+            {data.recommendedProjects && data.recommendedProjects.length > 0 && (
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-border/60 pb-3.5">
+                  <div className="flex items-center gap-2">
+                    <FolderCode className="size-4 text-violet-500" />
+                    <h3 className="text-sm font-extrabold text-foreground">
+                      Recommended Projects
+                    </h3>
+                  </div>
+                  <Link
+                    href="/projects"
+                    className="text-[11px] font-bold text-violet-500 hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  {data.recommendedProjects.slice(0, 3).map((project) => {
+                    const cat = getCategoryMeta(project.category);
+                    const imageUrl = project.imageUrl
+                      ? getProxiedImageUrl(project.imageUrl)
+                      : null;
+
+                    return (
+                      <Link
+                        key={project.id}
+                        href={`/projects/${project.slug}`}
+                        className="group grid grid-cols-[76px_minmax(0,1fr)] items-center gap-3 rounded-xl border border-border/60 bg-muted/20 p-2.5 hover:border-violet-500/40 hover:bg-muted/40 transition-all"
+                      >
+                        <div className="relative h-14 w-[76px] overflow-hidden rounded-lg bg-muted shrink-0">
+                          {imageUrl ? (
+                            <Image
+                              src={imageUrl}
+                              alt={project.title}
+                              fill
+                              unoptimized
+                              sizes="76px"
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-[#ff6636] to-[#1d2026]" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[9px] font-extrabold uppercase tracking-wider text-violet-500">
+                            Project · {cat.label}
+                          </span>
+                          <p className="text-xs font-bold text-foreground group-hover:text-violet-500 transition-colors line-clamp-1">
+                            {project.title}
+                          </p>
+                          <p className="text-[10px] font-medium text-muted-foreground mt-0.5 truncate">
+                            {project.instructor.name} · {project.lessons.length}{" "}
+                            lessons
+                            {typeof project.price === "number"
+                              ? ` · ${project.price > 0 ? `$${project.price.toFixed(0)}` : "Free"}`
                               : ""}
                           </p>
                         </div>

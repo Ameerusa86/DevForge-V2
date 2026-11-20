@@ -3283,10 +3283,17 @@ export const CourseScalarFieldEnum = {
   slug: 'slug',
   title: 'title',
   description: 'description',
+  contentType: 'contentType',
   category: 'category',
   level: 'level',
   tags: 'tags',
   phases: 'phases',
+  demoUrl: 'demoUrl',
+  starterRepoUrl: 'starterRepoUrl',
+  githubUrl: 'githubUrl',
+  techStack: 'techStack',
+  prerequisites: 'prerequisites',
+  deliverables: 'deliverables',
   price: 'price',
   durationMinutes: 'durationMinutes',
   imageUrl: 'imageUrl',
@@ -3379,6 +3386,7 @@ export const CourseCategoryScalarFieldEnum = {
   description: 'description',
   icon: 'icon',
   color: 'color',
+  scope: 'scope',
   order: 'order',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -3854,6 +3862,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'ContentType'
+ */
+export type EnumContentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentType'>
+    
+
+
+/**
+ * Reference to a field of type 'ContentType[]'
+ */
+export type ListEnumContentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentType[]'>
+    
+
+
+/**
  * Reference to a field of type 'CourseLevel'
  */
 export type EnumCourseLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CourseLevel'>
@@ -3920,6 +3942,20 @@ export type EnumCourseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'CourseStatus[]'
  */
 export type ListEnumCourseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CourseStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CategoryScope'
+ */
+export type EnumCategoryScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoryScope'>
+    
+
+
+/**
+ * Reference to a field of type 'CategoryScope[]'
+ */
+export type ListEnumCategoryScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoryScope[]'>
     
 
 

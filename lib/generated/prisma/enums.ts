@@ -9,6 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
+export const ContentType = {
+  COURSE: 'COURSE',
+  PROJECT_TUTORIAL: 'PROJECT_TUTORIAL'
+} as const
+
+export type ContentType = (typeof ContentType)[keyof typeof ContentType]
+
+
+export const CategoryScope = {
+  BOTH: 'BOTH',
+  COURSE: 'COURSE',
+  PROJECT_TUTORIAL: 'PROJECT_TUTORIAL'
+} as const
+
+export type CategoryScope = (typeof CategoryScope)[keyof typeof CategoryScope]
+
+
 export const CourseLevel = {
   BEGINNER: 'BEGINNER',
   INTERMEDIATE: 'INTERMEDIATE',

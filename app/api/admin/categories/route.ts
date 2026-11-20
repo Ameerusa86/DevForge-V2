@@ -4,42 +4,81 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateCategorySlug } from "@/lib/categories";
 import { ensureDefaultCategories } from "@/lib/categories-server";
+import { normalizeCategoryScope } from "@/lib/content-type";
 import { getErrorMessage } from "@/lib/utils";
+import type { Prisma } from "@/lib/generated/prisma/client";
 
-// GET /api/admin/categories - Get all categories with course count
-export async function GET() {
+// GET /api/admin/categories - Get all categories with split courseCount & projectCount
+export async function GET(request: NextRequest) {
   try {
     await ensureDefaultCategories();
 
-    const [categories, courses] = await Promise.all([
+    const scopeParam = request.nextUrl.searchParams.get("scope");
+    const where: Prisma.CourseCategoryWhereInput = {};
+    if (scopeParam) {
+      const upper = scopeParam.trim().toUpperCase();
+      if (upper === "COURSE") {
+        where.scope = { in: ["BOTH", "COURSE"] };
+      } else if (upper === "PROJECT_TUTORIAL") {
+        where.scope = { in: ["BOTH", "PROJECT_TUTORIAL"] };
+      } else if (upper === "BOTH") {
+        where.scope = "BOTH";
+      }
+    }
+
+    const [categories, groupedCourses] = await Promise.all([
       prisma.courseCategory.findMany({
+        where,
         orderBy: [{ order: "asc" }, { name: "asc" }],
       }),
       prisma.course.groupBy({
-        by: ["category"],
+        by: ["category", "contentType"],
         _count: {
           _all: true,
         },
       }),
     ]);
 
-    const countMap = new Map<string, number>();
-    courses.forEach((item) => {
-      countMap.set(item.category, item._count._all);
-      countMap.set(item.category.toUpperCase(), item._count._all);
+    const courseCountMap = new Map<string, number>();
+    const projectCountMap = new Map<string, number>();
+
+    groupedCourses.forEach((item) => {
+      const targetMap =
+        item.contentType === "PROJECT_TUTORIAL"
+          ? projectCountMap
+          : courseCountMap;
+      const upper = item.category.toUpperCase();
+      targetMap.set(
+        item.category,
+        (targetMap.get(item.category) ?? 0) + item._count._all,
+      );
+      if (upper !== item.category) {
+        targetMap.set(upper, (targetMap.get(upper) ?? 0) + item._count._all);
+      }
     });
 
+    const resolveCount = (
+      map: Map<string, number>,
+      slug: string,
+      name: string,
+    ) =>
+      Math.max(
+        map.get(slug) || 0,
+        map.get(name) || 0,
+        map.get(name.toUpperCase()) || 0,
+      );
+
     const categoriesWithStats = categories.map((cat) => {
-      const directCount = countMap.get(cat.slug) || 0;
-      const nameCount = countMap.get(cat.name) || 0;
-      const upperNameCount = countMap.get(cat.name.toUpperCase()) || 0;
-      const count = Math.max(directCount, nameCount, upperNameCount);
+      const courseCount = resolveCount(courseCountMap, cat.slug, cat.name);
+      const projectCount = resolveCount(projectCountMap, cat.slug, cat.name);
 
       return {
         ...cat,
         createdAt: cat.createdAt.toISOString(),
         updatedAt: cat.updatedAt.toISOString(),
-        courseCount: count,
+        courseCount,
+        projectCount,
+        totalCount: courseCount + projectCount,
       };
     });
 
@@ -73,7 +112,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, slug, description, icon, color, order, isActive } = body;
+    const { name, slug, description, icon, color, scope, order, isActive } =
+      body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
@@ -89,7 +129,6 @@ export async function POST(request: NextRequest) {
         : generateCategorySlug(normalizedName)
     ).toUpperCase();
 
-    // Check slug uniqueness
     const existing = await prisma.courseCategory.findUnique({
       where: { slug: finalSlug },
     });
@@ -122,6 +161,7 @@ export async function POST(request: NextRequest) {
         description: description ? String(description).trim() : null,
         icon: icon ? String(icon).trim() : "BookOpen",
         color: color ? String(color).trim() : "orange",
+        scope: normalizeCategoryScope(scope, "BOTH"),
         order: parsedOrder,
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
@@ -135,6 +175,8 @@ export async function POST(request: NextRequest) {
           createdAt: category.createdAt.toISOString(),
           updatedAt: category.updatedAt.toISOString(),
           courseCount: 0,
+          projectCount: 0,
+          totalCount: 0,
         },
       },
       { status: 201 },

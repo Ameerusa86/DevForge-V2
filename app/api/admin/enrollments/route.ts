@@ -22,6 +22,8 @@ export async function GET() {
           select: {
             id: true,
             title: true,
+            slug: true,
+            contentType: true,
           },
         },
       },
@@ -30,12 +32,12 @@ export async function GET() {
       },
     });
 
-    // Transform data to include derived fields
     const enrollmentsWithDetails = enrollments.map((enrollment) => ({
       ...enrollment,
       studentName: enrollment.user.name,
       email: enrollment.user.email,
       courseName: enrollment.course.title,
+      contentType: enrollment.course.contentType,
     }));
 
     return NextResponse.json(enrollmentsWithDetails);
@@ -81,19 +83,23 @@ export async function POST(request: NextRequest) {
             title: true,
             instructorId: true,
             slug: true,
+            contentType: true,
           },
         },
       },
     });
 
-    // Notify student about enrollment
     try {
-      await notifyUserEnrolled(userId, enrollment.course.title);
+      await notifyUserEnrolled(
+        userId,
+        enrollment.course.title,
+        enrollment.course.contentType,
+        enrollment.course.slug,
+      );
     } catch (err) {
       console.warn("Failed to notify student about enrollment:", err);
     }
 
-    // Notify instructor about new enrollment
     try {
       await createNotification(enrollment.course.instructorId, {
         title: "New Enrollment",
@@ -114,7 +120,7 @@ export async function POST(request: NextRequest) {
       (error as NodeJS.ErrnoException).code === "P2002"
     ) {
       return NextResponse.json(
-        { error: "User is already enrolled in this course" },
+        { error: "User is already enrolled in this item" },
         { status: 409 },
       );
     }

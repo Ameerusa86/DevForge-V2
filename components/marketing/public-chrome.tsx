@@ -77,12 +77,17 @@ const browseMenuItems = [
   {
     label: "All Courses",
     href: "/courses",
-    description: "Browse the full DevForge catalog",
+    description: "Browse the structured DevForge course catalog",
+  },
+  {
+    label: "Project Tutorials",
+    href: "/projects",
+    description: "Build real-world apps step by step with repos & live demos",
   },
   {
     label: "My Learning",
     href: "/my-courses",
-    description: "Continue enrolled paths and track your progress",
+    description: "Continue enrolled courses and projects",
   },
   {
     label: "Dashboard",
@@ -247,18 +252,30 @@ export function MarketingPublicHeader({
               </Link>
             )}
 
-            {/* Dynamic Command-palette style Search Input */}
+            {/* Dynamic Command-palette style Search Input (contextual to /projects vs /courses) */}
             <form
-              action="/courses"
+              action={activePath.startsWith("/projects") ? "/projects" : "/courses"}
               className="flex h-10 flex-1 items-center gap-2.5 rounded-xl border border-border bg-muted/40 px-3.5 focus-within:bg-background focus-within:border-[#ff6636]/60 focus-within:ring-1 focus-within:ring-[#ff6636]/20 transition-all duration-200 group"
             >
-              <button type="submit" aria-label="Search courses" className="text-muted-foreground group-focus-within:text-[#ff6636]">
+              <button
+                type="submit"
+                aria-label={
+                  activePath.startsWith("/projects")
+                    ? "Search project tutorials"
+                    : "Search courses"
+                }
+                className="text-muted-foreground group-focus-within:text-[#ff6636]"
+              >
                 <Search className="size-4" />
               </button>
               <input
                 name="search"
                 type="text"
-                placeholder="Search courses..."
+                placeholder={
+                  activePath.startsWith("/projects")
+                    ? "Search project tutorials..."
+                    : "Search courses..."
+                }
                 className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
               />
               <button
@@ -279,7 +296,7 @@ export function MarketingPublicHeader({
           
           {/* Display navigation links on the right side */}
           <div className="hidden items-center gap-5 xl:flex mr-2">
-            {topNavLinks.slice(0, 4).map((link) => (
+            {topNavLinks.slice(0, 5).map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
